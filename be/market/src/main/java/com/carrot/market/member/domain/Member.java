@@ -14,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -45,4 +46,22 @@ public class Member extends BaseEntity {
 
 	@LastModifiedDate
 	private LocalDateTime modifiedAt;
+
+	public void setRefreshToken(String refreshToken) {
+		this.refreshToken = refreshToken;
+	}
+
+	@Builder
+	public Member(String nickname, String imageUrl,
+		List<MemberLocation> memberLocations, List<WishList> wishLists,
+		List<Sales> sales, String refreshToken, String socialId, LocalDateTime modifiedAt) {
+		this.nickname = nickname;
+		this.imageUrl = imageUrl;
+		this.memberLocations = memberLocations;
+		this.wishLists = wishLists;
+		this.sales = sales;
+		this.refreshToken = refreshToken;
+		this.socialId = socialId;
+		this.modifiedAt = modifiedAt;
+	}
 }
