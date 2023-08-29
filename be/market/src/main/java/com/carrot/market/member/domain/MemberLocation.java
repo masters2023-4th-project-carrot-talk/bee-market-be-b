@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -31,4 +32,11 @@ public class MemberLocation extends BaseEntity {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Location location;
+
+	@Builder
+	public MemberLocation(boolean isMain, Member member, Location location) {
+		this.isMain = isMain;
+		this.member = member;
+		this.location = location;
+	}
 }
