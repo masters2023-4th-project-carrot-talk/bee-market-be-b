@@ -36,7 +36,12 @@ public class MemberLocation extends BaseEntity {
 	@Builder
 	public MemberLocation(boolean isMain, Member member, Location location) {
 		this.isMain = isMain;
-		this.member = member;
+		saveMember(member);
 		this.location = location;
+	}
+
+	public void saveMember(Member member) {
+		this.member = member;
+		member.getMemberLocations().add(this);
 	}
 }
