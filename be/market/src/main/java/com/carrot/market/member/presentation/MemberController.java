@@ -3,6 +3,7 @@ package com.carrot.market.member.presentation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.carrot.market.member.application.MemberService;
@@ -13,6 +14,7 @@ import com.carrot.market.oauth.presentation.annotation.OauthLogin;
 
 import lombok.RequiredArgsConstructor;
 
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 @RestController
 public class MemberController {
