@@ -53,7 +53,7 @@ public class JwtProvider {
 		return new Jwt(accessToken, refreshToken);
 	}
 
-	public String createaccessToken(Map<String, Object> claims) {
+	public String createAccessToken(Map<String, Object> claims) {
 		return Jwts.builder()
 			.setClaims(claims)
 			.setExpiration(getExpireDateAccessToken())

@@ -64,7 +64,7 @@ public class OauthService {
 	}
 
 	private String createAccessToken(OauthMember oauthMember) {
-		return jwtProvider.createaccessToken(
+		return jwtProvider.createAccessToken(
 			Map.of(
 				SOCIAL_ID, oauthMember.getSocialId(),
 				IMAGE_URL, oauthMember.getImageUrl()
