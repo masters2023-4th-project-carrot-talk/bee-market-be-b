@@ -29,6 +29,7 @@ public class JwtAuthorizationFilter implements Filter {
 	private static final String SOCIAL_ID = "socialId";
 	private static final String PROFILE_IMAGE_URL = "imageUrl";
 	private static final String[] whiteListUris = {"/oauth/**"};
+	private static final String SIGNUP_URI = "/api/users/signup";
 
 	private final JwtProvider jwtProvider;
 	private final ObjectMapper objectMapper;
@@ -61,10 +62,8 @@ public class JwtAuthorizationFilter implements Filter {
 		try {
 			String token = getToken(httpServletRequest);
 			Claims claims = jwtProvider.getClaims(token);
-			if (request.getAttribute(MEMBER_ID) != null) {
-				request.setAttribute(MEMBER_ID, claims.get(MEMBER_ID));
-			}
-			if (request.getAttribute(SOCIAL_ID) != null && request.getAttribute(PROFILE_IMAGE_URL) != null) {
+			request.setAttribute(MEMBER_ID, claims.get(MEMBER_ID));
+			if (SIGNUP_URI.equals(httpServletRequest.getRequestURI())) {
 				setOauthLoginClaim(request, claims);
 			}
 			chain.doFilter(request, response);
