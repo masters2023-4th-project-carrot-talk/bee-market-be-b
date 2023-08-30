@@ -26,10 +26,10 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class OauthService {
-	private final String MEMBER_ID = "memberId";
-	private final String SOCIAL_ID = "socialId";
-	private final String IMAGE_URL = "imageUrl";
-	private final String SUPPORTED_TYPE = "kakao";
+	private final static String MEMBER_ID = "memberId";
+	private final static String SOCIAL_ID = "socialId";
+	private final static String IMAGE_URL = "imageUrl";
+	private final static String SUPPORTED_TYPE = "kakao";
 	private final JwtProvider jwtProvider;
 	private final KakaoAuthCodeRequestUrlProvider kakaoAuthCodeRequestUrlProvider;
 	private final OauthMemberClientComposite oauthMemberClientComposite;

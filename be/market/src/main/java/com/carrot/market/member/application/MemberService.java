@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class MemberService {
-	private final String MEMBER_ID = "memberId";
+	private final static String MEMBER_ID = "memberId";
 	private final MemberRepository memberRepository;
 	private final LocationRepository locationRepository;
 	private final MemberLocationRepository memberLocationRepository;
