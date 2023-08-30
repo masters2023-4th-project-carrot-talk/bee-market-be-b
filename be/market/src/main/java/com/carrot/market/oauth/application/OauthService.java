@@ -41,7 +41,7 @@ public class OauthService {
 	}
 
 	private void validOauthServerType(String oauthServerType) {
-		if (!oauthServerType.equals(SUPPORTED_TYPE)) {
+		if (!SUPPORTED_TYPE.equals(oauthServerType)) {
 			throw new ApiException(OauthException.UNSUPPORTED_TYPE);
 		}
 	}
