@@ -61,13 +61,21 @@ public class JwtAuthorizationFilter implements Filter {
 		try {
 			String token = getToken(httpServletRequest);
 			Claims claims = jwtProvider.getClaims(token);
-			request.setAttribute(MEMBER_ID, claims.get(MEMBER_ID));
-			request.setAttribute(SOCIAL_ID, claims.get(SOCIAL_ID));
-			request.setAttribute(PROFILE_IMAGE_URL, claims.get(PROFILE_IMAGE_URL));
+			if (request.getAttribute(MEMBER_ID) != null) {
+				request.setAttribute(MEMBER_ID, claims.get(MEMBER_ID));
+			}
+			if (request.getAttribute(SOCIAL_ID) != null && request.getAttribute(PROFILE_IMAGE_URL) != null) {
+				setOauthLoginClaim(request, claims);
+			}
 			chain.doFilter(request, response);
 		} catch (RuntimeException e) {
 			sendErrorApiResponse(response, e);
 		}
+	}
+
+	private void setOauthLoginClaim(ServletRequest request, Claims claims) {
+		request.setAttribute(SOCIAL_ID, claims.get(SOCIAL_ID));
+		request.setAttribute(PROFILE_IMAGE_URL, claims.get(PROFILE_IMAGE_URL));
 	}
 
 	private boolean whiteListCheck(String uri) {
