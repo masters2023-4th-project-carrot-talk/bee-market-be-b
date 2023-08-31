@@ -30,9 +30,8 @@ public class QueryProductRepository {
 	private static final Long BASIC_LOCATION_ID = 1L;
 	private final JPQLQueryFactory queryFactory;
 
-	public Slice<MainPageSliceDto> findByLocationIdAndCategoryIdSlice(Long loocationId, Long categoryId,
+	public Slice<MainPageSliceDto> findByLocationIdAndCategoryId(Long locationId, Long categoryId,
 		Long productId, int pageSize) {
-		//content를 가져오는 쿼리는 fetch로 하고
 		List<MainPageSliceDto> fetch = queryFactory
 			.select(new QMainPageSliceDto(
 					product.id,
@@ -50,9 +49,10 @@ public class QueryProductRepository {
 			.from(product)
 			.where(
 				lessThanItemId(productId),
-				locationIdEq(loocationId),
+				locationIdEq(locationId),
 				categoryEq(categoryId)
 			)
+			.orderBy(product.id.desc())
 			.leftJoin(product.location, location)
 			.leftJoin(product.seller, new QMember("m1"))
 			.leftJoin(product.productImages, productImage)
@@ -71,16 +71,14 @@ public class QueryProductRepository {
 			.limit(pageSize + 1)
 			.fetch();
 
-		//count 만 가져오는 쿼리
 		JPQLQuery<Product> count = queryFactory
 			.selectFrom(product)
 			.where(
-				locationIdEq(loocationId),
+				locationIdEq(locationId),
 				categoryEq(categoryId)
 			);
 
 		return PageableExecutionUtils.getPage(fetch, Pageable.ofSize(pageSize), () -> count.fetchCount());
-		//return new PageImpl<>(fetch,pageable,total);	}
 	}
 
 	private BooleanExpression lessThanItemId(Long itemId) {

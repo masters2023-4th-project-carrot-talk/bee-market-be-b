@@ -33,7 +33,6 @@ public class WishList extends BaseEntity {
 
 	@Builder
 	public WishList(Product product, Member member) {
-		// this.product = product;
 		setProduct(product);
 		setMember(member);
 	}
