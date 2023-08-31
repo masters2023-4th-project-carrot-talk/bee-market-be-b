@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -29,4 +30,21 @@ public class WishList extends BaseEntity {
 	@ManyToOne
 	@JoinColumn(name = "member_id")
 	private Member member;
+
+	@Builder
+	public WishList(Product product, Member member) {
+		// this.product = product;
+		setProduct(product);
+		setMember(member);
+	}
+
+	private void setMember(Member member) {
+		this.member = member;
+		member.getWishLists().add(this);
+	}
+
+	private void setProduct(Product product) {
+		this.product = product;
+		product.getWishLists().add(this);
+	}
 }
