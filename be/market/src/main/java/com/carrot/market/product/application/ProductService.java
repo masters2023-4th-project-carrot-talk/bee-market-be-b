@@ -19,12 +19,19 @@ public class ProductService {
 	private final QueryProductRepository queryProductRepository;
 
 	public MainPageServiceDto getMainPage(Long locationId, Long categoryId, Long next, int size) {
-		Slice<MainPageSliceDto> byLocationIdAndCategoryIdSlice = queryProductRepository.findByLocationIdAndCategoryIdSlice(
+		Slice<MainPageSliceDto> byLocationIdAndCategoryId = queryProductRepository.findByLocationIdAndCategoryId(
 			locationId, categoryId, next, size);
-		List<MainPageSliceDto> content = byLocationIdAndCategoryIdSlice.getContent();
-		Long contentNextId = getContentNextId(content, size);
+		List<MainPageSliceDto> products = byLocationIdAndCategoryId.getContent();
+		Long contentNextId = getContentNextId(products, size);
+		products = removeLastIfProductsSizeEqualPageSize(products, size);
+		return new MainPageServiceDto(products, contentNextId);
+	}
 
-		return new MainPageServiceDto(content.subList(0, Math.min(content.size(), size)), contentNextId);
+	private List<MainPageSliceDto> removeLastIfProductsSizeEqualPageSize(List<MainPageSliceDto> content, int size) {
+		if (content.size() == size + 1) {
+			return content.subList(0, content.size() - 1);
+		}
+		return content;
 	}
 
 	private Long getContentNextId(List<MainPageSliceDto> content, int pageSize) {

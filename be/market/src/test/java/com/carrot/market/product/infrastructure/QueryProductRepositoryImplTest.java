@@ -75,7 +75,7 @@ class QueryProductRepositoryImplTest extends IntegrationTestSupport {
 		Product product = makeProductWishListChatRoomProductImage(june, bean, location, image, category);
 
 		// when
-		Slice<MainPageSliceDto> byLocationIdAndCategoryIdSlice = queryProductRepository.findByLocationIdAndCategoryIdSlice(
+		Slice<MainPageSliceDto> byLocationIdAndCategoryIdSlice = queryProductRepository.findByLocationIdAndCategoryId(
 			location.getId(), category.getId(), null, 10);
 
 		MainPageSliceDto product1 = byLocationIdAndCategoryIdSlice.getContent().get(0);
@@ -125,11 +125,11 @@ class QueryProductRepositoryImplTest extends IntegrationTestSupport {
 		// Product product2 = makeProduct(june, bean, location2, image, category2);
 
 		// when
-		Slice<MainPageSliceDto> byLocationIdAndCategoryIdSlice = queryProductRepository.findByLocationIdAndCategoryIdSlice(
+		Slice<MainPageSliceDto> byLocationIdAndCategoryIdSlice = queryProductRepository.findByLocationIdAndCategoryId(
 			location.getId(), category.getId(), null, 10);
 
 		MainPageSliceDto mainPageSliceDto1 = byLocationIdAndCategoryIdSlice.getContent().get(0);
-		Slice<MainPageSliceDto> byLocationIdAndCategoryIdSlice2 = queryProductRepository.findByLocationIdAndCategoryIdSlice(
+		Slice<MainPageSliceDto> byLocationIdAndCategoryIdSlice2 = queryProductRepository.findByLocationIdAndCategoryId(
 			location2.getId(), category2.getId(), null, 10);
 		MainPageSliceDto mainPageSliceDto2 = byLocationIdAndCategoryIdSlice2.getContent().get(0);
 

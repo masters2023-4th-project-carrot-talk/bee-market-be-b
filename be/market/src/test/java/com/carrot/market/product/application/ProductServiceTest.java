@@ -114,7 +114,7 @@ class ProductServiceTest extends IntegrationTestSupport {
 		// then
 		assertAll(
 			() -> assertThat(mainPage.products().size()).isEqualTo(1),
-			() -> assertThat(mainPage.nextId()).isEqualTo(product2.getId())
+			() -> assertThat(mainPage.nextId()).isEqualTo(product.getId())
 		);
 
 	}
