@@ -2,6 +2,7 @@ package com.carrot.market.product.domain;
 
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -17,4 +18,12 @@ public class ProductDetails {
 	private String content;
 
 	private Long hits;
+
+	@Builder
+	public ProductDetails(String name, Long price, String content, Long hits) {
+		this.name = name;
+		this.price = price;
+		this.content = content;
+		this.hits = hits;
+	}
 }
