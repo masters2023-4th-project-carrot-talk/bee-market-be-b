@@ -4,6 +4,4 @@ public record LocationResponse(
 	Long id,
 	String name
 ) {
-	public LocationResponse {
-	}
 }

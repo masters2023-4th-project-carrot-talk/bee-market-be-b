@@ -44,22 +44,23 @@ public class MemberController {
 
 	@GetMapping("/locations")
 	public ApiResponse<List<MemberLocationResponse>> getMemberLocations(
-		@OauthLogin OauthMember oauthMember) {
-
+		@OauthLogin OauthMember oauthMember
+	) {
 		return ApiResponse.success(memberService.getRegisteredLocations(oauthMember.getSocialId()));
 	}
 
 	@PatchMapping("/locations")
-	public ApiResponse<MainLocationResponse> updateLocation(@RequestBody UpdateLocationRequest request,
-		@OauthLogin OauthMember oauthMember) {
-
+	public ApiResponse<MainLocationResponse> updateLocation(
+		@RequestBody UpdateLocationRequest request,
+		@OauthLogin OauthMember oauthMember
+	) {
 		return ApiResponse.success(memberService.updateLocation(oauthMember.getSocialId(), request.locationId()));
 	}
 
 	@DeleteMapping("/locations/{locationId}")
 	public ApiResponse<MainLocationResponse> deleteLocation(@PathVariable Long locationId,
-		@OauthLogin OauthMember oauthMember) {
-
+		@OauthLogin OauthMember oauthMember
+	) {
 		return ApiResponse.success(memberService.removeRegisteredLocation(
 			oauthMember.getSocialId(), locationId));
 	}

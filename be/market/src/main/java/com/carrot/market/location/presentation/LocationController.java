@@ -21,7 +21,9 @@ public class LocationController {
 	private final LocationService locationService;
 
 	@GetMapping
-	public ApiResponse<List<LocationResponse>> getLocations(@RequestParam(defaultValue = "서울") String keyword) {
+	public ApiResponse<List<LocationResponse>> getLocations(
+		@RequestParam(defaultValue = "서울") String keyword
+	) {
 		return ApiResponse.success(locationService.findLocations(keyword));
 	}
 }
