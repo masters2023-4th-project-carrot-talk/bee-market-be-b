@@ -62,9 +62,9 @@ class ProductServiceTest extends IntegrationTestSupport {
 	@Test
 	void getMainPageWithNextIdNull() {
 		// given
-		Member june = makeMember("june", "www.codesquad.kr");
+		Member june = makeMember("june123", "www.codesquad.kr");
 		memberRepository.save(june);
-		Member bean = makeMember("bean", "www.codesquad.kr");
+		Member bean = makeMember("bean123", "www.codesquad.kr");
 		memberRepository.save(bean);
 
 		Location location = makeLocation("susongdong");
@@ -91,9 +91,9 @@ class ProductServiceTest extends IntegrationTestSupport {
 	@Test
 	void getMainPageWithNextIdNotNull() {
 		// given
-		Member june = makeMember("june", "www.codesquad.kr");
+		Member june = makeMember("june14", "www.codesquad.kr");
 		memberRepository.save(june);
-		Member bean = makeMember("bean", "www.codesquad.kr");
+		Member bean = makeMember("bean15", "www.codesquad.kr");
 		memberRepository.save(bean);
 
 		Location location = makeLocation("susongdong");

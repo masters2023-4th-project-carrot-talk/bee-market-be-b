@@ -59,9 +59,9 @@ class QueryProductRepositoryImplTest extends IntegrationTestSupport {
 	void findByLocationIdAndCategoryIdSliceWithOneProduct() {
 
 		// given
-		Member june = makeMember("june", "www.codesquad.kr");
+		Member june = makeMember("june2345", "www.codesquad.kr");
 		memberRepository.save(june);
-		Member bean = makeMember("bean", "www.codesquad.kr");
+		Member bean = makeMember("bean4236", "www.codesquad.kr");
 		memberRepository.save(bean);
 
 		Location location = makeLocation("susongdong");
