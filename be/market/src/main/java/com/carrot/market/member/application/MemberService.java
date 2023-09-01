@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.carrot.market.global.exception.ApiException;
 import com.carrot.market.global.exception.domain.LocationException;
+import com.carrot.market.global.exception.domain.MemberException;
 import com.carrot.market.jwt.application.JwtProvider;
 import com.carrot.market.jwt.domain.Jwt;
 import com.carrot.market.location.infrastructure.LocationRepository;
@@ -58,5 +59,13 @@ public class MemberService {
 					.orElseThrow(() -> new ApiException(LocationException.NOT_FOUND_ID)))
 				.build()
 		);
+	}
+
+	public boolean checkDuplicateNickname(String nickname) {
+		memberRepository.findByNickname(nickname)
+			.ifPresent(member -> {
+				throw new ApiException(MemberException.EXIST_MEMBER);
+			});
+		return true;
 	}
 }
