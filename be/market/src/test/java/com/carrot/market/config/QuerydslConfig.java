@@ -1,22 +1,21 @@
-package com.carrot.market.global.config;
+package com.carrot.market.config;
 
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
-@EnableJpaAuditing
-@Configuration
-public class JpaAuditingConfig {
+@TestConfiguration
+public class QuerydslConfig {
 	@PersistenceContext
 	private EntityManager entityManager;
 
 	@Bean
-	public JPAQueryFactory queryFactory() {
+	public JPAQueryFactory jpaQueryFactory() {
 		return new JPAQueryFactory(entityManager);
 	}
+
 }

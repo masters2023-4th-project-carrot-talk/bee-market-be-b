@@ -10,10 +10,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.carrot.market.global.filter.JwtAuthorizationFilter;
 import com.carrot.market.location.application.LocationService;
 import com.carrot.market.location.presentation.LocationController;
+import com.carrot.market.product.application.ProductService;
+import com.carrot.market.product.presentation.ProductController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(controllers = {
-	LocationController.class
+	LocationController.class,
+	ProductController.class
 }, excludeFilters = {
 	@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JwtAuthorizationFilter.class)
 })
@@ -26,4 +29,8 @@ public abstract class ControllerTestSupport {
 
 	@MockBean
 	protected LocationService locationService;
+
+	@MockBean
+	protected ProductService productService;
+
 }

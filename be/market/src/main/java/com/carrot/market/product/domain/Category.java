@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,4 +23,10 @@ public class Category extends BaseEntity {
 	private String name;
 
 	private String imageUrl;
+
+	@Builder
+	public Category(String name, String imageUrl) {
+		this.name = name;
+		this.imageUrl = imageUrl;
+	}
 }

@@ -7,7 +7,7 @@ import java.util.List;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import com.carrot.market.global.domain.BaseEntity;
-import com.carrot.market.location.domain.Location;
+import com.carrot.market.product.domain.Product;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -38,8 +38,8 @@ public class Member extends BaseEntity {
 	@OneToMany(mappedBy = "member")
 	private List<WishList> wishLists = new ArrayList<>();
 
-	@OneToMany(mappedBy = "member")
-	private List<Sales> sales = new ArrayList<>();
+	@OneToMany(mappedBy = "seller")
+	private List<Product> products = new ArrayList<>();
 
 	private String refreshToken;
 

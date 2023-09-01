@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -32,4 +33,17 @@ public class ProductImage extends BaseEntity {
 	private Image image;
 
 	private boolean isMain;
+
+	@Builder
+	public ProductImage(Product product, Image image, boolean isMain) {
+		setProduct(product);
+		this.image = image;
+		this.isMain = isMain;
+	}
+
+	private void setProduct(Product product) {
+		this.product = product;
+		product.getProductImages().add(this);
+	}
+
 }
