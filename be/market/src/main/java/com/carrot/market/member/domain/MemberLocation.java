@@ -31,6 +31,7 @@ public class MemberLocation extends BaseEntity {
 	private Member member;
 
 	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "location_id")
 	private Location location;
 
 	@Builder
@@ -43,5 +44,13 @@ public class MemberLocation extends BaseEntity {
 	public void saveMember(Member member) {
 		this.member = member;
 		member.getMemberLocations().add(this);
+	}
+
+	public void changeMainStatus(boolean isMain) {
+		this.isMain = isMain;
+	}
+
+	public boolean isSameLocation(Location location) {
+		return this.location == location;
 	}
 }
