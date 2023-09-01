@@ -20,4 +20,8 @@ public class Image extends BaseEntity {
 	private Long id;
 
 	private String imageUrl;
+
+	public Image(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
 }

@@ -1,9 +1,11 @@
-package com.carrot.market.member.domain;
+package com.carrot.market.chatroom.domain;
 
 import com.carrot.market.global.domain.BaseEntity;
+import com.carrot.market.member.domain.Member;
 import com.carrot.market.product.domain.Product;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,33 +19,27 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class WishList extends BaseEntity {
-
+public class Chatroom extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "product_id")
 	private Product product;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "member_id")
-	private Member member;
+	private Member purchaser;
 
 	@Builder
-	public WishList(Product product, Member member) {
+	public Chatroom(Product product, Member purchaser) {
 		setProduct(product);
-		setMember(member);
-	}
-
-	private void setMember(Member member) {
-		this.member = member;
-		member.getWishLists().add(this);
+		this.purchaser = purchaser;
 	}
 
 	private void setProduct(Product product) {
 		this.product = product;
-		product.getWishLists().add(this);
+		product.getChatrooms().add(this);
 	}
 }

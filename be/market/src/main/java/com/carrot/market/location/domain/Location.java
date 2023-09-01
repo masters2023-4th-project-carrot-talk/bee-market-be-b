@@ -20,4 +20,8 @@ public class Location extends BaseEntity {
 	private Long id;
 
 	private String name;
+
+	public Location(String name) {
+		this.name = name;
+	}
 }
