@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import com.carrot.market.global.domain.BaseEntity;
+import com.carrot.market.location.domain.Location;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -47,21 +48,57 @@ public class Member extends BaseEntity {
 	@LastModifiedDate
 	private LocalDateTime modifiedAt;
 
+	@Builder
+	public Member(String nickname, String imageUrl, String refreshToken, String socialId, LocalDateTime modifiedAt) {
+		this.nickname = nickname;
+		this.imageUrl = imageUrl;
+		this.refreshToken = refreshToken;
+		this.socialId = socialId;
+		this.modifiedAt = modifiedAt;
+	}
+
 	public void setRefreshToken(String refreshToken) {
 		this.refreshToken = refreshToken;
 	}
 
-	@Builder
-	public Member(String nickname, String imageUrl,
-		List<MemberLocation> memberLocations, List<WishList> wishLists,
-		List<Sales> sales, String refreshToken, String socialId, LocalDateTime modifiedAt) {
-		this.nickname = nickname;
-		this.imageUrl = imageUrl;
-		this.memberLocations = memberLocations;
-		this.wishLists = wishLists;
-		this.sales = sales;
-		this.refreshToken = refreshToken;
-		this.socialId = socialId;
-		this.modifiedAt = modifiedAt;
+	public boolean isRegisteredLocation(Location location) {
+		return memberLocations.stream()
+			.anyMatch(memberLocation -> memberLocation.isSameLocation(location));
+	}
+
+	public void changeMainLocation(Location location) {
+		for (MemberLocation memberLocation : memberLocations) {
+			if (memberLocation.isSameLocation(location)) {
+				memberLocation.changeMainStatus(Boolean.TRUE);
+				continue;
+			}
+
+			memberLocation.changeMainStatus(Boolean.FALSE);
+		}
+	}
+
+	public boolean isAllRegisteredLocation() {
+		return memberLocations.size() == 2;
+	}
+
+	public MemberLocation removeLocation(Location location) {
+		MemberLocation removeMemberLocation = memberLocations.stream()
+			.filter(memberLocation -> memberLocation.isSameLocation(location))
+			.findFirst()
+			.orElseThrow();
+
+		memberLocations.remove(removeMemberLocation);
+		if (memberLocations.size() == 1) {
+			memberLocations.get(0).changeMainStatus(Boolean.TRUE);
+		}
+
+		return removeMemberLocation;
+	}
+
+	public MemberLocation getMainMemberLocation() {
+		return memberLocations.stream()
+			.filter(MemberLocation::isMain)
+			.findFirst()
+			.orElseThrow();
 	}
 }
