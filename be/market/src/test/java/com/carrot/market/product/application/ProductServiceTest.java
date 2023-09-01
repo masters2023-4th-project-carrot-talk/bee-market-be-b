@@ -65,10 +65,9 @@ class ProductServiceTest extends IntegrationTestSupport {
 	@Test
 	void getMainPageWithNextIdNull() {
 		// given
-		Member june = makeMember("june1425", "www.codesquad.kr");
-		memberRepository.save(june);
-		Member bean = makeMember("bean16123", "www.codesquad.kr");
-		memberRepository.save(bean);
+		Member june = makeMember("june", "www.codesquad.kr");
+		Member bean = makeMember("bean", "www.codesquad.kr");
+		memberRepository.saveAll(List.of(june, bean));
 
 		Location location = makeLocation("susongdong");
 		locationRepository.save(location);
@@ -94,10 +93,9 @@ class ProductServiceTest extends IntegrationTestSupport {
 	@Test
 	void getMainPageWithNextIdNotNull() {
 		// given
-		Member june = makeMember("june16136", "www.codesquad.kr");
-		memberRepository.save(june);
-		Member bean = makeMember("bean3252362", "www.codesquad.kr");
-		memberRepository.save(bean);
+		Member june = makeMember("june", "www.codesquad.kr");
+		Member bean = makeMember("bean", "www.codesquad.kr");
+		memberRepository.saveAll(List.of(june, bean));
 
 		Location location = makeLocation("susongdong");
 		locationRepository.save(location);
@@ -108,9 +106,8 @@ class ProductServiceTest extends IntegrationTestSupport {
 		Category category = makeCategory("dress", "www.naver.com");
 		categoryRepository.save(category);
 		Product product = makeProductWishListChatRoomProductImage(june, bean, location, image, category);
-		productRepository.save(product);
 		Product product2 = makeProductWishListChatRoomProductImage(june, bean, location, image, category);
-		productRepository.save(product2);
+		productRepository.saveAll(List.of(product, product2));
 		// when
 		MainPageServiceDto mainPage = productService.getMainPage(location.getId(), category.getId(), null, 1);
 
@@ -129,9 +126,7 @@ class ProductServiceTest extends IntegrationTestSupport {
 		Category category = makeCategory("category", "www.naver.com");
 		Category category2 = makeCategory("category123", "www.naver.com");
 		Category category3 = makeCategory("category1233", "www.naver.com");
-		categoryRepository.save(category);
-		categoryRepository.save(category2);
-		categoryRepository.save(category3);
+		categoryRepository.saveAll(List.of(category, category2, category3));
 
 		// when
 		List<CategoryDto> categories = productService.getCategories();
@@ -158,9 +153,8 @@ class ProductServiceTest extends IntegrationTestSupport {
 		productImageRepository.save(productImage);
 
 		Chatroom chatroom = makeChatRoom(product, june);
-		chatroomRepository.save(chatroom);
 		Chatroom chatroom2 = makeChatRoom(product, bean);
-		chatroomRepository.save(chatroom2);
+		chatroomRepository.saveAll(List.of(chatroom, chatroom2));
 		return product;
 
 	}

@@ -2,7 +2,8 @@ package com.carrot.market.location.application;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.jupiter.api.AfterEach;
+import java.util.List;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +20,6 @@ class LocationServiceTest extends IntegrationTestSupport {
 	@Autowired
 	private LocationRepository locationRepository;
 
-	@AfterEach
-	void clear() {
-		locationRepository.deleteAllInBatch();
-	}
-
 	@DisplayName("검색 조건으로 동네를 조회할 수 있다.")
 	@Test
 	void findLocations() {
@@ -31,8 +27,7 @@ class LocationServiceTest extends IntegrationTestSupport {
 		Location location1 = new Location("서울 도봉구");
 		Location location2 = new Location("서울 강남구");
 
-		locationRepository.save(location1);
-		locationRepository.save(location2);
+		locationRepository.saveAll(List.of(location1, location2));
 
 		//when
 		var locations = locationService.findLocations("강남");
@@ -51,8 +46,7 @@ class LocationServiceTest extends IntegrationTestSupport {
 		Location location1 = new Location("서울 도봉구");
 		Location location2 = new Location("서울 강남구");
 
-		locationRepository.save(location1);
-		locationRepository.save(location2);
+		locationRepository.saveAll(List.of(location1, location2));
 
 		//when
 		var locations = locationService.findLocations("노원구");
