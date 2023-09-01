@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import com.carrot.market.global.domain.BaseEntity;
+import com.carrot.market.location.domain.Location;
 import com.carrot.market.product.domain.Product;
 
 import jakarta.persistence.Entity;
