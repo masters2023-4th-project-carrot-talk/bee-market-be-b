@@ -28,7 +28,7 @@ public class JwtAuthorizationFilter implements Filter {
 	private static final String MEMBER_ID = "memberId";
 	private static final String SOCIAL_ID = "socialId";
 	private static final String PROFILE_IMAGE_URL = "imageUrl";
-	private static final String[] whiteListUris = {"/oauth/**", "/users/login", "/api/users/**"};
+	private static final String[] whiteListUris = {"/oauth/**", "/api/users/**"};
 	private static final String SIGNUP_URI = "/api/users/signup";
 
 	private final JwtProvider jwtProvider;
