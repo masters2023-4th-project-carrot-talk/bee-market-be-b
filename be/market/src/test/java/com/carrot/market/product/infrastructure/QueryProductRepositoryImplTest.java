@@ -4,6 +4,8 @@ import static com.carrot.market.fixture.FixtureFactory.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
@@ -59,10 +61,9 @@ class QueryProductRepositoryImplTest extends IntegrationTestSupport {
 	void findByLocationIdAndCategoryIdSliceWithOneProduct() {
 
 		// given
-		Member june = makeMember("june2345", "www.codesquad.kr");
-		memberRepository.save(june);
-		Member bean = makeMember("bean4236", "www.codesquad.kr");
-		memberRepository.save(bean);
+		Member june = makeMember("june", "www.codesquad.kr");
+		Member bean = makeMember("bean", "www.codesquad.kr");
+		memberRepository.saveAll(List.of(june, bean));
 
 		Location location = makeLocation("susongdong");
 		locationRepository.save(location);
@@ -103,26 +104,20 @@ class QueryProductRepositoryImplTest extends IntegrationTestSupport {
 
 		// given
 		Member june = makeMember("june", "www.codesquad.kr");
-		memberRepository.save(june);
 		Member bean = makeMember("bean", "www.codesquad.kr");
-		memberRepository.save(bean);
+		memberRepository.saveAll(List.of(june, bean));
 
 		Location location = makeLocation("susongdong");
-		locationRepository.save(location);
 		Location location2 = makeLocation("gangnam");
-		locationRepository.save(location2);
+		locationRepository.saveAll(List.of(location, location2));
 
 		Image image = makeImage("www.google.com");
 		imageRepository.save(image);
 		Category category = makeCategory("dress", "www.naver.com");
-		categoryRepository.save(category);
 		Category category2 = makeCategory("soccer", "www.naver.com");
-		categoryRepository.save(category2);
+		categoryRepository.saveAll(List.of(category, category2));
 		Product product1 = makeProductWishListChatRoomProductImage(june, bean, location, image, category);
 		Product product2 = makeProductWishListChatRoomProductImage(june, bean, location2, image, category2);
-
-		// Product product1 = makeProduct(june, bean, location, image, category);
-		// Product product2 = makeProduct(june, bean, location2, image, category2);
 
 		// when
 		Slice<MainPageSliceDto> byLocationIdAndCategoryIdSlice = queryProductRepository.findByLocationIdAndCategoryId(
@@ -173,9 +168,8 @@ class QueryProductRepositoryImplTest extends IntegrationTestSupport {
 		productImageRepository.save(productImage);
 
 		Chatroom chatroom = makeChatRoom(product, june);
-		chatroomRepository.save(chatroom);
 		Chatroom chatroom2 = makeChatRoom(product, bean);
-		chatroomRepository.save(chatroom2);
+		chatroomRepository.saveAll(List.of(chatroom, chatroom2));
 		return product;
 	}
 

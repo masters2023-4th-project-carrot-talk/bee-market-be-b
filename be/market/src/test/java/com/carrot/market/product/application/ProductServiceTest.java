@@ -4,6 +4,8 @@ import static com.carrot.market.fixture.FixtureFactory.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
@@ -19,6 +21,7 @@ import com.carrot.market.member.domain.Member;
 import com.carrot.market.member.domain.WishList;
 import com.carrot.market.member.infrastructure.MemberRepository;
 import com.carrot.market.member.infrastructure.WishListRepository;
+import com.carrot.market.product.application.dto.response.CategoryDto;
 import com.carrot.market.product.application.dto.response.MainPageServiceDto;
 import com.carrot.market.product.domain.Category;
 import com.carrot.market.product.domain.Product;
@@ -62,10 +65,9 @@ class ProductServiceTest extends IntegrationTestSupport {
 	@Test
 	void getMainPageWithNextIdNull() {
 		// given
-		Member june = makeMember("june123", "www.codesquad.kr");
-		memberRepository.save(june);
-		Member bean = makeMember("bean123", "www.codesquad.kr");
-		memberRepository.save(bean);
+		Member june = makeMember("june", "www.codesquad.kr");
+		Member bean = makeMember("bean", "www.codesquad.kr");
+		memberRepository.saveAll(List.of(june, bean));
 
 		Location location = makeLocation("susongdong");
 		locationRepository.save(location);
@@ -91,10 +93,9 @@ class ProductServiceTest extends IntegrationTestSupport {
 	@Test
 	void getMainPageWithNextIdNotNull() {
 		// given
-		Member june = makeMember("june14", "www.codesquad.kr");
-		memberRepository.save(june);
-		Member bean = makeMember("bean15", "www.codesquad.kr");
-		memberRepository.save(bean);
+		Member june = makeMember("june", "www.codesquad.kr");
+		Member bean = makeMember("bean", "www.codesquad.kr");
+		memberRepository.saveAll(List.of(june, bean));
 
 		Location location = makeLocation("susongdong");
 		locationRepository.save(location);
@@ -105,9 +106,8 @@ class ProductServiceTest extends IntegrationTestSupport {
 		Category category = makeCategory("dress", "www.naver.com");
 		categoryRepository.save(category);
 		Product product = makeProductWishListChatRoomProductImage(june, bean, location, image, category);
-		productRepository.save(product);
 		Product product2 = makeProductWishListChatRoomProductImage(june, bean, location, image, category);
-		productRepository.save(product2);
+		productRepository.saveAll(List.of(product, product2));
 		// when
 		MainPageServiceDto mainPage = productService.getMainPage(location.getId(), category.getId(), null, 1);
 
@@ -117,6 +117,27 @@ class ProductServiceTest extends IntegrationTestSupport {
 			() -> assertThat(mainPage.nextId()).isEqualTo(product.getId())
 		);
 
+	}
+
+	@Test
+	void getCategories() {
+		// given
+		int size = categoryRepository.findAll().size();
+		Category category = makeCategory("category", "www.naver.com");
+		Category category2 = makeCategory("category123", "www.naver.com");
+		Category category3 = makeCategory("category1233", "www.naver.com");
+		categoryRepository.saveAll(List.of(category, category2, category3));
+
+		// when
+		List<CategoryDto> categories = productService.getCategories();
+		// then
+		assertThat(categories).hasSize(size + 3)
+			.extracting("name", "imageUrl")
+			.contains(
+				tuple(category.getName(), category.getImageUrl()),
+				tuple(category2.getName(), category2.getImageUrl()),
+				tuple(category3.getName(), category3.getImageUrl())
+			);
 	}
 
 	private Product makeProductWishListChatRoomProductImage(Member june, Member bean, Location location, Image image,
@@ -132,9 +153,8 @@ class ProductServiceTest extends IntegrationTestSupport {
 		productImageRepository.save(productImage);
 
 		Chatroom chatroom = makeChatRoom(product, june);
-		chatroomRepository.save(chatroom);
 		Chatroom chatroom2 = makeChatRoom(product, bean);
-		chatroomRepository.save(chatroom2);
+		chatroomRepository.saveAll(List.of(chatroom, chatroom2));
 		return product;
 
 	}

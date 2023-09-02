@@ -1,12 +1,15 @@
 package com.carrot.market.product.application;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.carrot.market.product.application.dto.response.CategoryDto;
 import com.carrot.market.product.application.dto.response.MainPageServiceDto;
+import com.carrot.market.product.infrastructure.CategoryRepository;
 import com.carrot.market.product.infrastructure.QueryProductRepository;
 import com.carrot.market.product.infrastructure.dto.MainPageSliceDto;
 
@@ -17,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class ProductService {
 	private final QueryProductRepository queryProductRepository;
+	private final CategoryRepository categoryRepository;
 
 	public MainPageServiceDto getMainPage(Long locationId, Long categoryId, Long next, int size) {
 		Slice<MainPageSliceDto> byLocationIdAndCategoryId = queryProductRepository.findByLocationIdAndCategoryId(
@@ -40,5 +44,12 @@ public class ProductService {
 			nextContentId = content.get(content.size() - 1).getId();
 		}
 		return nextContentId;
+	}
+
+	public List<CategoryDto> getCategories() {
+		return categoryRepository.findAll()
+			.stream()
+			.map(category -> CategoryDto.from(category))
+			.collect(Collectors.toList());
 	}
 }
