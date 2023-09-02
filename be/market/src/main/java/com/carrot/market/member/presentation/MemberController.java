@@ -2,7 +2,6 @@ package com.carrot.market.member.presentation;
 
 import java.util.List;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -10,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.carrot.market.global.presentation.ApiResponse;
@@ -31,15 +31,23 @@ public class MemberController {
 
 	private final MemberService memberService;
 
+	@GetMapping()
+	ApiResponse<LoginResponse> checkDuplicateNickname(
+		@RequestParam String nickname
+	) {
+		memberService.checkDuplicateNickname(nickname);
+		return ApiResponse.successNoBody();
+	}
+
 	@PostMapping("/signup")
-	public ResponseEntity<LoginResponse> signup(
+	ApiResponse<LoginResponse> signup(
 		@RequestBody SignupRequest signupRequest,
 		@OauthLogin OauthMember oauthUser
 	) {
 		LoginResponse response = memberService.signup(
 			signupRequest.toSignupServiceRequest(oauthUser.getImageUrl(), oauthUser.getSocialId()));
 
-		return ResponseEntity.ok(response);
+		return ApiResponse.success(response);
 	}
 
 	@GetMapping("/locations")

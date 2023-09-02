@@ -14,13 +14,4 @@ public enum LocationException implements CustomException {
 	private final HttpStatus httpStatus;
 	private final String message;
 
-	@Override
-	public HttpStatus getHttpStatus() {
-		return httpStatus;
-	}
-
-	@Override
-	public String getMessage() {
-		return message;
-	}
 }

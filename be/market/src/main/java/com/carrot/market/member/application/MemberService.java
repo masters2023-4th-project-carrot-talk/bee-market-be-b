@@ -115,4 +115,12 @@ public class MemberService {
 				.build()
 		);
 	}
+
+	public boolean checkDuplicateNickname(String nickname) {
+		memberRepository.findByNickname(nickname)
+			.ifPresent(member -> {
+				throw new ApiException(MemberException.EXIST_MEMBER);
+			});
+		return true;
+	}
 }

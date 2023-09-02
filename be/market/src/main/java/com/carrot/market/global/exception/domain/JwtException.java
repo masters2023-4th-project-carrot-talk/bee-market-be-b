@@ -33,13 +33,4 @@ public enum JwtException implements CustomException {
 		return JwtException.ILLEGAL_ARGUMENT_EXCEPTION;
 	}
 
-	@Override
-	public HttpStatus getHttpStatus() {
-		return httpStatus;
-	}
-
-	@Override
-	public String getMessage() {
-		return message;
-	}
 }
