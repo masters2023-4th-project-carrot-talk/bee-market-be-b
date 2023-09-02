@@ -2,42 +2,26 @@ package com.carrot.market.member.application;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.jupiter.api.AfterEach;
+import java.util.List;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.carrot.market.global.exception.ApiException;
 import com.carrot.market.location.domain.Location;
 import com.carrot.market.location.infrastructure.LocationRepository;
 import com.carrot.market.member.application.dto.request.SignupServiceRequest;
-import com.carrot.market.member.infrastructure.MemberLocationRepository;
-import com.carrot.market.member.infrastructure.MemberRepository;
 import com.carrot.market.support.IntegrationTestSupport;
 
-@Transactional
 class MemberServiceTest extends IntegrationTestSupport {
 
 	@Autowired
 	private MemberService memberService;
 
 	@Autowired
-	private MemberRepository memberRepository;
-
-	@Autowired
-	private MemberLocationRepository memberLocationRepository;
-
-	@Autowired
 	private LocationRepository locationRepository;
-
-	@AfterEach
-	void clear() {
-		memberLocationRepository.deleteAllInBatch();
-		locationRepository.deleteAllInBatch();
-		memberRepository.deleteAllInBatch();
-	}
 
 	@DisplayName("회원의 메인 동네를 서브 동네와 바꿀 수 있다.")
 	@Test
@@ -46,8 +30,7 @@ class MemberServiceTest extends IntegrationTestSupport {
 		String socialId = "AKSDAKDK";
 		Location mainLocation = new Location("locationA");
 		Location subLocation = new Location("locationB");
-		locationRepository.save(mainLocation);
-		locationRepository.save(subLocation);
+		locationRepository.saveAll(List.of(mainLocation, subLocation));
 
 		var signUpRequest = SignupServiceRequest.builder()
 			.socialId(socialId)
@@ -82,9 +65,7 @@ class MemberServiceTest extends IntegrationTestSupport {
 			Location mainLocation = new Location("locationA");
 			Location subLocation = new Location("locationB");
 			Location newLocation = new Location("LocationC");
-			locationRepository.save(mainLocation);
-			locationRepository.save(subLocation);
-			locationRepository.save(newLocation);
+			locationRepository.saveAll(List.of(mainLocation, subLocation, newLocation));
 
 			var signUpRequest = SignupServiceRequest.builder()
 				.socialId(socialId)
@@ -118,9 +99,7 @@ class MemberServiceTest extends IntegrationTestSupport {
 			Location mainLocation = new Location("locationA");
 			Location subLocation = new Location("locationB");
 			Location newLocation = new Location("LocationC");
-			locationRepository.save(mainLocation);
-			locationRepository.save(subLocation);
-			locationRepository.save(newLocation);
+			locationRepository.saveAll(List.of(mainLocation, subLocation, newLocation));
 
 			var signUpRequest = SignupServiceRequest.builder()
 				.socialId(socialId)
@@ -149,8 +128,7 @@ class MemberServiceTest extends IntegrationTestSupport {
 			String socialId = "ASDADSAD";
 			Location mainLocation = new Location("locationA");
 			Location subLocation = new Location("locationB");
-			locationRepository.save(mainLocation);
-			locationRepository.save(subLocation);
+			locationRepository.saveAll(List.of(mainLocation, subLocation));
 
 			var signUpRequest = SignupServiceRequest.builder()
 				.socialId(socialId)
@@ -179,8 +157,7 @@ class MemberServiceTest extends IntegrationTestSupport {
 			String socialId = "ASDADSAD";
 			Location mainLocation = new Location("locationA");
 			Location subLocation = new Location("locationB");
-			locationRepository.save(mainLocation);
-			locationRepository.save(subLocation);
+			locationRepository.saveAll(List.of(mainLocation, subLocation));
 
 			var signUpRequest = SignupServiceRequest.builder()
 				.socialId(socialId)
