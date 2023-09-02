@@ -39,7 +39,7 @@ class MemberControllerTest extends ControllerTestSupport {
 				get("/api/users").param("nickname", "jun")
 			)
 			.andDo(print())
-			.andExpect(status().isOk())
+			.andExpect(status().is4xxClientError())
 			.andExpect(jsonPath("$.success").value("false"))
 			.andExpect(jsonPath("$.errorCode.status").value(MemberException.EXIST_MEMBER.getHttpStatus().value()))
 			.andExpect(jsonPath("$.errorCode.message").value(MemberException.EXIST_MEMBER.getMessage()));
