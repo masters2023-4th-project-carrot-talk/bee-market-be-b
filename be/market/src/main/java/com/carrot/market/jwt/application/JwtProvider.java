@@ -18,20 +18,13 @@ import io.jsonwebtoken.security.Keys;
 public class JwtProvider {
 	public static final long ACCESS_TOKEN_EXPIRATION_TIME = 1000L * 60 * 60;
 	private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000L * 60 * 60;
+
 	private final JwtProperties jwtProperties;
 	private final Key key;
 
 	public JwtProvider(JwtProperties jwtProperties) {
 		this.jwtProperties = jwtProperties;
 		this.key = Keys.hmacShaKeyFor(jwtProperties.secretKey().getBytes());
-	}
-
-	public String createToken(Map<String, Object> claims, Date expireDate) {
-		return Jwts.builder()
-			.setClaims(claims)
-			.setExpiration(expireDate)
-			.signWith(key)
-			.compact();
 	}
 
 	/**
@@ -47,30 +40,38 @@ public class JwtProvider {
 			.getBody();
 	}
 
+	public String createToken(Map<String, Object> claims, Date expireDate) {
+		return Jwts.builder()
+			.setClaims(claims)
+			.setSubject(jwtProperties.sub())
+			.setIssuer(jwtProperties.iss())
+			.setIssuedAt(new Date(System.currentTimeMillis()))
+			.setExpiration(expireDate)
+			.signWith(key)
+			.compact();
+	}
+
 	public Jwt createJwt(Map<String, Object> claims) {
-		String accessToken = createToken(claims, getExpireDateAccessToken());
-		String refreshToken = createToken(new HashMap<>(), getExpireDateRefreshToken());
+		String accessToken = createToken(claims, getExpireDate(ACCESS_TOKEN_EXPIRATION_TIME));
+		String refreshToken = createToken(new HashMap<>(), getExpireDate(REFRESH_TOKEN_EXPIRATION_TIME));
+
 		return new Jwt(accessToken, refreshToken);
 	}
 
 	public String createAccessToken(Map<String, Object> claims) {
 		return Jwts.builder()
 			.setClaims(claims)
-			.setExpiration(getExpireDateAccessToken())
+			.setExpiration(getExpireDate(ACCESS_TOKEN_EXPIRATION_TIME))
 			.signWith(key)
 			.compact();
 	}
 
 	public Jwt reissueAccessToken(Map<String, Object> claims, String refreshToken) {
-		String accessToken = createToken(claims, getExpireDateAccessToken());
+		String accessToken = createToken(claims, getExpireDate(ACCESS_TOKEN_EXPIRATION_TIME));
 		return new Jwt(accessToken, refreshToken);
 	}
 
-	public Date getExpireDateAccessToken() {
-		return new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_TIME);
-	}
-
-	public Date getExpireDateRefreshToken() {
-		return new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME);
+	public Date getExpireDate(long expirationTime) {
+		return new Date(System.currentTimeMillis() + expirationTime);
 	}
 }

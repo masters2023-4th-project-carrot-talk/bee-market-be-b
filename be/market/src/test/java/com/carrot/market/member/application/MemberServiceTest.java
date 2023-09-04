@@ -15,7 +15,6 @@ import com.carrot.market.location.domain.Location;
 import com.carrot.market.location.infrastructure.LocationRepository;
 import com.carrot.market.member.application.dto.request.SignupServiceRequest;
 import com.carrot.market.member.domain.Member;
-import com.carrot.market.member.infrastructure.MemberLocationRepository;
 import com.carrot.market.member.infrastructure.MemberRepository;
 import com.carrot.market.support.IntegrationTestSupport;
 
@@ -26,6 +25,9 @@ class MemberServiceTest extends IntegrationTestSupport {
 
 	@Autowired
 	private LocationRepository locationRepository;
+
+	@Autowired
+	private MemberRepository memberRepository;
 
 	@DisplayName("회원의 메인 동네를 서브 동네와 바꿀 수 있다.")
 	@Test

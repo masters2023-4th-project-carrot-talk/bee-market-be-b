@@ -14,7 +14,7 @@ public record LoginResponse(
 	}
 
 	public static LoginResponse success(Jwt jwt, LoginMemberResponse member) {
-		return new LoginResponse(true, jwt.getAccessToken(), jwt.getRefreshToken(), member);
+		return new LoginResponse(true, jwt.accessToken(), jwt.refreshToken(), member);
 	}
 }
 

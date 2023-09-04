@@ -34,12 +34,7 @@ public class Chatroom extends BaseEntity {
 
 	@Builder
 	public Chatroom(Product product, Member purchaser) {
-		setProduct(product);
-		this.purchaser = purchaser;
-	}
-
-	private void setProduct(Product product) {
 		this.product = product;
-		product.getChatrooms().add(this);
+		this.purchaser = purchaser;
 	}
 }

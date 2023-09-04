@@ -3,10 +3,13 @@ package com.carrot.market.member.domain;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.annotation.LastModifiedDate;
 
 import com.carrot.market.global.domain.BaseEntity;
+import com.carrot.market.global.exception.ApiException;
+import com.carrot.market.global.exception.domain.MemberException;
 import com.carrot.market.location.domain.Location;
 import com.carrot.market.product.domain.Product;
 
@@ -64,11 +67,6 @@ public class Member extends BaseEntity {
 		this.refreshToken = refreshToken;
 	}
 
-	public boolean isRegisteredLocation(Location location) {
-		return memberLocations.stream()
-			.anyMatch(memberLocation -> memberLocation.isSameLocation(location));
-	}
-
 	public void changeMainLocation(Location location) {
 		for (MemberLocation memberLocation : memberLocations) {
 			if (memberLocation.isSameLocation(location)) {
@@ -84,24 +82,46 @@ public class Member extends BaseEntity {
 		return memberLocations.size() == 2;
 	}
 
-	public MemberLocation removeLocation(Location location) {
-		MemberLocation removeMemberLocation = memberLocations.stream()
-			.filter(memberLocation -> memberLocation.isSameLocation(location))
-			.findFirst()
-			.orElseThrow();
+	public boolean isRegisteredLocation(Location location) {
+		return memberLocations.stream()
+			.anyMatch(memberLocation -> memberLocation.isSameLocation(location));
+	}
 
-		memberLocations.remove(removeMemberLocation);
-		if (memberLocations.size() == 1) {
-			memberLocations.get(0).changeMainStatus(Boolean.TRUE);
+	public MemberLocation removeLocation(Location location) {
+		if (!canRemove(location)) {
+			throw new ApiException(MemberException.NOT_REMOVE_LOCATION);
 		}
+
+		MemberLocation removeMemberLocation = findMemberLocationBy(location);
+		memberLocations.remove(removeMemberLocation);
+		getSubMemberLocation().ifPresent(memberLocation -> memberLocation.changeMainStatus(Boolean.TRUE));
 
 		return removeMemberLocation;
 	}
 
-	public MemberLocation getMainMemberLocation() {
+	private MemberLocation findMemberLocationBy(Location location) {
 		return memberLocations.stream()
-			.filter(MemberLocation::isMain)
+			.filter(memberLocation -> memberLocation.isSameLocation(location))
 			.findFirst()
-			.orElseThrow();
+			.orElseThrow(() -> new ApiException(MemberException.NOT_REGISTER_LOCATION));
+	}
+
+	private boolean canRemove(Location location) {
+		return isAllRegisteredLocation() && isRegisteredLocation(location);
+	}
+
+	public MemberLocation getMainMemberLocation() {
+		return getMemberLocation(Boolean.TRUE)
+			.orElseThrow(() -> new ApiException(MemberException.NOT_EXISTS_MAIN_LOCATION));
+	}
+
+	public Optional<MemberLocation> getSubMemberLocation() {
+		return getMemberLocation(Boolean.FALSE);
+	}
+
+	public Optional<MemberLocation> getMemberLocation(boolean isMain) {
+		return memberLocations.stream()
+			.filter(memberLocation -> memberLocation.isMain() == isMain)
+			.findFirst();
 	}
 }

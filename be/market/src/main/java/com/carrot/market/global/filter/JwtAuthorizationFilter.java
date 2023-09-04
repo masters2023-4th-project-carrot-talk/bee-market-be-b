@@ -2,6 +2,7 @@ package com.carrot.market.global.filter;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.util.PatternMatchUtils;
@@ -13,7 +14,10 @@ import com.carrot.market.jwt.application.JwtProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,17 +32,23 @@ public class JwtAuthorizationFilter implements Filter {
 	private static final String MEMBER_ID = "memberId";
 	private static final String SOCIAL_ID = "socialId";
 	private static final String PROFILE_IMAGE_URL = "imageUrl";
-	private static final String[] whiteListUris = {"/oauth/**", "/api/users/**"};
-	private static final String SIGNUP_URI = "/api/users/signup";
+	private static final int BEARER_PREFIX_LENGTH = 7;
 
 	private final JwtProvider jwtProvider;
 	private final ObjectMapper objectMapper;
+
+	@Value("${allowed.url.white-list-uris}")
+	private String[] whiteListUris;
+
+	@Value("${allowed.url.signup-uri}")
+	private String signupUrl;
 
 	public JwtAuthorizationFilter(ObjectMapper objectMapper, JwtProvider jwtProvider) {
 		this.jwtProvider = jwtProvider;
 		this.objectMapper = objectMapper;
 	}
 
+	@SuppressWarnings("checkstyle:OperatorWrap")
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 		throws ServletException, IOException {
@@ -63,12 +73,13 @@ public class JwtAuthorizationFilter implements Filter {
 			String token = getToken(httpServletRequest);
 			Claims claims = jwtProvider.getClaims(token);
 			request.setAttribute(MEMBER_ID, claims.get(MEMBER_ID));
-			if (SIGNUP_URI.equals(httpServletRequest.getRequestURI())) {
+			if (signupUrl.equals(httpServletRequest.getRequestURI())) {
 				setOauthLoginClaim(request, claims);
 			}
 			chain.doFilter(request, response);
-		} catch (RuntimeException e) {
-			sendErrorApiResponse(response, e);
+		} catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException | SignatureException |
+				 IllegalArgumentException ex) {
+			sendErrorApiResponse(response, ex);
 		}
 	}
 
@@ -88,7 +99,11 @@ public class JwtAuthorizationFilter implements Filter {
 
 	private String getToken(HttpServletRequest request) {
 		String authorization = request.getHeader(HEADER_AUTHORIZATION);
-		return authorization.substring(7).replace("\"", "");
+		return extractToken(authorization);
+	}
+
+	private String extractToken(String authorization) {
+		return authorization.substring(BEARER_PREFIX_LENGTH).replace("\"", "");
 	}
 
 	private void sendErrorApiResponse(ServletResponse response, RuntimeException ex) throws IOException {
