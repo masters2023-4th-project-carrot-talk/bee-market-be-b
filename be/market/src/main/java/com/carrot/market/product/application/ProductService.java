@@ -71,6 +71,11 @@ public class ProductService {
 	public ProductDetailResponseDto getProduct(Long memberId, Long productId) {
 		ProductSellerDetaillDto productDetailDto = productRepository.findProductDetailbyId(productId);
 		List<String> imageUrls = productImageRepository.findImageUrlsbyPrdcutId(productId);
+
+		if (memberId.equals(null)) {
+			return ProductDetailResponseDto.from(imageUrls, productDetailDto, false);
+		}
+
 		Boolean isLiked = wishListRepository.existsMemberLikeProduct(memberId, productId);
 		return ProductDetailResponseDto.from(imageUrls, productDetailDto, isLiked);
 	}
