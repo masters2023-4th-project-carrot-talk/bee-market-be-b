@@ -7,9 +7,14 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.carrot.market.member.infrastructure.WishListRepository;
 import com.carrot.market.product.application.dto.response.CategoryDto;
 import com.carrot.market.product.application.dto.response.MainPageServiceDto;
+import com.carrot.market.product.application.dto.response.ProductDetailResponseDto;
+import com.carrot.market.product.application.dto.response.ProductSellerDetaillDto;
 import com.carrot.market.product.infrastructure.CategoryRepository;
+import com.carrot.market.product.infrastructure.ProductImageRepository;
+import com.carrot.market.product.infrastructure.ProductRepository;
 import com.carrot.market.product.infrastructure.QueryProductRepository;
 import com.carrot.market.product.infrastructure.dto.MainPageSliceDto;
 
@@ -21,6 +26,9 @@ import lombok.RequiredArgsConstructor;
 public class ProductService {
 	private final QueryProductRepository queryProductRepository;
 	private final CategoryRepository categoryRepository;
+	private final ProductRepository productRepository;
+	private final ProductImageRepository productImageRepository;
+	private final WishListRepository wishListRepository;
 
 	public MainPageServiceDto getMainPage(Long locationId, Long categoryId, Long next, int size) {
 		Slice<MainPageSliceDto> byLocationIdAndCategoryId = queryProductRepository.findByLocationIdAndCategoryId(
@@ -58,5 +66,12 @@ public class ProductService {
 			.stream()
 			.map(CategoryDto::from)
 			.collect(Collectors.toList());
+	}
+
+	public ProductDetailResponseDto getProduct(Long memberId, Long productId) {
+		ProductSellerDetaillDto productDetailDto = productRepository.findProductDetailbyId(productId);
+		List<String> imageUrls = productImageRepository.findImageUrlsbyPrdcutId(productId);
+		Boolean isLiked = wishListRepository.existsMemberLikeProduct(memberId, productId);
+		return ProductDetailResponseDto.from(imageUrls, productDetailDto, isLiked);
 	}
 }
