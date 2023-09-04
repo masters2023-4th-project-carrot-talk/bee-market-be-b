@@ -56,7 +56,7 @@ public class Product extends BaseEntity {
 	@JoinColumn(name = "location_id")
 	private Location location;
 
-	@OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "product", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
 	private List<ProductImage> productImages = new ArrayList<>();
 
 	@OneToMany(mappedBy = "product")
@@ -64,6 +64,7 @@ public class Product extends BaseEntity {
 
 	@OneToMany(mappedBy = "product")
 	private List<Chatroom> chatrooms = new ArrayList<>();
+
 	@LastModifiedDate
 	private LocalDateTime modifiedAt;
 

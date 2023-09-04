@@ -7,18 +7,18 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.carrot.market.member.application.MemberService;
-import com.carrot.market.member.presentation.MemberController;
 import com.carrot.market.global.filter.JwtAuthorizationFilter;
 import com.carrot.market.location.application.LocationService;
 import com.carrot.market.location.presentation.LocationController;
+import com.carrot.market.member.application.MemberService;
+import com.carrot.market.member.presentation.MemberController;
 import com.carrot.market.product.application.ProductService;
 import com.carrot.market.product.presentation.ProductController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(controllers = {
 	ProductController.class,
-	MemberController.class
+	MemberController.class,
 	LocationController.class,
 	ProductController.class
 }, excludeFilters = {

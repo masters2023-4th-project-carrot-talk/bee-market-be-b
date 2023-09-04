@@ -1,6 +1,7 @@
 package com.carrot.market.oauth.resolver;
 
 import org.springframework.core.MethodParameter;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -11,6 +12,7 @@ import com.carrot.market.oauth.presentation.annotation.OauthLogin;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+@Component
 public class OauthArgumentResolver implements HandlerMethodArgumentResolver {
 	private final String SOCIAL_ID = "socialId";
 	private final String IMAGE_URL = "imageUrl";

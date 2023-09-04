@@ -43,23 +43,21 @@ public class MemberService {
 		Member savedMember = memberRepository.save(member);
 
 		Jwt jwt = jwtProvider.createJwt(Map.of(MEMBER_ID, savedMember.getId()));
-		savedMember.setRefreshToken(jwt.getRefreshToken());
+		savedMember.setRefreshToken(jwt.refreshToken());
 		LoginMemberResponse loginMemberResponse = new LoginMemberResponse(savedMember.getId(),
 			savedMember.getNickname());
 
-		saveMemberLocation(true, member, signupServiceRequest.mainLocationId());
+		saveMainMemberLocation(member, findLocationById(signupServiceRequest.mainLocationId()));
 
-		saveMemberLocation(false, member, signupServiceRequest.subLocationId());
+		saveSubMemberLocation(member, findLocationById(signupServiceRequest.subLocationId()));
 
 		return LoginResponse.success(jwt, loginMemberResponse);
 	}
 
 	@Transactional
 	public MainLocationResponse updateLocation(String socialId, Long locationId) {
-		final Member member = memberRepository.findBySocialId(socialId)
-			.orElseThrow(() -> new ApiException(MemberException.NOT_FOUND_MEMBER));
-		final Location location = locationRepository.findById(locationId)
-			.orElseThrow(() -> new ApiException(LocationException.NOT_FOUND_ID));
+		final Member member = findMemberBySocialId(socialId);
+		final Location location = findLocationById(locationId);
 
 		if (member.isRegisteredLocation(location)) {
 			member.changeMainLocation(location);
@@ -69,14 +67,13 @@ public class MemberService {
 			throw new ApiException(MemberException.NOT_REGISTER_LOCATION);
 		}
 
-		saveMemberLocation(Boolean.FALSE, member, locationId);
+		saveSubMemberLocation(member, location);
 
 		return new MainLocationResponse(member.getMainMemberLocation());
 	}
 
 	public List<MemberLocationResponse> getRegisteredLocations(String socialId) {
-		final Member member = memberRepository.findBySocialId(socialId)
-			.orElseThrow(() -> new ApiException(MemberException.NOT_FOUND_MEMBER));
+		final Member member = findMemberBySocialId(socialId);
 
 		return member.getMemberLocations()
 			.stream()
@@ -86,14 +83,8 @@ public class MemberService {
 
 	@Transactional
 	public MainLocationResponse removeRegisteredLocation(String socialId, Long locationId) {
-		final Member member = memberRepository.findBySocialId(socialId)
-			.orElseThrow(() -> new ApiException(MemberException.NOT_FOUND_MEMBER));
-		final Location location = locationRepository.findById(locationId)
-			.orElseThrow(() -> new ApiException(LocationException.NOT_FOUND_ID));
-
-		if (!canRemove(member, location)) {
-			throw new ApiException(MemberException.NOT_REMOVE_LOCATION);
-		}
+		final Member member = findMemberBySocialId(socialId);
+		final Location location = findLocationById(locationId);
 
 		MemberLocation removedLocation = member.removeLocation(location);
 		memberLocationRepository.delete(removedLocation);
@@ -101,17 +92,20 @@ public class MemberService {
 		return new MainLocationResponse(member.getMainMemberLocation());
 	}
 
-	private static boolean canRemove(Member member, Location location) {
-		return member.isAllRegisteredLocation() && member.isRegisteredLocation(location);
+	private MemberLocation saveMainMemberLocation(Member member, Location location) {
+		return saveMemberLocation(true, member, location);
 	}
 
-	private MemberLocation saveMemberLocation(boolean isMain, Member member, Long locationId) {
+	private MemberLocation saveSubMemberLocation(Member member, Location location) {
+		return saveMemberLocation(false, member, location);
+	}
+
+	private MemberLocation saveMemberLocation(boolean isMain, Member member, Location location) {
 		return memberLocationRepository.save(
 			MemberLocation.builder()
 				.isMain(isMain)
 				.member(member)
-				.location(locationRepository.findById(locationId)
-					.orElseThrow(() -> new ApiException(LocationException.NOT_FOUND_ID)))
+				.location(location)
 				.build()
 		);
 	}
@@ -122,5 +116,15 @@ public class MemberService {
 				throw new ApiException(MemberException.EXIST_MEMBER);
 			});
 		return true;
+	}
+
+	private Location findLocationById(Long locationId) {
+		return locationRepository.findById(locationId)
+			.orElseThrow(() -> new ApiException(LocationException.NOT_FOUND_ID));
+	}
+
+	private Member findMemberBySocialId(String socialId) {
+		return memberRepository.findBySocialId(socialId)
+			.orElseThrow(() -> new ApiException(MemberException.NOT_FOUND_MEMBER));
 	}
 }

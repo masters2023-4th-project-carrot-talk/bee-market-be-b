@@ -27,15 +27,22 @@ public class ProductService {
 			locationId, categoryId, next, size);
 		List<MainPageSliceDto> products = byLocationIdAndCategoryId.getContent();
 		Long contentNextId = getContentNextId(products, size);
-		products = removeLastIfProductsSizeEqualPageSize(products, size);
+		products = removeLastIfProductsSizeOverPageSize(products, size);
 		return new MainPageServiceDto(products, contentNextId);
 	}
 
-	private List<MainPageSliceDto> removeLastIfProductsSizeEqualPageSize(List<MainPageSliceDto> content, int size) {
+	/*
+	 * 	페이징 할 때 size + 1만큼 요소를 조회하고 다음 페이지가 있다면 마지막 요소를 제거한다.
+	 * */
+	private List<MainPageSliceDto> removeLastIfProductsSizeOverPageSize(List<MainPageSliceDto> content, int size) {
 		if (content.size() == size + 1) {
-			return content.subList(0, content.size() - 1);
+			return popLast(content);
 		}
 		return content;
+	}
+
+	private List<MainPageSliceDto> popLast(List<MainPageSliceDto> content) {
+		return content.subList(0, content.size() - 1);
 	}
 
 	private Long getContentNextId(List<MainPageSliceDto> content, int pageSize) {
@@ -49,7 +56,7 @@ public class ProductService {
 	public List<CategoryDto> getCategories() {
 		return categoryRepository.findAll()
 			.stream()
-			.map(category -> CategoryDto.from(category))
+			.map(CategoryDto::from)
 			.collect(Collectors.toList());
 	}
 }
