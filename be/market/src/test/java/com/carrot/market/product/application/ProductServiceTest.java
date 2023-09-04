@@ -23,6 +23,7 @@ import com.carrot.market.member.infrastructure.MemberRepository;
 import com.carrot.market.member.infrastructure.WishListRepository;
 import com.carrot.market.product.application.dto.response.CategoryDto;
 import com.carrot.market.product.application.dto.response.MainPageServiceDto;
+import com.carrot.market.product.application.dto.response.ProductDetailResponseDto;
 import com.carrot.market.product.domain.Category;
 import com.carrot.market.product.domain.Product;
 import com.carrot.market.product.domain.ProductDetails;
@@ -138,6 +139,44 @@ class ProductServiceTest extends IntegrationTestSupport {
 				tuple(category2.getName(), category2.getImageUrl()),
 				tuple(category3.getName(), category3.getImageUrl())
 			);
+	}
+
+	@Test
+	void getPrductDetail() {
+		// given
+		Member june = makeMember("june", "www.codesquad.kr");
+		Member bean = makeMember("bean", "www.codesquad.kr");
+		memberRepository.saveAll(List.of(june, bean));
+
+		Location location = makeLocation("susongdong");
+		locationRepository.save(location);
+
+		Image image = makeImage("www.google.com");
+		imageRepository.save(image);
+
+		Category category = makeCategory("dress", "www.naver.com");
+		categoryRepository.save(category);
+		Product product = makeProductWishListChatRoomProductImage(june, bean, location, image, category);
+		productRepository.save(product);
+		// when
+		ProductDetailResponseDto productDetailResponseDto = productService.getProduct(june.getId(), product.getId());
+		assertAll(
+			() -> assertThat(productDetailResponseDto.imageUrls().get(0)).isEqualTo(image.getImageUrl()),
+			() -> assertThat(productDetailResponseDto.seller().id()).isEqualTo(june.getId()),
+			() -> assertThat(productDetailResponseDto.seller().nickname()).isEqualTo(june.getNickname()),
+			() -> assertThat(productDetailResponseDto.product().location()).isEqualTo(location.getName()),
+			() -> assertThat(productDetailResponseDto.product().status()).isEqualTo(SellingStatus.SELLING.name()),
+			() -> assertThat(productDetailResponseDto.product().title()).isEqualTo("title"),
+			() -> assertThat(productDetailResponseDto.product().category()).isEqualTo(category.getName()),
+			() -> assertThat(productDetailResponseDto.product().createdAt()).isEqualTo(product.getCreatedAt()),
+			() -> assertThat(productDetailResponseDto.product().content()).isEqualTo("content"),
+			() -> assertThat(productDetailResponseDto.product().chatCount()).isEqualTo(2),
+			() -> assertThat(productDetailResponseDto.product().likeCount()).isEqualTo(1),
+			() -> assertThat(productDetailResponseDto.product().price()).isEqualTo(3000L),
+			() -> assertThat(productDetailResponseDto.product().isLiked()).isTrue());
+
+		// then
+
 	}
 
 	private Product makeProductWishListChatRoomProductImage(Member june, Member bean, Location location, Image image,
