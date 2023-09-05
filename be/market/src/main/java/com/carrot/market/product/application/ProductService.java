@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class ProductService {
+	private final ProductCacheService productCacheService;
 	private final QueryProductRepository queryProductRepository;
 	private final CategoryRepository categoryRepository;
 	private final ProductRepository productRepository;
@@ -69,6 +70,8 @@ public class ProductService {
 	}
 
 	public ProductDetailResponseDto getProduct(Long memberId, Long productId) {
+		productCacheService.addViewCntToRedis(productId);
+
 		ProductSellerDetaillDto productDetailDto = productRepository.findProductDetailbyId(productId);
 		List<String> imageUrls = productImageRepository.findImageUrlsbyPrdcutId(productId);
 
@@ -76,7 +79,7 @@ public class ProductService {
 			return ProductDetailResponseDto.from(imageUrls, productDetailDto, false);
 		}
 
-		Boolean isLiked = wishListRepository.existsMemberLikeProduct(memberId, productId);
+		Boolean isLiked = wishListRepository.existsWishListByMemberIdAndProductId(memberId, productId);
 		return ProductDetailResponseDto.from(imageUrls, productDetailDto, isLiked);
 	}
 }
