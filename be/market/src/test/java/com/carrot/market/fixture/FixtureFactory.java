@@ -21,6 +21,7 @@ public class FixtureFactory {
 			.location(location)
 			.status(status)
 			.productDetails(productDetails)
+			.viewCount(0L)
 			.build();
 	}
 
