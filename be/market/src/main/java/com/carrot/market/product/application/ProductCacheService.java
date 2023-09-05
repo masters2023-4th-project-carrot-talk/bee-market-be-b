@@ -41,7 +41,7 @@ public class ProductCacheService {
 	@Scheduled(cron = "0/5 * * * * ?")
 	@Transactional
 	public void applyViewCountToRDB() {
-		Set<String> viewCntKeys = redisUtil.keys("productViewCnt*");
+		Set<String> viewCntKeys = redisUtil.keys(getProductCachePattern());
 		if (Objects.requireNonNull(viewCntKeys).isEmpty())
 			return;
 		for (String viewCntKey : viewCntKeys) {

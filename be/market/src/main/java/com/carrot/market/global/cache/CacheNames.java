@@ -6,6 +6,10 @@ import lombok.Getter;
 public class CacheNames {
 	public static final String PRODUCT_CACHE = "productViewCnt";
 
+	public static String getProductCachePattern() {
+		return PRODUCT_CACHE + "*";
+	}
+
 	public static String createViewCntCacheKey(Long id) {
 		return createCacheKey(PRODUCT_CACHE, id);
 	}

@@ -21,10 +21,10 @@ public class FilterConfig {
 	}
 
 	@Bean
-	public FilterRegistrationBean<Filter> jwtAuthorizationFilter(ObjectMapper mapper) {
+	public FilterRegistrationBean<Filter> jwtAuthorizationFilter(JwtAuthorizationFilter jwtAuthorizationFilter) {
 		FilterRegistrationBean<Filter> filterRegistrationBean = new
 			FilterRegistrationBean<>();
-		filterRegistrationBean.setFilter(new JwtAuthorizationFilter(mapper, jwtProvider));
+		filterRegistrationBean.setFilter(jwtAuthorizationFilter);
 		filterRegistrationBean.setOrder(1);
 		return filterRegistrationBean;
 	}
