@@ -16,6 +16,11 @@ public class FilterConfig {
 	private final JwtProvider jwtProvider;
 
 	@Bean
+	JwtAuthorizationFilter filter(ObjectMapper objectMapper) {
+		return new JwtAuthorizationFilter(objectMapper, jwtProvider);
+	}
+
+	@Bean
 	public FilterRegistrationBean<Filter> jwtAuthorizationFilter(ObjectMapper mapper) {
 		FilterRegistrationBean<Filter> filterRegistrationBean = new
 			FilterRegistrationBean<>();
