@@ -40,9 +40,9 @@ class WishListRepositoryTest extends IntegrationTestSupport {
 		WishList wishList = makeWishList(product, june);
 		wishListRepository.save(wishList);
 
-		Boolean isLiked = wishListRepository.existsMemberLikeProduct(june.getId(), product.getId());
+		Boolean isLiked = wishListRepository.existsWishListByMemberIdAndProductId(june.getId(), product.getId());
 		assertThat(isLiked).isTrue();
-		Boolean isLiked2 = wishListRepository.existsMemberLikeProduct(bean.getId(), product.getId());
+		Boolean isLiked2 = wishListRepository.existsWishListByMemberIdAndProductId(bean.getId(), product.getId());
 		assertThat(isLiked2).isFalse();
 	}
 }

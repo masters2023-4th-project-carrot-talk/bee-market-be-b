@@ -1,6 +1,8 @@
 package com.carrot.market.product.infrastructure;
 
 import static com.carrot.market.fixture.FixtureFactory.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 
@@ -71,7 +73,16 @@ class ProductRepositoryTest extends IntegrationTestSupport {
 		ProductSellerDetaillDto productDetailbyId = productRepository.findProductDetailbyId(product.getId());
 
 		// then
-		System.out.println(productDetailbyId.toString());
+		assertAll(
+			() -> assertThat(productDetailbyId.getCategory()).isEqualTo("dress"),
+			() -> assertThat(productDetailbyId.getChatCount()).isEqualTo(2L),
+			() -> assertThat(productDetailbyId.getContent()).isEqualTo("content"),
+			() -> assertThat(productDetailbyId.getLikeCount()).isEqualTo(1L),
+			() -> assertThat(productDetailbyId.getLocation()).isEqualTo("susongdong"),
+			() -> assertThat(productDetailbyId.getPrice()).isEqualTo(3000L),
+			() -> assertThat(productDetailbyId.getHits()).isEqualTo(3000L),
+			() -> assertThat(productDetailbyId.getName()).isEqualTo("title")
+		);
 	}
 
 	private Product makeProductWishListChatRoomProductImage(Member june, Member bean, Location location, Image image,
