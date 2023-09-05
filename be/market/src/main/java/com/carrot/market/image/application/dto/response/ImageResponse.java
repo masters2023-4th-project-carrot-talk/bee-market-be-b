@@ -3,7 +3,7 @@ package com.carrot.market.image.application.dto.response;
 import com.carrot.market.image.domain.Image;
 
 public record ImageResponse(
-	Long id,
+	Long imageId,
 	String imageUrl
 ) {
 	public static ImageResponse from(Image image) {
