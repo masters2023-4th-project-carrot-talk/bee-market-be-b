@@ -1,5 +1,7 @@
 package com.carrot.market.product.infrastructure;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -7,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.carrot.market.product.application.dto.response.ProductSellerDetaillDto;
+import com.carrot.market.product.domain.Category;
 import com.carrot.market.product.domain.Product;
 
 @Repository
@@ -19,14 +22,19 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 			+ "join  p.seller as seller "
 			+ "join  p.location as  l "
 			+ "join  p.category as c "
+			+ "where p.id = :productId "
 			+ "group by p,c,l,seller"
 	)
-	ProductSellerDetaillDto findProductDetailbyId(Long productId);
+	ProductSellerDetaillDto findProductDetailbyId(@Param("productId") Long productId);
 
-	@Query("select p.viewCount from Product p where p.id = :id")
-	Long findViewCount(@Param("id") Long id);
+	@Query("select p.productDetails.hits from Product p where p.id = :id")
+	Long findHitsById(@Param("id") Long id);
 
 	@Modifying(clearAutomatically = true)
-	@Query("update Product p set p.viewCount = :viewCnt where p.id = :id")
-	void applyViewCntToRDB(@Param("id") Long id, @Param("viewCnt") Long viewCnt);
+	@Query("update Product p set p.productDetails.hits = :hits where p.id = :id")
+	void applyHitsToRDB(@Param("id") Long id, @Param("hits") Long hits);
+
+	@Query("select p.category from Product p  join  p.category c join WishList as wl on wl.product = p where wl.member.id = :memberId")
+	List<Category> findCategoryByMemberId(@Param("memberId") Long memberId);
+
 }
