@@ -2,12 +2,14 @@ package com.carrot.market.product.application;
 
 import static com.carrot.market.fixture.FixtureFactory.*;
 import static com.carrot.market.global.cache.CacheNames.*;
+import static com.carrot.market.product.application.ProductCacheService.*;
 import static org.assertj.core.api.Assertions.*;
+
+import java.util.Set;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.carrot.market.member.domain.Member;
 import com.carrot.market.member.infrastructure.MemberRepository;
@@ -34,10 +36,9 @@ class ProductCacheServiceTest extends CacheTestSupport {
 	void tearDown() {
 		productRepository.deleteAllInBatch();
 		memberRepository.deleteAllInBatch();
-
+		deleteAllInRedis();
 	}
 
-	@Transactional
 	@Test
 	void addViewCntToRedis() {
 		// given
@@ -45,7 +46,7 @@ class ProductCacheServiceTest extends CacheTestSupport {
 		memberRepository.save(june);
 		Product product = Product.builder().seller(june).viewCount(0L).build();
 		productRepository.save(product);
-		Long productId = 1L;
+		Long productId = product.getId();
 
 		// when
 		productCacheService.addViewCntToRedis(productId);
@@ -55,6 +56,26 @@ class ProductCacheServiceTest extends CacheTestSupport {
 		String viewCntCacheKey = createViewCntCacheKey(productId);
 		Long viewCount = Long.parseLong(redisUtil.getData(viewCntCacheKey));
 		assertThat(viewCount).isEqualTo(2L);
+	}
+
+	@Test
+	void checkSizeViewCntInRedis() {
+		// given
+		Member june = makeMember("june", "www.naver.com");
+		memberRepository.save(june);
+		Product product = Product.builder().seller(june).viewCount(0L).build();
+		productRepository.save(product);
+		Product product2 = Product.builder().seller(june).viewCount(0L).build();
+		productRepository.save(product2);
+		Long productId = product.getId();
+		Long productId2 = product2.getId();
+
+		// when
+		productCacheService.addViewCntToRedis(productId);
+		productCacheService.addViewCntToRedis(productId2);
+
+		// then
+		assertThat(redisUtil.keys(getProductCachePattern())).hasSize(2);
 	}
 
 	@Test
@@ -68,11 +89,17 @@ class ProductCacheServiceTest extends CacheTestSupport {
 		productCacheService.addViewCntToRedis(product.getId());
 
 		// when
-		Thread.sleep(10000L);
+		Thread.sleep(VIEW_CNT_SCHEDULED_DURATION * 2);
 
 		// then
 		Product byId = productRepository.findById(product.getId()).get();
 		assertThat(byId.getViewCount()).isEqualTo(2L);
 	}
 
+	private void deleteAllInRedis() {
+		Set<String> keys = redisUtil.keys(getProductCachePattern());
+		for (var key : keys) {
+			redisUtil.deleteData(key);
+		}
+	}
 }
