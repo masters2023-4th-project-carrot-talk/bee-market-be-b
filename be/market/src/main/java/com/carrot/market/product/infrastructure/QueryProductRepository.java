@@ -90,14 +90,14 @@ public class QueryProductRepository {
 	}
 
 	private BooleanExpression locationIdEq(Long locationId) {
-		if (locationId.equals(null)) {
+		if (locationId == null) {
 			return product.location.id.eq(BASIC_LOCATION_ID);
 		}
 		return product.location.id.eq(locationId);
 	}
 
 	private BooleanExpression categoryEq(Long categoryId) {
-		if (categoryId.equals(null)) {
+		if (categoryId == null) {
 			return null;
 		}
 		return product.category.id.eq(categoryId);

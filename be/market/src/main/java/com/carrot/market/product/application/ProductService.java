@@ -3,13 +3,19 @@ package com.carrot.market.product.application;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.carrot.market.member.infrastructure.WishListRepository;
 import com.carrot.market.product.application.dto.response.CategoryDto;
 import com.carrot.market.product.application.dto.response.MainPageServiceDto;
+import com.carrot.market.product.application.dto.response.ProductDetailResponseDto;
+import com.carrot.market.product.application.dto.response.ProductSellerDetaillDto;
 import com.carrot.market.product.infrastructure.CategoryRepository;
+import com.carrot.market.product.infrastructure.ProductImageRepository;
+import com.carrot.market.product.infrastructure.ProductRepository;
 import com.carrot.market.product.infrastructure.QueryProductRepository;
 import com.carrot.market.product.infrastructure.dto.MainPageSliceDto;
 
@@ -19,8 +25,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class ProductService {
+	private final ProductCacheService productCacheService;
 	private final QueryProductRepository queryProductRepository;
 	private final CategoryRepository categoryRepository;
+	private final ProductRepository productRepository;
+	private final ProductImageRepository productImageRepository;
+	private final WishListRepository wishListRepository;
 
 	public MainPageServiceDto getMainPage(Long locationId, Long categoryId, Long next, int size) {
 		Slice<MainPageSliceDto> byLocationIdAndCategoryId = queryProductRepository.findByLocationIdAndCategoryId(
@@ -53,10 +63,25 @@ public class ProductService {
 		return nextContentId;
 	}
 
+	@Cacheable("categoriesCache")
 	public List<CategoryDto> getCategories() {
 		return categoryRepository.findAll()
 			.stream()
 			.map(CategoryDto::from)
 			.collect(Collectors.toList());
+	}
+
+	public ProductDetailResponseDto getProduct(Long memberId, Long productId) {
+		productCacheService.addViewCntToRedis(productId);
+
+		ProductSellerDetaillDto productDetailDto = productRepository.findProductDetailbyId(productId);
+		List<String> imageUrls = productImageRepository.findImageUrlsbyPrdcutId(productId);
+
+		if (memberId == null) {
+			return ProductDetailResponseDto.from(imageUrls, productDetailDto, false);
+		}
+
+		Boolean isLiked = wishListRepository.existsWishListByMemberIdAndProductId(memberId, productId);
+		return ProductDetailResponseDto.from(imageUrls, productDetailDto, isLiked);
 	}
 }

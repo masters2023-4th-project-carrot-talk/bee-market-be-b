@@ -16,10 +16,15 @@ public class FilterConfig {
 	private final JwtProvider jwtProvider;
 
 	@Bean
-	public FilterRegistrationBean<Filter> jwtAuthorizationFilter(ObjectMapper mapper) {
+	JwtAuthorizationFilter filter(ObjectMapper objectMapper) {
+		return new JwtAuthorizationFilter(objectMapper, jwtProvider);
+	}
+
+	@Bean
+	public FilterRegistrationBean<Filter> jwtAuthorizationFilter(JwtAuthorizationFilter jwtAuthorizationFilter) {
 		FilterRegistrationBean<Filter> filterRegistrationBean = new
 			FilterRegistrationBean<>();
-		filterRegistrationBean.setFilter(new JwtAuthorizationFilter(mapper, jwtProvider));
+		filterRegistrationBean.setFilter(jwtAuthorizationFilter);
 		filterRegistrationBean.setOrder(1);
 		return filterRegistrationBean;
 	}
