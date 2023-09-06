@@ -74,14 +74,14 @@ class ProductRepositoryTest extends IntegrationTestSupport {
 
 		// then
 		assertAll(
-			() -> assertThat(productDetailbyId.getCategory()).isEqualTo("dress"),
+			() -> assertThat(productDetailbyId.getCategory()).isEqualTo(product.getCategory().getName()),
 			() -> assertThat(productDetailbyId.getChatCount()).isEqualTo(2L),
-			() -> assertThat(productDetailbyId.getContent()).isEqualTo("content"),
+			() -> assertThat(productDetailbyId.getContent()).isEqualTo(product.getProductDetails().getContent()),
 			() -> assertThat(productDetailbyId.getLikeCount()).isEqualTo(1L),
-			() -> assertThat(productDetailbyId.getLocation()).isEqualTo("susongdong"),
-			() -> assertThat(productDetailbyId.getPrice()).isEqualTo(3000L),
-			() -> assertThat(productDetailbyId.getHits()).isEqualTo(3000L),
-			() -> assertThat(productDetailbyId.getName()).isEqualTo("title")
+			() -> assertThat(productDetailbyId.getLocation()).isEqualTo(product.getLocation().getName()),
+			() -> assertThat(productDetailbyId.getPrice()).isEqualTo(product.getProductDetails().getPrice()),
+			() -> assertThat(productDetailbyId.getHits()).isEqualTo(product.getProductDetails().getHits()),
+			() -> assertThat(productDetailbyId.getName()).isEqualTo(product.getProductDetails().getName())
 		);
 	}
 
