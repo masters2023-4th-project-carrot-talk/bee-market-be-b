@@ -65,18 +65,20 @@ public class Product extends BaseEntity {
 	@OneToMany(mappedBy = "product")
 	private List<Chatroom> chatrooms = new ArrayList<>();
 
+	private Long viewCount;
 	@LastModifiedDate
 	private LocalDateTime modifiedAt;
 
 	@Builder
 	public Product(ProductDetails productDetails, SellingStatus status, Category category,
-		Member seller, Location location, LocalDateTime modifiedAt) {
+		Member seller, Location location, LocalDateTime modifiedAt, Long viewCount) {
 		this.productDetails = productDetails;
 		this.status = status;
 		this.category = category;
 		saveSeller(seller);
 		this.location = location;
 		this.modifiedAt = modifiedAt;
+		this.viewCount = viewCount;
 	}
 
 	private void saveSeller(Member seller) {
