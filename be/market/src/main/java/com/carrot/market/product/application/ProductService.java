@@ -3,6 +3,7 @@ package com.carrot.market.product.application;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,6 +63,7 @@ public class ProductService {
 		return nextContentId;
 	}
 
+	@Cacheable("categoriesCache")
 	public List<CategoryDto> getCategories() {
 		return categoryRepository.findAll()
 			.stream()
@@ -75,7 +77,7 @@ public class ProductService {
 		ProductSellerDetaillDto productDetailDto = productRepository.findProductDetailbyId(productId);
 		List<String> imageUrls = productImageRepository.findImageUrlsbyPrdcutId(productId);
 
-		if (memberId.equals(null)) {
+		if (memberId == null) {
 			return ProductDetailResponseDto.from(imageUrls, productDetailDto, false);
 		}
 
