@@ -85,6 +85,39 @@ class ProductRepositoryTest extends IntegrationTestSupport {
 		);
 	}
 
+	@Test
+	void findCategoryByMemberId() {
+		// given
+		Member june = makeMember("june", "www.codesquad.kr");
+		Member bean = makeMember("bean", "www.codesquad.kr");
+		memberRepository.saveAll(List.of(june, bean));
+
+		Location location = makeLocation("susongdong");
+		locationRepository.save(location);
+
+		Image image = makeImage("www.google.com");
+		imageRepository.save(image);
+
+		Category category = makeCategory("dress", "www.naver.com");
+		categoryRepository.save(category);
+		Category category2 = makeCategory("dress", "www.naver.com");
+		categoryRepository.save(category2);
+		Product product = makeProductWishListChatRoomProductImage(june, bean, location, image, category);
+		Product product2 = makeProductWishListChatRoomProductImage(june, bean, location, image, category2);
+
+		// when
+		List<Category> categoryByMemberId = productRepository.findCategoryByMemberId(june.getId());
+
+		// then
+		assertAll(
+			() -> assertThat(categoryByMemberId.size()).isEqualTo(2),
+			() -> assertThat(categoryByMemberId.get(0).getId()).isEqualTo(category.getId()),
+			() -> assertThat(categoryByMemberId.get(0).getName()).isEqualTo(category.getName()),
+			() -> assertThat(categoryByMemberId.get(1).getId()).isEqualTo(category2.getId()),
+			() -> assertThat(categoryByMemberId.get(1).getName()).isEqualTo(category2.getName())
+		);
+	}
+
 	private Product makeProductWishListChatRoomProductImage(Member june, Member bean, Location location, Image image,
 		Category category) {
 		Product product = makeProduct(june, location, category, SellingStatus.SELLING,
