@@ -36,7 +36,7 @@ public class MemberController {
 
 	private final MemberService memberService;
 
-	@GetMapping()
+	@GetMapping("/nickname")
 	ApiResponse<LoginResponse> checkDuplicateNickname(
 		@RequestParam String nickname
 	) {

@@ -29,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Repository
 public class QueryProductRepository {
-	private static final Long BASIC_LOCATION_ID = 1L;
+	public static final Long BASIC_LOCATION_ID = 1L;
 	private final JPQLQueryFactory queryFactory;
 
 	public Slice<DetailPageSliceResponseDto> findByDetailPageSliceRequestDto(
