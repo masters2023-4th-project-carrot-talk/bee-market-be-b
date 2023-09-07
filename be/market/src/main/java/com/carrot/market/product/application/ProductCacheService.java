@@ -18,11 +18,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class ProductCacheService {
+	public static final int HITS_DURATION = 30;
+	public static final int HITS_SCHEDULED_DURATION = 5000;
 	private final ProductRepository productRepository;
 	private final RedisUtil redisUtil;
 
 	public void addViewCntToRedis(Long productId) {
-		String viewCntKey = createViewCntCacheKey(productId);
+		String viewCntKey = createHitsCacheKey(productId);
 		if (redisUtil.getData(viewCntKey) != null) {
 			redisUtil.increment(viewCntKey);
 			return;
@@ -30,25 +32,27 @@ public class ProductCacheService {
 
 		redisUtil.setData(
 			viewCntKey,
-			String.valueOf(productRepository.findViewCount(productId) + 1),
-			Duration.ofSeconds(30)
+			String.valueOf(productRepository.findHitsById(productId) + 1),
+			Duration.ofSeconds(HITS_DURATION)
 		);
 	}
 
 	/**
 	 * 5초 캐시 데이터를 RDB 반영 후 삭제한다
 	 */
-	@Scheduled(cron = "0/5 * * * * ?")
+	@Scheduled(fixedDelay = HITS_SCHEDULED_DURATION)
 	@Transactional
 	public void applyViewCountToRDB() {
-		Set<String> viewCntKeys = redisUtil.keys(getProductCachePattern());
-		if (Objects.requireNonNull(viewCntKeys).isEmpty())
+		Set<String> hitsKeys = redisUtil.keys(getProductCachePattern());
+
+		if (Objects.requireNonNull(hitsKeys).isEmpty())
 			return;
-		for (String viewCntKey : viewCntKeys) {
-			Long boardId = extractBoardIdFromKey(viewCntKey);
-			Long viewCount = Long.parseLong(redisUtil.getData(viewCntKey));
-			productRepository.applyViewCntToRDB(boardId, viewCount);
-			redisUtil.deleteData(viewCntKey);
+
+		for (String hitsKey : hitsKeys) {
+			Long boardId = extractBoardIdFromKey(hitsKey);
+			Long hits = Long.parseLong(redisUtil.getData(hitsKey));
+			productRepository.applyHitsToRDB(boardId, hits);
+			redisUtil.deleteData(hitsKey);
 		}
 	}
 

@@ -17,10 +17,12 @@ import com.carrot.market.member.application.dto.request.SignupServiceRequest;
 import com.carrot.market.member.application.dto.response.LoginMemberResponse;
 import com.carrot.market.member.application.dto.response.MainLocationResponse;
 import com.carrot.market.member.application.dto.response.MemberLocationResponse;
+import com.carrot.market.member.application.dto.response.ReissueAccessTokenResponse;
 import com.carrot.market.member.domain.Member;
 import com.carrot.market.member.domain.MemberLocation;
 import com.carrot.market.member.infrastructure.MemberLocationRepository;
 import com.carrot.market.member.infrastructure.MemberRepository;
+import com.carrot.market.member.presentation.dto.request.ReissueAccessTokenRequest;
 import com.carrot.market.oauth.application.dto.response.LoginResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -126,5 +128,18 @@ public class MemberService {
 	private Member findMemberBySocialId(String socialId) {
 		return memberRepository.findBySocialId(socialId)
 			.orElseThrow(() -> new ApiException(MemberException.NOT_FOUND_MEMBER));
+	}
+
+	public ReissueAccessTokenResponse reissueAccessToken(ReissueAccessTokenRequest reissueAccessTokenRequest) {
+		String refreshToken = reissueAccessTokenRequest.refreshToken();
+		Member member = memberRepository.findByRefreshToken(refreshToken)
+			.orElseThrow(() -> new ApiException(MemberException.NOT_FOUND_MEMBER));
+		Jwt jwt = jwtProvider.reissueAccessToken(Map.of(MEMBER_ID, member.getId()), refreshToken);
+		return new ReissueAccessTokenResponse(jwt.accessToken());
+	}
+
+	@Transactional
+	public void logout(Long memberId, String refreshToken) {
+		memberRepository.updateRefreshTokenByUserIdAndRefreshToken(memberId, refreshToken);
 	}
 }

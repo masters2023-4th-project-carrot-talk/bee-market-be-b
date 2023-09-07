@@ -1,10 +1,16 @@
 package com.carrot.market.global.config;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import com.carrot.market.member.resolver.MemberArgumentResolver;
+import com.carrot.market.oauth.resolver.OauthArgumentResolver;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
@@ -25,5 +31,11 @@ public class WebConfig implements WebMvcConfigurer {
 			)
 			.allowCredentials(true)
 			.exposedHeaders("*");
+	}
+
+	@Override
+	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+		resolvers.add(new MemberArgumentResolver());
+		resolvers.add(new OauthArgumentResolver());
 	}
 }

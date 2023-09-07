@@ -20,7 +20,7 @@ public record ProductDetailDto(
 
 	public static ProductDetailDto from(ProductSellerDetaillDto productDetailDto, Boolean isLiked) {
 		return ProductDetailDto.builder().location(productDetailDto.location)
-			.status(productDetailDto.status.name())
+			.status(productDetailDto.status.getText())
 			.title(productDetailDto.name)
 			.category(productDetailDto.category)
 			.createdAt(productDetailDto.createdAt)

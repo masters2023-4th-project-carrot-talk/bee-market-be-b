@@ -12,12 +12,12 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.carrot.market.product.application.dto.response.CategoryDto;
-import com.carrot.market.product.application.dto.response.MainPageServiceDto;
+import com.carrot.market.product.application.dto.response.DetailPageServiceDto;
 import com.carrot.market.product.application.dto.response.ProductDetailDto;
 import com.carrot.market.product.application.dto.response.ProductDetailResponseDto;
 import com.carrot.market.product.application.dto.response.SellerDetailDto;
 import com.carrot.market.product.domain.SellingStatus;
-import com.carrot.market.product.infrastructure.dto.MainPageSliceDto;
+import com.carrot.market.product.infrastructure.dto.response.DetailPageSliceResponseDto;
 import com.carrot.market.support.ControllerTestSupport;
 
 class ProductControllerTest extends ControllerTestSupport {
@@ -25,11 +25,12 @@ class ProductControllerTest extends ControllerTestSupport {
 	@Test
 	void mainpage() throws Exception {
 		// given
-		MainPageSliceDto mainPageSliceDto = new MainPageSliceDto(1L, 1L, "name", "location", "image",
+		DetailPageSliceResponseDto mainPageSliceDto = new DetailPageSliceResponseDto(1L, 1L, "name", "location",
+			"image",
 			LocalDateTime.now(), 3000L,
 			SellingStatus.SELLING.name(), 2L, 2L);
 		when(productService.getMainPage(any(), any(), any(), anyInt())).thenReturn(
-			new MainPageServiceDto(List.of(mainPageSliceDto), 2L)
+			new DetailPageServiceDto(List.of(mainPageSliceDto), 2L)
 		);
 
 		// when & then
@@ -96,7 +97,7 @@ class ProductControllerTest extends ControllerTestSupport {
 		when(productService.getProduct(any(), any())).thenReturn(productDetailResponseDto);
 
 		mockMvc.perform(
-				get("/api/products/1")
+				get("/api/products/1").requestAttr("memberId", 1)
 			)
 			.andDo(print())
 			.andExpect(status().isOk())

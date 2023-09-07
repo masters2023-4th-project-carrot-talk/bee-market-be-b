@@ -13,7 +13,7 @@ import lombok.Getter;
 @Getter
 public enum JwtException implements CustomException {
 
-	EXPIRED_JWT_EXCEPTION(ExpiredJwtException.class, "토큰의 기한이 만료되었습니다."),
+	EXPIRED_JWT_EXCEPTION(ExpiredJwtException.class, "만료된 토큰입니다."),
 	MALFORMED_JWT_EXCEPTION(MalformedJwtException.class, "잘못된 형식의 토큰입니다."),
 	SIGNATURE_EXCEPTION(SignatureException.class, "토큰의 키가 올바르지 않습니다."),
 	UNSUPPORTED_JWT_EXCEPTION(UnsupportedJwtException.class, "지원하지 않는 토큰입니다."),

@@ -27,7 +27,8 @@ import com.carrot.market.product.domain.Product;
 import com.carrot.market.product.domain.ProductDetails;
 import com.carrot.market.product.domain.ProductImage;
 import com.carrot.market.product.domain.SellingStatus;
-import com.carrot.market.product.infrastructure.dto.MainPageSliceDto;
+import com.carrot.market.product.infrastructure.dto.request.DetailPageSliceRequestDto;
+import com.carrot.market.product.infrastructure.dto.response.DetailPageSliceResponseDto;
 import com.carrot.market.support.IntegrationTestSupport;
 
 import jakarta.persistence.EntityManager;
@@ -74,12 +75,17 @@ class QueryProductRepositoryImplTest extends IntegrationTestSupport {
 		Category category = makeCategory("dress", "www.naver.com");
 		categoryRepository.save(category);
 		Product product = makeProductWishListChatRoomProductImage(june, bean, location, image, category);
+		DetailPageSliceRequestDto detailPageSliceRequestDto = DetailPageSliceRequestDto.builder()
+			.locationId(location.getId())
+			.categoryId(category.getId())
+			.pageSize(10)
+			.build();
 
 		// when
-		Slice<MainPageSliceDto> byLocationIdAndCategoryIdSlice = queryProductRepository.findByLocationIdAndCategoryId(
-			location.getId(), category.getId(), null, 10);
+		Slice<DetailPageSliceResponseDto> byLocationIdAndCategoryIdSlice = queryProductRepository.findByDetailPageSliceRequestDto(
+			detailPageSliceRequestDto);
 
-		MainPageSliceDto product1 = byLocationIdAndCategoryIdSlice.getContent().get(0);
+		DetailPageSliceResponseDto product1 = byLocationIdAndCategoryIdSlice.getContent().get(0);
 
 		// then
 		assertAll(
@@ -90,7 +96,7 @@ class QueryProductRepositoryImplTest extends IntegrationTestSupport {
 			() -> assertThat(product1.getLocation()).isEqualTo(product.getLocation().getName()),
 			() -> assertThat(product1.getCreatedAt()).isEqualTo(product.getCreatedAt()),
 			() -> assertThat(product1.getPrice()).isEqualTo(product.getProductDetails().getPrice()),
-			() -> assertThat(product1.getStatus()).isEqualTo(product.getStatus().name()),
+			() -> assertThat(product1.getStatus()).isEqualTo(product.getStatus().getText()),
 			() -> assertThat(product1.getImageUrl()).isEqualTo(image.getImageUrl()),
 			() -> assertThat(product1.getLikeCount()).isEqualTo(product.getWishLists().size()),
 			() -> assertThat(product1.getChatCount()).isEqualTo(2)
@@ -118,15 +124,24 @@ class QueryProductRepositoryImplTest extends IntegrationTestSupport {
 		categoryRepository.saveAll(List.of(category, category2));
 		Product product1 = makeProductWishListChatRoomProductImage(june, bean, location, image, category);
 		Product product2 = makeProductWishListChatRoomProductImage(june, bean, location2, image, category2);
-
+		DetailPageSliceRequestDto detailPageSliceRequestDto = DetailPageSliceRequestDto.builder()
+			.locationId(location.getId())
+			.categoryId(category.getId())
+			.pageSize(10)
+			.build();
+		DetailPageSliceRequestDto detailPageSliceRequestDto2 = DetailPageSliceRequestDto.builder()
+			.locationId(location2.getId())
+			.categoryId(category2.getId())
+			.pageSize(10)
+			.build();
 		// when
-		Slice<MainPageSliceDto> byLocationIdAndCategoryIdSlice = queryProductRepository.findByLocationIdAndCategoryId(
-			location.getId(), category.getId(), null, 10);
+		Slice<DetailPageSliceResponseDto> byLocationIdAndCategoryIdSlice = queryProductRepository.findByDetailPageSliceRequestDto(
+			detailPageSliceRequestDto);
 
-		MainPageSliceDto mainPageSliceDto1 = byLocationIdAndCategoryIdSlice.getContent().get(0);
-		Slice<MainPageSliceDto> byLocationIdAndCategoryIdSlice2 = queryProductRepository.findByLocationIdAndCategoryId(
-			location2.getId(), category2.getId(), null, 10);
-		MainPageSliceDto mainPageSliceDto2 = byLocationIdAndCategoryIdSlice2.getContent().get(0);
+		DetailPageSliceResponseDto mainPageSliceDto1 = byLocationIdAndCategoryIdSlice.getContent().get(0);
+		Slice<DetailPageSliceResponseDto> byLocationIdAndCategoryIdSlice2 = queryProductRepository.findByDetailPageSliceRequestDto(
+			detailPageSliceRequestDto2);
+		DetailPageSliceResponseDto mainPageSliceDto2 = byLocationIdAndCategoryIdSlice2.getContent().get(0);
 
 		// then
 		assertAll(
@@ -136,7 +151,7 @@ class QueryProductRepositoryImplTest extends IntegrationTestSupport {
 			() -> assertThat(mainPageSliceDto1.getLocation()).isEqualTo(product1.getLocation().getName()),
 			() -> assertThat(mainPageSliceDto1.getCreatedAt()).isEqualTo(product1.getCreatedAt()),
 			() -> assertThat(mainPageSliceDto1.getPrice()).isEqualTo(product1.getProductDetails().getPrice()),
-			() -> assertThat(mainPageSliceDto1.getStatus()).isEqualTo(product1.getStatus().name()),
+			() -> assertThat(mainPageSliceDto1.getStatus()).isEqualTo(product1.getStatus().getText()),
 			() -> assertThat(mainPageSliceDto1.getImageUrl()).isEqualTo(image.getImageUrl()),
 			() -> assertThat(mainPageSliceDto1.getLikeCount()).isEqualTo(product1.getWishLists().size()),
 			() -> assertThat(mainPageSliceDto1.getChatCount()).isEqualTo(2),
@@ -146,10 +161,185 @@ class QueryProductRepositoryImplTest extends IntegrationTestSupport {
 			() -> assertThat(mainPageSliceDto2.getLocation()).isEqualTo(product2.getLocation().getName()),
 			() -> assertThat(mainPageSliceDto2.getCreatedAt()).isEqualTo(product2.getCreatedAt()),
 			() -> assertThat(mainPageSliceDto2.getPrice()).isEqualTo(product2.getProductDetails().getPrice()),
-			() -> assertThat(mainPageSliceDto2.getStatus()).isEqualTo(product2.getStatus().name()),
+			() -> assertThat(mainPageSliceDto2.getStatus()).isEqualTo(product2.getStatus().getText()),
 			() -> assertThat(mainPageSliceDto2.getImageUrl()).isEqualTo(image.getImageUrl()),
 			() -> assertThat(mainPageSliceDto2.getLikeCount()).isEqualTo(product2.getWishLists().size()),
 			() -> assertThat(mainPageSliceDto2.getChatCount()).isEqualTo(2)
+
+		);
+
+	}
+
+	@Test
+	void findByStatusSliceWithSellingStatusWithOneProduct() {
+
+		// given
+		Member june = makeMember("june", "www.codesquad.kr");
+		Member bean = makeMember("bean", "www.codesquad.kr");
+		memberRepository.saveAll(List.of(june, bean));
+
+		Location location = makeLocation("susongdong");
+		locationRepository.save(location);
+
+		Image image = makeImage("www.google.com");
+		imageRepository.save(image);
+
+		Category category = makeCategory("dress", "www.naver.com");
+		categoryRepository.save(category);
+		Product product = makeProductWishListChatRoomProductImage(june, bean, location, image, category);
+		productRepository.save(product);
+		DetailPageSliceRequestDto detailPageSliceRequest = DetailPageSliceRequestDto.builder()
+			.status(SellingStatus.SELLING.name())
+			.sellerId(june.getId())
+			.pageSize(10)
+			.build();
+		// when
+		Slice<DetailPageSliceResponseDto> byStatus = queryProductRepository.findByMyDetailPageSliceRequestDto(
+			detailPageSliceRequest);
+
+		DetailPageSliceResponseDto product1 = byStatus.getContent().get(0);
+
+		// then
+		assertAll(
+			() -> assertThat(byStatus.getContent().size()).isEqualTo(1),
+			() -> assertThat(product1.getId()).isEqualTo(product.getId()),
+			() -> assertThat(product1.getSellerId()).isEqualTo(june.getId()),
+			() -> assertThat(product1.getName()).isEqualTo(product.getProductDetails().getName()),
+			() -> assertThat(product1.getLocation()).isEqualTo(product.getLocation().getName()),
+			() -> assertThat(product1.getCreatedAt()).isEqualTo(product.getCreatedAt()),
+			() -> assertThat(product1.getPrice()).isEqualTo(product.getProductDetails().getPrice()),
+			() -> assertThat(product1.getStatus()).isEqualTo(product.getStatus().getText()),
+			() -> assertThat(product1.getImageUrl()).isEqualTo(image.getImageUrl()),
+			() -> assertThat(product1.getLikeCount()).isEqualTo(product.getWishLists().size()),
+			() -> assertThat(product1.getChatCount()).isEqualTo(2)
+
+		);
+
+	}
+
+	@Test
+	void findByStatusSliceWithReservedStatusWithNoneProduct() {
+
+		// given
+		Member june = makeMember("june", "www.codesquad.kr");
+		Member bean = makeMember("bean", "www.codesquad.kr");
+		memberRepository.saveAll(List.of(june, bean));
+
+		Location location = makeLocation("susongdong");
+		locationRepository.save(location);
+
+		Image image = makeImage("www.google.com");
+		imageRepository.save(image);
+
+		Category category = makeCategory("dress", "www.naver.com");
+		categoryRepository.save(category);
+		Product product = makeProduct(june, location, category, SellingStatus.RESERVED,
+			new ProductDetails("title", 3000L, "content", 3000L));
+		productRepository.save(product);
+
+		DetailPageSliceRequestDto build = DetailPageSliceRequestDto.builder()
+			.status(SellingStatus.SELLING.name())
+			.pageSize(10)
+			.sellerId(june.getId())
+			.build();
+		// when
+		Slice<DetailPageSliceResponseDto> byStatus = queryProductRepository.findByMyDetailPageSliceRequestDto(build);
+
+		// then
+		assertThat(byStatus.getContent().size()).isEqualTo(0);
+
+	}
+
+	@Test
+	void findByWishSliceWithSellingStatusWithOneProduct() {
+
+		// given
+		Member june = makeMember("june", "www.codesquad.kr");
+		Member bean = makeMember("bean", "www.codesquad.kr");
+		memberRepository.saveAll(List.of(june, bean));
+
+		Location location = makeLocation("susongdong");
+		locationRepository.save(location);
+
+		Image image = makeImage("www.google.com");
+		imageRepository.save(image);
+
+		Category category = makeCategory("dress", "www.naver.com");
+		categoryRepository.save(category);
+		Product product = makeProductWishListChatRoomProductImage(june, bean, location, image, category);
+		productRepository.save(product);
+		DetailPageSliceRequestDto detailPageSliceRequest = DetailPageSliceRequestDto.builder()
+			.wishMemberId(june.getId())
+			.pageSize(10)
+			.build();
+		// when
+		Slice<DetailPageSliceResponseDto> byStatus = queryProductRepository.findByMyDetailPageSliceRequestDto(
+			detailPageSliceRequest);
+
+		DetailPageSliceResponseDto product1 = byStatus.getContent().get(0);
+
+		// then
+		assertAll(
+			() -> assertThat(byStatus.getContent().size()).isEqualTo(1),
+			() -> assertThat(product1.getId()).isEqualTo(product.getId()),
+			() -> assertThat(product1.getSellerId()).isEqualTo(june.getId()),
+			() -> assertThat(product1.getName()).isEqualTo(product.getProductDetails().getName()),
+			() -> assertThat(product1.getLocation()).isEqualTo(product.getLocation().getName()),
+			() -> assertThat(product1.getCreatedAt()).isEqualTo(product.getCreatedAt()),
+			() -> assertThat(product1.getPrice()).isEqualTo(product.getProductDetails().getPrice()),
+			() -> assertThat(product1.getStatus()).isEqualTo(product.getStatus().getText()),
+			() -> assertThat(product1.getImageUrl()).isEqualTo(image.getImageUrl()),
+			() -> assertThat(product1.getLikeCount()).isEqualTo(product.getWishLists().size()),
+			() -> assertThat(product1.getChatCount()).isEqualTo(2)
+
+		);
+
+	}
+
+	@Test
+	void findByWishAndCategorySliceWithSellingStatusWithOneProduct() {
+
+		// given
+		Member june = makeMember("june", "www.codesquad.kr");
+		Member bean = makeMember("bean", "www.codesquad.kr");
+		memberRepository.saveAll(List.of(june, bean));
+
+		Location location = makeLocation("susongdong");
+		locationRepository.save(location);
+
+		Image image = makeImage("www.google.com");
+		imageRepository.save(image);
+
+		Category category = makeCategory("dress", "www.naver.com");
+		categoryRepository.save(category);
+		Category category2 = makeCategory("dress", "www.naver.com");
+		categoryRepository.save(category2);
+		Product product = makeProductWishListChatRoomProductImage(june, bean, location, image, category);
+		productRepository.save(product);
+		DetailPageSliceRequestDto detailPageSliceRequest = DetailPageSliceRequestDto.builder()
+			.wishMemberId(june.getId())
+			.categoryId(category.getId())
+			.pageSize(10)
+			.build();
+		// when
+		Slice<DetailPageSliceResponseDto> byStatus = queryProductRepository.findByMyDetailPageSliceRequestDto(
+			detailPageSliceRequest);
+
+		DetailPageSliceResponseDto product1 = byStatus.getContent().get(0);
+
+		// then
+		assertAll(
+			() -> assertThat(byStatus.getContent().size()).isEqualTo(1),
+			() -> assertThat(product1.getId()).isEqualTo(product.getId()),
+			() -> assertThat(product1.getSellerId()).isEqualTo(june.getId()),
+			() -> assertThat(product1.getName()).isEqualTo(product.getProductDetails().getName()),
+			() -> assertThat(product1.getLocation()).isEqualTo(product.getLocation().getName()),
+			() -> assertThat(product1.getCreatedAt()).isEqualTo(product.getCreatedAt()),
+			() -> assertThat(product1.getPrice()).isEqualTo(product.getProductDetails().getPrice()),
+			() -> assertThat(product1.getStatus()).isEqualTo(product.getStatus().getText()),
+			() -> assertThat(product1.getImageUrl()).isEqualTo(image.getImageUrl()),
+			() -> assertThat(product1.getLikeCount()).isEqualTo(product.getWishLists().size()),
+			() -> assertThat(product1.getChatCount()).isEqualTo(2)
 
 		);
 
