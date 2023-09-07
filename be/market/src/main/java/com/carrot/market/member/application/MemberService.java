@@ -48,8 +48,7 @@ public class MemberService {
 
 		Jwt jwt = jwtProvider.createJwt(Map.of(MEMBER_ID, savedMember.getId()));
 		savedMember.setRefreshToken(jwt.refreshToken());
-		LoginMemberResponse loginMemberResponse = new LoginMemberResponse(savedMember.getId(),
-			savedMember.getNickname());
+		LoginMemberResponse loginMemberResponse = LoginMemberResponse.from(member);
 
 		saveMainMemberLocation(member, findLocationById(signupServiceRequest.mainLocationId()));
 
@@ -59,8 +58,8 @@ public class MemberService {
 	}
 
 	@Transactional
-	public MainLocationResponse updateLocation(String socialId, Long locationId) {
-		final Member member = findMemberBySocialId(socialId);
+	public MainLocationResponse updateLocation(Long memberId, Long locationId) {
+		final Member member = findMemberById(memberId);
 		final Location location = findLocationById(locationId);
 
 		if (member.isRegisteredLocation(location)) {
@@ -76,12 +75,13 @@ public class MemberService {
 		return new MainLocationResponse(member.getMainMemberLocation());
 	}
 
-	public List<MemberLocationResponse> getRegisteredLocations(String socialId) {
-		if (memberRepository.findBySocialId(socialId).isEmpty()) {
+
+	public List<MemberLocationResponse> getRegisteredLocations(Long memberId) {
+		if (memberRepository.findById(memberId).isEmpty()) {
 			Location location = locationRepository.findById(BASIC_LOCATION_ID).get();
 			return List.of(MemberLocationResponse.fromLocation(location));
 		}
-		final Member member = findMemberBySocialId(socialId);
+		final Member member = findMemberById(memberId);
 
 		return member.getMemberLocations()
 			.stream()
@@ -90,8 +90,8 @@ public class MemberService {
 	}
 
 	@Transactional
-	public MainLocationResponse removeRegisteredLocation(String socialId, Long locationId) {
-		final Member member = findMemberBySocialId(socialId);
+	public MainLocationResponse removeRegisteredLocation(Long memberId, Long locationId) {
+		final Member member = findMemberById(memberId);
 		final Location location = findLocationById(locationId);
 
 		MemberLocation removedLocation = member.removeLocation(location);
@@ -131,9 +131,22 @@ public class MemberService {
 			.orElseThrow(() -> new ApiException(LocationException.NOT_FOUND_ID));
 	}
 
-	private Member findMemberBySocialId(String socialId) {
-		return memberRepository.findBySocialId(socialId)
+	private Member findMemberById(Long memberId) {
+		return memberRepository.findById(memberId)
 			.orElseThrow(() -> new ApiException(MemberException.NOT_FOUND_MEMBER));
+	}
+
+	public ReissueAccessTokenResponse reissueAccessToken(ReissueAccessTokenRequest reissueAccessTokenRequest) {
+		String refreshToken = reissueAccessTokenRequest.refreshToken();
+		Member member = memberRepository.findByRefreshToken(refreshToken)
+			.orElseThrow(() -> new ApiException(MemberException.NOT_FOUND_MEMBER));
+		Jwt jwt = jwtProvider.reissueAccessToken(Map.of(MEMBER_ID, member.getId()), refreshToken);
+		return new ReissueAccessTokenResponse(jwt.accessToken());
+	}
+
+	@Transactional
+	public void logout(Long memberId, String refreshToken) {
+		memberRepository.updateRefreshTokenNullByUserIdAndRefreshToken(memberId, refreshToken);
 	}
 
 	public ReissueAccessTokenResponse reissueAccessToken(ReissueAccessTokenRequest reissueAccessTokenRequest) {

@@ -7,7 +7,7 @@ public record LoginResponse(
 	boolean isUser,
 	String accessToken,
 	String refreshToken,
-	LoginMemberResponse member
+	LoginMemberResponse user
 ) {
 	public static LoginResponse fail(String accessToken) {
 		return new LoginResponse(false, accessToken, null, null);
