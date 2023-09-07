@@ -1,53 +1,60 @@
 package com.carrot.market.image.application;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.UUID;
+import java.io.InputStream;
 
+import javax.imageio.ImageIO;
+
+import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
+import org.marvinproject.image.transform.scale.Scale;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
-import com.carrot.market.global.exception.ApiException;
-import com.carrot.market.global.exception.domain.ImageException;
-
-import io.awspring.cloud.s3.ObjectMetadata;
 import io.awspring.cloud.s3.S3Template;
 import lombok.RequiredArgsConstructor;
+import marvin.image.MarvinImage;
 
 @RequiredArgsConstructor
 @Component
 public class ImageS3Uploader {
-	private static final String EXTENSION_SEPARATOR = ".";
-	private static final String DIRECTORY_SEPARATOR = "/";
-
 	private final S3Template s3Template;
 
 	@Value("${spring.cloud.aws.s3.bucket}")
 	private String bucketName;
 
-	public String upload(MultipartFile file, String fileDir) {
-		try (var inputStream = file.getInputStream()) {
-			String key = generateKey(file, fileDir);
-			ObjectMetadata metadata = createMetadata(file.getContentType());
+	public String upload(BufferedImage image, String key, int resizeHeight, int resizeWidth) throws IOException {
+		image = resizeImage(image, resizeHeight, resizeWidth);
+		return s3Template.upload(bucketName, key, getImageInputStream(image, StringUtils.getFilenameExtension(key)))
+			.getURL()
+			.toString();
+	}
 
-			return s3Template.upload(bucketName, key, inputStream, metadata)
-				.getURL()
-				.toString();
-		} catch (IOException ex) {
-			throw new ApiException(ImageException.IMAGE_UPLOAD_FAILED);
+	BufferedImage resizeImage(BufferedImage originImage, int resizeHeight, int resizeWidth) {
+		if (isLessThanResizeValue(originImage, resizeHeight, resizeWidth)) {
+			return originImage;
 		}
+		MarvinImage resizeImage = new MarvinImage(originImage);
+		Scale scale = new Scale();
+		scale.load();
+		scale.setAttribute("newWidth", resizeWidth);
+		scale.setAttribute("newHeight", resizeHeight);
+		scale.process(resizeImage.clone(), resizeImage);
+
+		return resizeImage.getBufferedImageNoAlpha();
 	}
 
-	private String generateKey(MultipartFile file, String fileDir) {
-		String fileName = UUID.randomUUID().toString();
-		String extension = StringUtils.getFilenameExtension(file.getOriginalFilename());
-		return fileDir + DIRECTORY_SEPARATOR + fileName + EXTENSION_SEPARATOR + extension;
+	private static boolean isLessThanResizeValue(BufferedImage originImage, int resizeHeight, int resizeWidth) {
+		return originImage.getWidth() < resizeWidth && originImage.getHeight() < resizeHeight;
 	}
 
-	private ObjectMetadata createMetadata(String contentType) {
-		return ObjectMetadata.builder()
-			.contentType(contentType)
-			.build();
+	private static InputStream getImageInputStream(BufferedImage image, String extension) throws IOException {
+		try (ByteArrayOutputStream imageOutputStream = new ByteArrayOutputStream()) {
+			ImageIO.write(image, extension, imageOutputStream);
+			imageOutputStream.flush();
+			return new ByteArrayInputStream(imageOutputStream.toByteArray());
+		}
 	}
 }

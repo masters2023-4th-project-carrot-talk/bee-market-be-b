@@ -21,7 +21,9 @@ public class ImageController {
 	private final ImageService imageService;
 
 	@PostMapping
-	public ApiResponse<List<ImageResponse>> uploadImages(@RequestPart List<MultipartFile> images) {
+	public ApiResponse<List<ImageResponse>> uploadImages(
+		@RequestPart List<MultipartFile> images
+	) {
 		return ApiResponse.success(imageService.uploadImages(images));
 	}
 }
