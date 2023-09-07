@@ -7,10 +7,10 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.Set;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.carrot.market.DataInit;
 import com.carrot.market.member.domain.Member;
 import com.carrot.market.member.infrastructure.MemberRepository;
 import com.carrot.market.product.domain.Product;
@@ -33,12 +33,12 @@ class ProductCacheServiceTest extends CacheTestSupport {
 	@Autowired
 	EntityManager entityManager;
 
-	// @AfterEach
-	// void tearDown() {
-	// 	productRepository.deleteAllInBatch();
-	// 	memberRepository.deleteAllInBatch();
-	// 	deleteAllInRedis();
-	// }
+	@AfterEach
+	void tearDown() {
+		productRepository.deleteAllInBatch();
+		memberRepository.deleteAllInBatch();
+		deleteAllInRedis();
+	}
 
 	@Test
 	void addViewCntToRedis() {
@@ -86,14 +86,6 @@ class ProductCacheServiceTest extends CacheTestSupport {
 
 		// then
 		assertThat(redisUtil.keys(getProductCachePattern())).hasSize(2);
-	}
-
-	@Autowired
-	DataInit dataInit;
-
-	@Test
-	void test() throws InterruptedException {
-		dataInit.init();
 	}
 
 	@Test

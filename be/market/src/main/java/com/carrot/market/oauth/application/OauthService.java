@@ -46,6 +46,7 @@ public class OauthService {
 		}
 	}
 
+	@Transactional
 	public LoginResponse login(String authCode) {
 		OauthMember oauthMember = oauthMemberClientComposite.fetch(authCode);
 
@@ -58,7 +59,8 @@ public class OauthService {
 
 		Member member = optionalMember.get();
 		Jwt jwt = createJwt(member);
-		LoginMemberResponse loginMemberResponse = new LoginMemberResponse(member.getId(), member.getNickname());
+		memberRepository.updateRefreshTokenByUserIdAndRefreshToken(member.getId(), jwt.refreshToken());
+		LoginMemberResponse loginMemberResponse = LoginMemberResponse.from(member);
 
 		return LoginResponse.success(jwt, loginMemberResponse);
 	}
