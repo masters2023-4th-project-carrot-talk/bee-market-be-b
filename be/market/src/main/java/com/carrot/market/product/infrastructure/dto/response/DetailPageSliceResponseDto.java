@@ -2,6 +2,7 @@ package com.carrot.market.product.infrastructure.dto.response;
 
 import java.time.LocalDateTime;
 
+import com.carrot.market.product.domain.SellingStatus;
 import com.querydsl.core.annotations.QueryProjection;
 
 import lombok.Getter;
@@ -29,7 +30,7 @@ public class DetailPageSliceResponseDto {
 		this.imageUrl = imageUrl;
 		this.createdAt = createdAt;
 		this.price = price;
-		this.status = status;
+		this.status = SellingStatus.valueOf(status).getText();
 		this.likeCount = likeCount;
 		this.chatCount = chatCount;
 	}

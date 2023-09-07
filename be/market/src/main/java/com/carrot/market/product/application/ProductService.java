@@ -14,6 +14,7 @@ import com.carrot.market.product.application.dto.response.ProductDetailResponseD
 import com.carrot.market.product.application.dto.response.ProductSellerDetaillDto;
 import com.carrot.market.product.application.dto.response.WishListDetailDto;
 import com.carrot.market.product.domain.Category;
+import com.carrot.market.product.domain.SellingStatus;
 import com.carrot.market.product.infrastructure.CategoryRepository;
 import com.carrot.market.product.infrastructure.ProductImageRepository;
 import com.carrot.market.product.infrastructure.ProductRepository;
@@ -100,7 +101,7 @@ public class ProductService {
 
 	public DetailPageServiceDto getSellingProducts(String status, Long memberId, Long next, int size) {
 		DetailPageSliceRequestDto build = DetailPageSliceRequestDto.builder()
-			.status(status)
+			.status(SellingStatus.fromString(status))
 			.sellerId(memberId)
 			.nextProductId(next)
 			.pageSize(size)

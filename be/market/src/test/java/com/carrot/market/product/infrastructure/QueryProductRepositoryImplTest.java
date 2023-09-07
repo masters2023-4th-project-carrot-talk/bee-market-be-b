@@ -96,7 +96,7 @@ class QueryProductRepositoryImplTest extends IntegrationTestSupport {
 			() -> assertThat(product1.getLocation()).isEqualTo(product.getLocation().getName()),
 			() -> assertThat(product1.getCreatedAt()).isEqualTo(product.getCreatedAt()),
 			() -> assertThat(product1.getPrice()).isEqualTo(product.getProductDetails().getPrice()),
-			() -> assertThat(product1.getStatus()).isEqualTo(product.getStatus().name()),
+			() -> assertThat(product1.getStatus()).isEqualTo(product.getStatus().getText()),
 			() -> assertThat(product1.getImageUrl()).isEqualTo(image.getImageUrl()),
 			() -> assertThat(product1.getLikeCount()).isEqualTo(product.getWishLists().size()),
 			() -> assertThat(product1.getChatCount()).isEqualTo(2)
@@ -151,7 +151,7 @@ class QueryProductRepositoryImplTest extends IntegrationTestSupport {
 			() -> assertThat(mainPageSliceDto1.getLocation()).isEqualTo(product1.getLocation().getName()),
 			() -> assertThat(mainPageSliceDto1.getCreatedAt()).isEqualTo(product1.getCreatedAt()),
 			() -> assertThat(mainPageSliceDto1.getPrice()).isEqualTo(product1.getProductDetails().getPrice()),
-			() -> assertThat(mainPageSliceDto1.getStatus()).isEqualTo(product1.getStatus().name()),
+			() -> assertThat(mainPageSliceDto1.getStatus()).isEqualTo(product1.getStatus().getText()),
 			() -> assertThat(mainPageSliceDto1.getImageUrl()).isEqualTo(image.getImageUrl()),
 			() -> assertThat(mainPageSliceDto1.getLikeCount()).isEqualTo(product1.getWishLists().size()),
 			() -> assertThat(mainPageSliceDto1.getChatCount()).isEqualTo(2),
@@ -161,7 +161,7 @@ class QueryProductRepositoryImplTest extends IntegrationTestSupport {
 			() -> assertThat(mainPageSliceDto2.getLocation()).isEqualTo(product2.getLocation().getName()),
 			() -> assertThat(mainPageSliceDto2.getCreatedAt()).isEqualTo(product2.getCreatedAt()),
 			() -> assertThat(mainPageSliceDto2.getPrice()).isEqualTo(product2.getProductDetails().getPrice()),
-			() -> assertThat(mainPageSliceDto2.getStatus()).isEqualTo(product2.getStatus().name()),
+			() -> assertThat(mainPageSliceDto2.getStatus()).isEqualTo(product2.getStatus().getText()),
 			() -> assertThat(mainPageSliceDto2.getImageUrl()).isEqualTo(image.getImageUrl()),
 			() -> assertThat(mainPageSliceDto2.getLikeCount()).isEqualTo(product2.getWishLists().size()),
 			() -> assertThat(mainPageSliceDto2.getChatCount()).isEqualTo(2)
@@ -208,7 +208,7 @@ class QueryProductRepositoryImplTest extends IntegrationTestSupport {
 			() -> assertThat(product1.getLocation()).isEqualTo(product.getLocation().getName()),
 			() -> assertThat(product1.getCreatedAt()).isEqualTo(product.getCreatedAt()),
 			() -> assertThat(product1.getPrice()).isEqualTo(product.getProductDetails().getPrice()),
-			() -> assertThat(product1.getStatus()).isEqualTo(product.getStatus().name()),
+			() -> assertThat(product1.getStatus()).isEqualTo(product.getStatus().getText()),
 			() -> assertThat(product1.getImageUrl()).isEqualTo(image.getImageUrl()),
 			() -> assertThat(product1.getLikeCount()).isEqualTo(product.getWishLists().size()),
 			() -> assertThat(product1.getChatCount()).isEqualTo(2)
@@ -287,7 +287,7 @@ class QueryProductRepositoryImplTest extends IntegrationTestSupport {
 			() -> assertThat(product1.getLocation()).isEqualTo(product.getLocation().getName()),
 			() -> assertThat(product1.getCreatedAt()).isEqualTo(product.getCreatedAt()),
 			() -> assertThat(product1.getPrice()).isEqualTo(product.getProductDetails().getPrice()),
-			() -> assertThat(product1.getStatus()).isEqualTo(product.getStatus().name()),
+			() -> assertThat(product1.getStatus()).isEqualTo(product.getStatus().getText()),
 			() -> assertThat(product1.getImageUrl()).isEqualTo(image.getImageUrl()),
 			() -> assertThat(product1.getLikeCount()).isEqualTo(product.getWishLists().size()),
 			() -> assertThat(product1.getChatCount()).isEqualTo(2)
@@ -336,7 +336,7 @@ class QueryProductRepositoryImplTest extends IntegrationTestSupport {
 			() -> assertThat(product1.getLocation()).isEqualTo(product.getLocation().getName()),
 			() -> assertThat(product1.getCreatedAt()).isEqualTo(product.getCreatedAt()),
 			() -> assertThat(product1.getPrice()).isEqualTo(product.getProductDetails().getPrice()),
-			() -> assertThat(product1.getStatus()).isEqualTo(product.getStatus().name()),
+			() -> assertThat(product1.getStatus()).isEqualTo(product.getStatus().getText()),
 			() -> assertThat(product1.getImageUrl()).isEqualTo(image.getImageUrl()),
 			() -> assertThat(product1.getLikeCount()).isEqualTo(product.getWishLists().size()),
 			() -> assertThat(product1.getChatCount()).isEqualTo(2)

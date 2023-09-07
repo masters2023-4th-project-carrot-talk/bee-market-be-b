@@ -97,7 +97,7 @@ class ProductControllerTest extends ControllerTestSupport {
 		when(productService.getProduct(any(), any())).thenReturn(productDetailResponseDto);
 
 		mockMvc.perform(
-				get("/api/products/1")
+				get("/api/products/1").requestAttr("memberId", 1)
 			)
 			.andDo(print())
 			.andExpect(status().isOk())

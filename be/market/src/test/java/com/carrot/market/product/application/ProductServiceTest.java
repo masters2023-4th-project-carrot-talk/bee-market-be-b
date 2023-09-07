@@ -197,7 +197,7 @@ class ProductServiceTest extends IntegrationTestSupport {
 			() -> assertThat(seller.id()).isEqualTo(june.getId()),
 			() -> assertThat(seller.nickname()).isEqualTo(june.getNickname()),
 			() -> assertThat(productDetailDto.location()).isEqualTo(location.getName()),
-			() -> assertThat(productDetailDto.status()).isEqualTo(SellingStatus.SELLING.name()),
+			() -> assertThat(productDetailDto.status()).isEqualTo(SellingStatus.SELLING.getText()),
 			() -> assertThat(productDetailDto.title()).isEqualTo(product.getProductDetails().getName()),
 			() -> assertThat(productDetailDto.category()).isEqualTo(category.getName()),
 			() -> assertThat(productDetailDto.createdAt()).isEqualTo(product.getCreatedAt()),
@@ -256,7 +256,7 @@ class ProductServiceTest extends IntegrationTestSupport {
 		Product product2 = Product.builder().seller(june).status(SellingStatus.RESERVED).build();
 		productRepository.saveAll(List.of(product, product2));
 		// when
-		DetailPageServiceDto sellingProducts = productService.getSellingProducts(SellingStatus.SELLING.name(),
+		DetailPageServiceDto sellingProducts = productService.getSellingProducts(SellingStatus.SELLING.getText(),
 			june.getId(), null, 1);
 		// then
 		List<DetailPageSliceResponseDto> products = sellingProducts.products();
