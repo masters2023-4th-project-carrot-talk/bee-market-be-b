@@ -1,5 +1,7 @@
 package com.carrot.market.image.domain;
 
+import java.util.List;
+
 import com.carrot.market.global.domain.BaseEntity;
 
 import jakarta.persistence.Entity;
@@ -23,5 +25,11 @@ public class Image extends BaseEntity {
 
 	public Image(String imageUrl) {
 		this.imageUrl = imageUrl;
+	}
+
+	public static List<Image> createImages(List<String> imageUrls) {
+		return imageUrls.stream()
+			.map(Image::new)
+			.toList();
 	}
 }

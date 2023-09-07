@@ -6,17 +6,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
+import com.carrot.market.global.exception.domain.ImageException;
 import com.carrot.market.global.exception.response.ErrorResponse;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(ApiException.class)
 	public ResponseEntity<ErrorResponse> apiExceptionHandler(ApiException ex) {
-		// ResponseEntity에 추가
 		return ResponseEntity.status(ex.getStatus())
 			.body(ErrorResponse.fail(ex.getStatus(), ex.getMessage()));
 	}
@@ -31,5 +30,14 @@ public class GlobalExceptionHandler {
 			.orElseThrow();
 
 		return ErrorResponse.fail(HttpStatus.BAD_REQUEST.value(), message);
+	}
+
+	@ExceptionHandler(MaxUploadSizeExceededException.class)
+	public ResponseEntity<ErrorResponse> exceededUploadSizeExceptionHandler() {
+		ImageException imageException = ImageException.MAX_UPLOAD_SIZE_EXCEEDED;
+
+		return ResponseEntity.status(imageException.getHttpStatus()).body(ErrorResponse.fail(
+			imageException.getHttpStatus().value(),
+			imageException.getMessage()));
 	}
 }
