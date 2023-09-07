@@ -1,5 +1,7 @@
 package com.carrot.market.member.application;
 
+import static com.carrot.market.product.infrastructure.QueryProductRepository.*;
+
 import java.util.List;
 import java.util.Map;
 
@@ -75,6 +77,10 @@ public class MemberService {
 	}
 
 	public List<MemberLocationResponse> getRegisteredLocations(String socialId) {
+		if (memberRepository.findBySocialId(socialId).isEmpty()) {
+			Location location = locationRepository.findById(BASIC_LOCATION_ID).get();
+			return List.of(MemberLocationResponse.fromLocation(location));
+		}
 		final Member member = findMemberBySocialId(socialId);
 
 		return member.getMemberLocations()
