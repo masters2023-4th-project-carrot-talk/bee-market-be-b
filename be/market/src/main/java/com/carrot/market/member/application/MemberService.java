@@ -75,7 +75,6 @@ public class MemberService {
 		return new MainLocationResponse(member.getMainMemberLocation());
 	}
 
-
 	public List<MemberLocationResponse> getRegisteredLocations(Long memberId) {
 		if (memberRepository.findById(memberId).isEmpty()) {
 			Location location = locationRepository.findById(BASIC_LOCATION_ID).get();
@@ -149,16 +148,4 @@ public class MemberService {
 		memberRepository.updateRefreshTokenNullByUserIdAndRefreshToken(memberId, refreshToken);
 	}
 
-	public ReissueAccessTokenResponse reissueAccessToken(ReissueAccessTokenRequest reissueAccessTokenRequest) {
-		String refreshToken = reissueAccessTokenRequest.refreshToken();
-		Member member = memberRepository.findByRefreshToken(refreshToken)
-			.orElseThrow(() -> new ApiException(MemberException.NOT_FOUND_MEMBER));
-		Jwt jwt = jwtProvider.reissueAccessToken(Map.of(MEMBER_ID, member.getId()), refreshToken);
-		return new ReissueAccessTokenResponse(jwt.accessToken());
-	}
-
-	@Transactional
-	public void logout(Long memberId, String refreshToken) {
-		memberRepository.updateRefreshTokenByUserIdAndRefreshToken(memberId, refreshToken);
-	}
 }

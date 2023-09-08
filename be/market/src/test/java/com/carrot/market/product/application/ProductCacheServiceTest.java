@@ -2,13 +2,16 @@ package com.carrot.market.product.application;
 
 import static com.carrot.market.fixture.FixtureFactory.*;
 import static com.carrot.market.global.cache.CacheNames.*;
-import static com.carrot.market.product.application.ProductCacheService.*;
 import static org.assertj.core.api.Assertions.*;
+import static org.awaitility.Awaitility.*;
+import static org.mockito.Mockito.*;
 
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 
 import com.carrot.market.DataInit;
 import com.carrot.market.member.domain.Member;
@@ -22,7 +25,7 @@ import com.carrot.market.support.CacheTestSupport;
 import jakarta.persistence.EntityManager;
 
 class ProductCacheServiceTest extends CacheTestSupport {
-	@Autowired
+	@SpyBean
 	ProductCacheService productCacheService;
 	@Autowired
 	ProductRepository productRepository;
@@ -110,7 +113,9 @@ class ProductCacheServiceTest extends CacheTestSupport {
 		productCacheService.addViewCntToRedis(product.getId());
 
 		// when
-		Thread.sleep(HITS_SCHEDULED_DURATION * 2);
+		await().atMost(10, TimeUnit.SECONDS)
+			.untilAsserted(
+				() -> verify(productCacheService, atLeast(2)).applyViewCountToRDB());
 
 		// then
 		Product byId = productRepository.findById(product.getId()).get();
