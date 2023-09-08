@@ -97,7 +97,7 @@ class ProductCacheServiceTest extends CacheTestSupport {
 	}
 
 	@Test
-	void applyViewCountToRDB() throws InterruptedException {
+	void validateApplyViewCountToRDB() throws InterruptedException {
 		// given
 		Member june = makeMember("june", "www.naver.com");
 		memberRepository.save(june);
