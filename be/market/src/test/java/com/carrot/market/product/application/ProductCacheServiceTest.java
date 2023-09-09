@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 
-import com.carrot.market.DataInit;
 import com.carrot.market.member.domain.Member;
 import com.carrot.market.member.infrastructure.MemberRepository;
 import com.carrot.market.product.domain.Product;
@@ -50,7 +49,7 @@ class ProductCacheServiceTest extends CacheTestSupport {
 		memberRepository.save(june);
 		Product product = Product.builder()
 			.seller(june)
-			.productDetails(ProductDetails.builder().hits(0L).build())
+			.productDetails(ProductDetails.builder().build())
 			.build();
 		productRepository.save(product);
 		Long productId = product.getId();
@@ -72,12 +71,12 @@ class ProductCacheServiceTest extends CacheTestSupport {
 		memberRepository.save(june);
 		Product product = Product.builder()
 			.seller(june)
-			.productDetails(ProductDetails.builder().hits(0L).build())
+			.productDetails(ProductDetails.builder().build())
 			.build();
 		productRepository.save(product);
 		Product product2 = Product.builder()
 			.seller(june)
-			.productDetails(ProductDetails.builder().hits(0L).build())
+			.productDetails(ProductDetails.builder().build())
 			.build();
 		productRepository.save(product2);
 		Long productId = product.getId();
@@ -106,7 +105,7 @@ class ProductCacheServiceTest extends CacheTestSupport {
 		memberRepository.save(june);
 		Product product = Product.builder()
 			.seller(june)
-			.productDetails(ProductDetails.builder().hits(0L).build())
+			.productDetails(ProductDetails.builder().build())
 			.build();
 		productRepository.save(product);
 		productCacheService.addViewCntToRedis(product.getId());

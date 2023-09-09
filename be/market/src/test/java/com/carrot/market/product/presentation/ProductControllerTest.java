@@ -1,7 +1,7 @@
 package com.carrot.market.product.presentation;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -9,15 +9,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
 
+import com.carrot.market.product.application.dto.request.ProductCreateServiceRequest;
+import com.carrot.market.product.application.dto.request.ProductUpdateServiceRequest;
 import com.carrot.market.product.application.dto.response.CategoryDto;
 import com.carrot.market.product.application.dto.response.DetailPageServiceDto;
+import com.carrot.market.product.application.dto.response.ProductCreateServiceResponse;
 import com.carrot.market.product.application.dto.response.ProductDetailDto;
 import com.carrot.market.product.application.dto.response.ProductDetailResponseDto;
 import com.carrot.market.product.application.dto.response.SellerDetailDto;
 import com.carrot.market.product.domain.SellingStatus;
 import com.carrot.market.product.infrastructure.dto.response.DetailPageSliceResponseDto;
+import com.carrot.market.product.presentation.dto.request.ProductCreateRequest;
+import com.carrot.market.product.presentation.dto.request.ProductUpdateRequest;
 import com.carrot.market.support.ControllerTestSupport;
 
 class ProductControllerTest extends ControllerTestSupport {
@@ -117,4 +124,55 @@ class ProductControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("$.data.product.isLiked").value(false));
 	}
 
+	@DisplayName("상품을 등록한다.")
+	@Test
+	public void createProduct() throws Exception {
+		//given
+		var productCreateRequest = ProductCreateRequest.builder()
+			.images(List.of(1L, 2L, 3L))
+			.locationId(1L)
+			.categoryId(1L)
+			.price(3000L)
+			.content("내용")
+			.name("제목")
+			.build();
+
+		var response = ProductCreateServiceResponse.builder().build();
+
+		given(productService.createProduct(anyLong(), any(ProductCreateServiceRequest.class)))
+			.willReturn(response);
+
+		//when //then
+		mockMvc.perform(post("/api/products")
+				.requestAttr("memberId", 1)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(productCreateRequest)))
+			.andDo(print())
+			.andExpect(status().isCreated());
+	}
+
+	@DisplayName("상품을 수정한다.")
+	@Test
+	void updateProduct() throws Exception {
+		//given
+		var productUpdateRequest = ProductUpdateRequest.builder()
+			.images(List.of(1L, 2L, 3L))
+			.locationId(1L)
+			.categoryId(1L)
+			.price(3000L)
+			.content("내용")
+			.name("제목")
+			.build();
+
+		//when
+		doNothing().when(productService).updateProduct(anyLong(), anyLong(), any(ProductUpdateServiceRequest.class));
+
+		//then
+		mockMvc.perform(put("/api/products/1")
+				.requestAttr("memberId", 1)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(productUpdateRequest)))
+			.andDo(print())
+			.andExpect(status().isOk());
+	}
 }

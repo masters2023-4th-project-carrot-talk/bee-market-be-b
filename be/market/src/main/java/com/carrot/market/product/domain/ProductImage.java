@@ -46,4 +46,7 @@ public class ProductImage extends BaseEntity {
 		product.getProductImages().add(this);
 	}
 
+	public Long getImageId() {
+		return image.getId();
+	}
 }

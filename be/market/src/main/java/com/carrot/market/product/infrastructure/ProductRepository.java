@@ -36,5 +36,4 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
 	@Query("select p.category from Product p  join  p.category c join WishList as wl on wl.product = p where wl.member.id = :memberId")
 	List<Category> findCategoryByMemberId(@Param("memberId") Long memberId);
-
 }

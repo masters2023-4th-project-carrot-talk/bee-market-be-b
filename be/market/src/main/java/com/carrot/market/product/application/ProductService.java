@@ -7,13 +7,26 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.carrot.market.global.exception.ApiException;
+import com.carrot.market.global.exception.domain.LocationException;
+import com.carrot.market.global.exception.domain.ProductException;
+import com.carrot.market.image.application.ImageService;
+import com.carrot.market.location.domain.Location;
+import com.carrot.market.location.infrastructure.LocationRepository;
+import com.carrot.market.member.application.MemberService;
+import com.carrot.market.member.domain.Member;
 import com.carrot.market.member.infrastructure.WishListRepository;
+import com.carrot.market.product.application.dto.request.ProductCreateServiceRequest;
+import com.carrot.market.product.application.dto.request.ProductUpdateServiceRequest;
 import com.carrot.market.product.application.dto.response.CategoryDto;
 import com.carrot.market.product.application.dto.response.DetailPageServiceDto;
+import com.carrot.market.product.application.dto.response.ProductCreateServiceResponse;
 import com.carrot.market.product.application.dto.response.ProductDetailResponseDto;
 import com.carrot.market.product.application.dto.response.ProductSellerDetaillDto;
 import com.carrot.market.product.application.dto.response.WishListDetailDto;
 import com.carrot.market.product.domain.Category;
+import com.carrot.market.product.domain.Product;
+import com.carrot.market.product.domain.ProductDetails;
 import com.carrot.market.product.domain.SellingStatus;
 import com.carrot.market.product.infrastructure.CategoryRepository;
 import com.carrot.market.product.infrastructure.ProductImageRepository;
@@ -34,6 +47,9 @@ public class ProductService {
 	private final ProductRepository productRepository;
 	private final ProductImageRepository productImageRepository;
 	private final WishListRepository wishListRepository;
+	private final MemberService memberService;
+	private final LocationRepository locationRepository;
+	private final ImageService imageService;
 
 	public DetailPageServiceDto getMainPage(Long locationId, Long categoryId, Long next, int size) {
 
@@ -134,4 +150,33 @@ public class ProductService {
 		return WishListDetailDto.from(categoryByMemberId, products, contentNextId);
 	}
 
+	@Transactional
+	public ProductCreateServiceResponse createProduct(Long memberId, ProductCreateServiceRequest request) {
+		Member seller = memberService.findMemberById(memberId);
+		Category category = categoryRepository.findById(request.categoryId())
+			.orElseThrow(() -> new ApiException(ProductException.NOT_FOUND_CATEGORY));
+		Location location = locationRepository.findById(request.locationId())
+			.orElseThrow(() -> new ApiException(LocationException.NOT_FOUND_ID));
+
+		Product product = request.toEntity(seller, category, location);
+		product.addProductImages(imageService.findImagesById(request.imageIds()));
+		productRepository.save(product);
+
+		return ProductCreateServiceResponse.from(product);
+	}
+
+	@Transactional
+	public void updateProduct(Long memberId, Long productId, ProductUpdateServiceRequest request) {
+		Member seller = memberService.findMemberById(memberId);
+		Product product = productRepository.findById(productId)
+			.orElseThrow(() -> new ApiException(ProductException.NOT_FOUND_ID));
+		ProductDetails productDetails = request.productDetails();
+
+		if (product.isChangedProductImage(request.imageIds())) {
+			var images = imageService.findImagesById(request.imageIds());
+			product.update(seller, productDetails, images);
+			return;
+		}
+		product.update(seller, productDetails);
+	}
 }
