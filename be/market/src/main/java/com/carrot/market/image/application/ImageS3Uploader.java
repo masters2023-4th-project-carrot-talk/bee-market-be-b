@@ -13,6 +13,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import com.carrot.market.global.exception.ApiException;
+import com.carrot.market.global.exception.domain.ImageException;
+import com.carrot.market.image.domain.ImageFormat;
+
+import io.awspring.cloud.s3.S3Exception;
 import io.awspring.cloud.s3.S3Template;
 import lombok.RequiredArgsConstructor;
 import marvin.image.MarvinImage;
@@ -26,10 +31,15 @@ public class ImageS3Uploader {
 	private String bucketName;
 
 	public String upload(BufferedImage image, String key, int resizeHeight, int resizeWidth) throws IOException {
+		ImageFormat.validate(key);
 		image = resizeImage(image, resizeHeight, resizeWidth);
-		return s3Template.upload(bucketName, key, getImageInputStream(image, StringUtils.getFilenameExtension(key)))
-			.getURL()
-			.toString();
+		try (var inputStream = getImageInputStream(image, StringUtils.getFilenameExtension(key))) {
+			return s3Template.upload(bucketName, key, inputStream)
+				.getURL()
+				.toString();
+		} catch (S3Exception ex) {
+			throw new ApiException(ImageException.IMAGE_UPLOAD_FAILED);
+		}
 	}
 
 	BufferedImage resizeImage(BufferedImage originImage, int resizeHeight, int resizeWidth) {

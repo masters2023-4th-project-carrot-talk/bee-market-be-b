@@ -7,6 +7,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.carrot.market.auth.application.AuthService;
+import com.carrot.market.auth.presentation.AuthController;
 import com.carrot.market.global.filter.JwtAuthorizationFilter;
 import com.carrot.market.image.application.ImageService;
 import com.carrot.market.image.presentation.ImageController;
@@ -23,7 +25,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 	MemberController.class,
 	LocationController.class,
 	ProductController.class,
-	ImageController.class
+	ImageController.class,
+	AuthController.class
 }, excludeFilters = {
 	@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JwtAuthorizationFilter.class)
 })
@@ -45,4 +48,7 @@ public abstract class ControllerTestSupport {
 
 	@MockBean
 	protected ImageService imageService;
+
+	@MockBean
+	protected AuthService authService;
 }

@@ -58,6 +58,10 @@ public class ImageService {
 	}
 
 	private String uploadImage(MultipartFile file) {
+		if (file == null || file.isEmpty()) {
+			throw new ApiException(ImageException.NOT_EXIST_IMAGE);
+		}
+
 		try (var imageInputStream = file.getInputStream()) {
 			BufferedImage image = ImageIO.read(imageInputStream);
 			return imageS3Uploader.upload(image, generateKey(file.getOriginalFilename()), imageHeight, imageWidth);

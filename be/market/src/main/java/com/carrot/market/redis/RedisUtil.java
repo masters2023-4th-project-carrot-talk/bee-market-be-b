@@ -1,8 +1,16 @@
 package com.carrot.market.redis;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
+import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
@@ -42,5 +50,28 @@ public class RedisUtil {
 
 	public Set<String> keys(String pattern) {
 		return stringRedisTemplate.keys(pattern);
+	}
+
+	public List<String> getKeysSortedByExpiration(String pattern, int count) {
+		ScanOptions options = ScanOptions.scanOptions()
+			.match(pattern)
+			.count(count)
+			.build();
+		Cursor<String> cursor = stringRedisTemplate.scan(options);
+
+		Map<String, Long> keyExpireTimeMap = new HashMap<>();
+
+		while (cursor.hasNext()) {
+			String key = cursor.next();
+			Long expiration = stringRedisTemplate.getExpire(key, TimeUnit.SECONDS);
+			if (expiration != null && expiration > 0) {
+				keyExpireTimeMap.put(key, expiration);
+			}
+		}
+
+		List<String> sortedKeys = new ArrayList<>(keyExpireTimeMap.keySet());
+		sortedKeys.sort(Comparator.comparingLong(keyExpireTimeMap::get));
+
+		return sortedKeys;
 	}
 }

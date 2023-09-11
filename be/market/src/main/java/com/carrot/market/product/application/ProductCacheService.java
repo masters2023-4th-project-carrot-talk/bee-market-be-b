@@ -4,7 +4,6 @@ import static com.carrot.market.global.cache.CacheNames.*;
 
 import java.time.Duration;
 import java.util.Objects;
-import java.util.Set;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -19,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class ProductCacheService {
 	public static final int HITS_DURATION = 30;
+	private static final int READ_KEY_COUNT = 100;
 	public static final int HITS_SCHEDULED_DURATION = 5000;
 	private final ProductRepository productRepository;
 	private final RedisUtil redisUtil;
@@ -43,10 +43,11 @@ public class ProductCacheService {
 	@Scheduled(fixedDelay = HITS_SCHEDULED_DURATION)
 	@Transactional
 	public void applyViewCountToRDB() {
-		Set<String> hitsKeys = redisUtil.keys(getProductCachePattern());
+		var hitsKeys = redisUtil.getKeysSortedByExpiration(getProductCachePattern(), READ_KEY_COUNT);
 
-		if (Objects.requireNonNull(hitsKeys).isEmpty())
+		if (Objects.requireNonNull(hitsKeys).isEmpty()) {
 			return;
+		}
 
 		for (String hitsKey : hitsKeys) {
 			Long boardId = extractBoardIdFromKey(hitsKey);

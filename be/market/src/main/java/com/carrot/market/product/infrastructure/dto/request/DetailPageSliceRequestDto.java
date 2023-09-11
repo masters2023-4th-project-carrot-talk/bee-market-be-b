@@ -15,5 +15,4 @@ public record DetailPageSliceRequestDto(
 	@Builder
 	public DetailPageSliceRequestDto {
 	}
-
 }
