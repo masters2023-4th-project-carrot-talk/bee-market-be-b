@@ -1,6 +1,7 @@
 package com.carrot.market.product.application;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Slice;
@@ -15,14 +16,17 @@ import com.carrot.market.location.domain.Location;
 import com.carrot.market.location.infrastructure.LocationRepository;
 import com.carrot.market.member.application.MemberService;
 import com.carrot.market.member.domain.Member;
+import com.carrot.market.member.domain.WishList;
 import com.carrot.market.member.infrastructure.WishListRepository;
 import com.carrot.market.product.application.dto.request.ProductCreateServiceRequest;
 import com.carrot.market.product.application.dto.request.ProductUpdateServiceRequest;
 import com.carrot.market.product.application.dto.response.CategoryDto;
 import com.carrot.market.product.application.dto.response.DetailPageServiceDto;
+import com.carrot.market.product.application.dto.response.ProductChangeStatusResponse;
 import com.carrot.market.product.application.dto.response.ProductCreateServiceResponse;
 import com.carrot.market.product.application.dto.response.ProductDetailResponseDto;
 import com.carrot.market.product.application.dto.response.ProductSellerDetaillDto;
+import com.carrot.market.product.application.dto.response.ProductUpdateWishList;
 import com.carrot.market.product.application.dto.response.WishListDetailDto;
 import com.carrot.market.product.domain.Category;
 import com.carrot.market.product.domain.Product;
@@ -117,7 +121,7 @@ public class ProductService {
 
 	public DetailPageServiceDto getSellingProducts(String status, Long memberId, Long next, int size) {
 		DetailPageSliceRequestDto build = DetailPageSliceRequestDto.builder()
-			.status(SellingStatus.fromString(status))
+			.status(SellingStatus.from(status).getText())
 			.sellerId(memberId)
 			.nextProductId(next)
 			.pageSize(size)
@@ -168,8 +172,7 @@ public class ProductService {
 	@Transactional
 	public void updateProduct(Long memberId, Long productId, ProductUpdateServiceRequest request) {
 		Member seller = memberService.findMemberById(memberId);
-		Product product = productRepository.findById(productId)
-			.orElseThrow(() -> new ApiException(ProductException.NOT_FOUND_ID));
+		Product product = findProductById(productId);
 		ProductDetails productDetails = request.productDetails();
 
 		if (product.isChangedProductImage(request.imageIds())) {
@@ -178,5 +181,43 @@ public class ProductService {
 			return;
 		}
 		product.update(seller, productDetails);
+	}
+
+	@Transactional
+	public ProductChangeStatusResponse changeProductStatus(Long memberId, Long productId, String status) {
+		SellingStatus changeStatus = SellingStatus.from(status);
+		Member seller = memberService.findMemberById(memberId);
+		Product product = findProductById(productId);
+		product.changeStatus(seller, changeStatus);
+
+		return new ProductChangeStatusResponse(productId);
+	}
+
+	@Transactional
+	public ProductUpdateWishList updateProductWishList(Long memberId, Long productId) {
+		Member member = memberService.findMemberById(memberId);
+		Product product = findProductById(productId);
+		Optional<WishList> wishList = wishListRepository.findByProductAndMember(product, member);
+		if (wishList.isEmpty()) {
+			wishListRepository.save(new WishList(product, member));
+			return new ProductUpdateWishList(true);
+		}
+
+		wishListRepository.delete(wishList.get());
+
+		return new ProductUpdateWishList(false);
+	}
+
+	@Transactional
+	public void removeProduct(Long productId, Long memberId) {
+		Member seller = memberService.findMemberById(memberId);
+		Product product = findProductById(productId);
+		product.validateSeller(seller);
+		productRepository.delete(product);
+	}
+
+	private Product findProductById(Long productId) {
+		return productRepository.findById(productId)
+			.orElseThrow(() -> new ApiException(ProductException.NOT_FOUND_ID));
 	}
 }

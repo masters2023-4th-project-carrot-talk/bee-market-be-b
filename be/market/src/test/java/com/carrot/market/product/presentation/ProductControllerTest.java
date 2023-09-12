@@ -17,12 +17,15 @@ import com.carrot.market.product.application.dto.request.ProductCreateServiceReq
 import com.carrot.market.product.application.dto.request.ProductUpdateServiceRequest;
 import com.carrot.market.product.application.dto.response.CategoryDto;
 import com.carrot.market.product.application.dto.response.DetailPageServiceDto;
+import com.carrot.market.product.application.dto.response.ProductChangeStatusResponse;
 import com.carrot.market.product.application.dto.response.ProductCreateServiceResponse;
 import com.carrot.market.product.application.dto.response.ProductDetailDto;
 import com.carrot.market.product.application.dto.response.ProductDetailResponseDto;
+import com.carrot.market.product.application.dto.response.ProductUpdateWishList;
 import com.carrot.market.product.application.dto.response.SellerDetailDto;
 import com.carrot.market.product.domain.SellingStatus;
 import com.carrot.market.product.infrastructure.dto.response.DetailPageSliceResponseDto;
+import com.carrot.market.product.presentation.dto.request.ProductChangeStatus;
 import com.carrot.market.product.presentation.dto.request.ProductCreateRequest;
 import com.carrot.market.product.presentation.dto.request.ProductUpdateRequest;
 import com.carrot.market.support.ControllerTestSupport;
@@ -174,5 +177,42 @@ class ProductControllerTest extends ControllerTestSupport {
 				.content(objectMapper.writeValueAsString(productUpdateRequest)))
 			.andDo(print())
 			.andExpect(status().isOk());
+	}
+
+	@DisplayName("상품 상태를 수정한다.")
+	@Test
+	public void changeProductStatus() throws Exception {
+		//given
+		var response = new ProductChangeStatusResponse(1L);
+		var productChangeStatus = new ProductChangeStatus("판매완료");
+		given(productService.changeProductStatus(anyLong(), anyLong(), anyString()))
+			.willReturn(response);
+
+		//when //then
+		mockMvc.perform(patch("/api/products/1/status")
+				.contentType(MediaType.APPLICATION_JSON)
+				.requestAttr("memberId", 1)
+				.content(objectMapper.writeValueAsString(productChangeStatus)))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.success").value("true"))
+			.andExpect(jsonPath("$.data.productId").isNumber());
+	}
+
+	@DisplayName("상품 관심 목록을 추가한다.")
+	@Test
+	public void updateProductWishList() throws Exception {
+		//given
+		given(productService.updateProductWishList(anyLong(), anyLong()))
+			.willReturn(new ProductUpdateWishList(Boolean.TRUE));
+
+		//when //then
+		mockMvc.perform(patch("/api/products/1/like")
+				.contentType(MediaType.APPLICATION_JSON)
+				.requestAttr("memberId", 1))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.success").value("true"))
+			.andExpect(jsonPath("$.data.isLiked").value("true"));
 	}
 }

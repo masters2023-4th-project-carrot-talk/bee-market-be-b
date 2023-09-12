@@ -2,6 +2,9 @@ package com.carrot.market.product.domain;
 
 import java.util.Arrays;
 
+import com.carrot.market.global.exception.ApiException;
+import com.carrot.market.global.exception.domain.ProductException;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -14,14 +17,10 @@ public enum SellingStatus {
 
 	private final String text;
 
-	public static String fromString(String text) {
-		if (text == null) {
-			return null;
-		}
+	public static SellingStatus from(String text) {
 		return Arrays.stream(SellingStatus.values())
-			.filter(status -> status.text.equalsIgnoreCase(text))
+			.filter(status -> status.text.equals(text))
 			.findFirst()
-			.map(Enum::name)
-			.orElseThrow(() -> new IllegalArgumentException("No constant with text " + text + " found"));
+			.orElseThrow(() -> new ApiException(ProductException.INVALIED_PRODUCT_STATUS));
 	}
 }

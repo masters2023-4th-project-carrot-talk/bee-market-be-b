@@ -74,6 +74,134 @@ class ProductServiceTest extends IntegrationTestSupport {
 	@Autowired
 	EntityManager entityManager;
 
+	@DisplayName("관심 상품을 취소 할 수 있다.")
+	@Test
+	public void removeWishList() throws Exception {
+		//given
+		var seller = makeMember("bean", "image-url");
+		var wisher = makeMember("june", "iamge-url");
+		var location = makeLocation("도봉구");
+		var category = makeCategory("dress", "www.naver.com");
+		var images = List.of(makeImage("image1"), makeImage("image2"), makeImage("image3"));
+		var productDetails = makeProductDetails("상품 판매", "본문");
+
+		memberRepository.save(seller);
+		memberRepository.save(wisher);
+		locationRepository.save(location);
+		categoryRepository.save(category);
+		imageRepository.saveAllAndFlush(images);
+
+		var imageIds = images.stream().map(Image::getId).toList();
+		var request = makeProductCreateRequest(location, category, productDetails, imageIds);
+		Long productId = productService.createProduct(seller.getId(), request).id();
+
+		//when
+		productService.updateProductWishList(wisher.getId(), productId);
+		productService.updateProductWishList(wisher.getId(), productId);
+		entityManager.flush();
+		entityManager.clear();
+		Product product = productRepository.findById(productId).get();
+		wisher = memberRepository.findById(wisher.getId()).get();
+
+		//then
+		assertThat(wishListRepository.findByProductAndMember(product, wisher)).isEmpty();
+	}
+
+	@DisplayName("관심 상품을 추가 할 수 있다.")
+	@Test
+	public void addWishList() {
+		//given
+		var seller = makeMember("bean", "image-url");
+		var wisher = makeMember("june", "iamge-url");
+		var location = makeLocation("도봉구");
+		var category = makeCategory("dress", "www.naver.com");
+		var images = List.of(makeImage("image1"), makeImage("image2"), makeImage("image3"));
+		var productDetails = makeProductDetails("상품 판매", "본문");
+
+		memberRepository.save(seller);
+		memberRepository.save(wisher);
+		locationRepository.save(location);
+		categoryRepository.save(category);
+		imageRepository.saveAllAndFlush(images);
+
+		var imageIds = images.stream().map(Image::getId).toList();
+		var request = makeProductCreateRequest(location, category, productDetails, imageIds);
+		Long productId = productService.createProduct(seller.getId(), request).id();
+
+		//when
+		productService.updateProductWishList(wisher.getId(), productId);
+		entityManager.flush();
+		entityManager.clear();
+		Product product = productRepository.findById(productId).get();
+		wisher = memberRepository.findById(wisher.getId()).get();
+
+		//then
+		var findWishList = wishListRepository.findByProductAndMember(product, wisher);
+		assertThat(findWishList).isPresent();
+		assertThat(wisher.getWishLists()).contains(findWishList.get());
+	}
+
+	@DisplayName("상품의 상태를 변경할 수 있다.")
+	@Test
+	public void changeProductStatus() {
+		//given
+		var seller = makeMember("bean", "image-url");
+		var location = makeLocation("도봉구");
+		var category = makeCategory("dress", "www.naver.com");
+		var images = List.of(makeImage("image1"), makeImage("image2"), makeImage("image3"));
+		var productDetails = makeProductDetails("상품 판매", "본문");
+
+		memberRepository.save(seller);
+		locationRepository.save(location);
+		categoryRepository.save(category);
+		imageRepository.saveAllAndFlush(images);
+
+		var imageIds = images.stream().map(Image::getId).toList();
+		var request = makeProductCreateRequest(location, category, productDetails, imageIds);
+		Long productId = productService.createProduct(seller.getId(), request).id();
+		Product product = productRepository.findById(productId).get();
+
+		SellingStatus beforeStatus = product.getStatus();
+		//when
+		productService.changeProductStatus(seller.getId(), product.getId(), SellingStatus.SOLD_OUT.getText());
+		entityManager.flush();
+		entityManager.clear();
+
+		//then
+		assertThat(beforeStatus).isNotEqualByComparingTo(product.getStatus());
+	}
+
+	@DisplayName("판매자가 아닌 사람이 상품의 상태를 변경하면 NOT_AUTHORIZED_UPDATE 예외가 발생한다.")
+	@Test
+	public void changeProductStatusOnlySeller() {
+		//given
+		var seller = makeMember("bean", "image-url");
+		var nonSeller = makeMember("june", "image-url");
+		var location = makeLocation("도봉구");
+		var category = makeCategory("dress", "www.naver.com");
+		var images = List.of(makeImage("image1"), makeImage("image2"), makeImage("image3"));
+		var productDetails = makeProductDetails("상품 판매", "본문");
+
+		memberRepository.save(seller);
+		memberRepository.save(nonSeller);
+		locationRepository.save(location);
+		categoryRepository.save(category);
+		imageRepository.saveAllAndFlush(images);
+
+		var imageIds = images.stream().map(Image::getId).toList();
+		var request = makeProductCreateRequest(location, category, productDetails, imageIds);
+		Long productId = productService.createProduct(seller.getId(), request).id();
+
+		//when //then
+		assertThatThrownBy(
+			() -> productService.changeProductStatus(nonSeller.getId(), productId, SellingStatus.SOLD_OUT.getText()))
+			.isInstanceOf(ApiException.class)
+			.extracting("message", "status")
+			.containsExactly(
+				ProductException.NOT_AUTHORIZED_UPDATE.getMessage(),
+				ProductException.NOT_AUTHORIZED_UPDATE.getHttpStatus().value());
+	}
+
 	@Test
 	void getMainPageWithNextIdNull() {
 		// given
@@ -436,8 +564,8 @@ class ProductServiceTest extends IntegrationTestSupport {
 				.isInstanceOf(ApiException.class)
 				.extracting("message", "status")
 				.containsExactly(
-					ProductException.NOT_AUTHORIZAED_UPDATE.getMessage(),
-					ProductException.NOT_AUTHORIZAED_UPDATE.getHttpStatus().value()
+					ProductException.NOT_AUTHORIZED_UPDATE.getMessage(),
+					ProductException.NOT_AUTHORIZED_UPDATE.getHttpStatus().value()
 				);
 		}
 	}

@@ -64,10 +64,10 @@ public class Product extends BaseEntity {
 	@OneToMany(mappedBy = "product", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
 	private List<ProductImage> productImages = new ArrayList<>();
 
-	@OneToMany(mappedBy = "product")
+	@OneToMany(mappedBy = "product", cascade = {CascadeType.REMOVE})
 	private List<WishList> wishLists = new ArrayList<>();
 
-	@OneToMany(mappedBy = "product")
+	@OneToMany(mappedBy = "product", cascade = {CascadeType.REMOVE})
 	private List<Chatroom> chatrooms = new ArrayList<>();
 
 	@LastModifiedDate
@@ -108,14 +108,14 @@ public class Product extends BaseEntity {
 	}
 
 	public void update(Member seller, ProductDetails productDetails) {
-		if (!isSeller(seller)) {
-			throw new ApiException(ProductException.NOT_AUTHORIZAED_UPDATE);
-		}
+		validateSeller(seller);
 		this.productDetails = productDetails;
 	}
 
-	private boolean isSeller(Member seller) {
-		return this.seller == seller;
+	public void validateSeller(Member seller) {
+		if (this.seller != seller) {
+			throw new ApiException(ProductException.NOT_AUTHORIZED_UPDATE);
+		}
 	}
 
 	public boolean isChangedProductImage(List<Long> imageIds) {
@@ -135,5 +135,10 @@ public class Product extends BaseEntity {
 		return productImages.stream()
 			.map(ProductImage::getImageId)
 			.toList();
+	}
+
+	public void changeStatus(Member seller, SellingStatus changeStatus) {
+		validateSeller(seller);
+		status = changeStatus;
 	}
 }
