@@ -50,7 +50,7 @@ class ProductCacheServiceTest extends CacheTestSupport {
 		memberRepository.save(june);
 		Product product = Product.builder()
 			.seller(june)
-			.productDetails(ProductDetails.builder().hits(0L).build())
+			.productDetails(ProductDetails.builder().build())
 			.build();
 		productRepository.save(product);
 		Long productId = product.getId();
@@ -72,12 +72,12 @@ class ProductCacheServiceTest extends CacheTestSupport {
 		memberRepository.save(june);
 		Product product = Product.builder()
 			.seller(june)
-			.productDetails(ProductDetails.builder().hits(0L).build())
+			.productDetails(ProductDetails.builder().build())
 			.build();
 		productRepository.save(product);
 		Product product2 = Product.builder()
 			.seller(june)
-			.productDetails(ProductDetails.builder().hits(0L).build())
+			.productDetails(ProductDetails.builder().build())
 			.build();
 		productRepository.save(product2);
 		Long productId = product.getId();
@@ -98,7 +98,7 @@ class ProductCacheServiceTest extends CacheTestSupport {
 		memberRepository.save(june);
 		Product product = Product.builder()
 			.seller(june)
-			.productDetails(ProductDetails.builder().hits(0L).build())
+			.productDetails(ProductDetails.builder().build())
 			.build();
 		productRepository.save(product);
 		productCacheService.addViewCntToRedis(product.getId());

@@ -17,7 +17,7 @@ public class ProductDetails {
 
 	private String content;
 
-	private Long hits;
+	private Long hits = 0L;
 
 	@Builder
 	public ProductDetails(String name, Long price, String content, Long hits) {

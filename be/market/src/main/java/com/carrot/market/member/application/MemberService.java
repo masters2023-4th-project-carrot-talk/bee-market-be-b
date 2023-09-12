@@ -98,7 +98,7 @@ public class MemberService {
 			.orElseThrow(() -> new ApiException(LocationException.NOT_FOUND_ID));
 	}
 
-	private Member findMemberById(Long memberId) {
+	public Member findMemberById(Long memberId) {
 		return memberRepository.findById(memberId)
 			.orElseThrow(() -> new ApiException(MemberException.NOT_FOUND_MEMBER));
 	}

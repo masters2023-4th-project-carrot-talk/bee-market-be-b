@@ -41,6 +41,10 @@ public class ImageService {
 
 	private final ImageS3Uploader imageS3Uploader;
 
+	public List<Image> findImagesById(List<Long> imageIds) {
+		return imageRepository.findAllById(imageIds);
+	}
+
 	@Transactional
 	public List<ImageResponse> uploadImages(List<MultipartFile> multipartFiles) {
 		final List<String> imageUrls = new ArrayList<>();

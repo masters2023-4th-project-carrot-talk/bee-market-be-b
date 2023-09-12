@@ -6,13 +6,18 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.carrot.market.chatroom.domain.Chatroom;
 import com.carrot.market.chatroom.infrastructure.ChatroomRepository;
 import com.carrot.market.config.QuerydslConfig;
+import com.carrot.market.global.exception.ApiException;
+import com.carrot.market.global.exception.domain.ProductException;
 import com.carrot.market.image.domain.Image;
 import com.carrot.market.image.infrastructure.ImageRepository;
 import com.carrot.market.location.domain.Location;
@@ -21,6 +26,8 @@ import com.carrot.market.member.domain.Member;
 import com.carrot.market.member.domain.WishList;
 import com.carrot.market.member.infrastructure.MemberRepository;
 import com.carrot.market.member.infrastructure.WishListRepository;
+import com.carrot.market.product.application.dto.request.ProductCreateServiceRequest;
+import com.carrot.market.product.application.dto.request.ProductUpdateServiceRequest;
 import com.carrot.market.product.application.dto.response.CategoryDto;
 import com.carrot.market.product.application.dto.response.DetailPageServiceDto;
 import com.carrot.market.product.application.dto.response.ProductDetailDto;
@@ -66,6 +73,131 @@ class ProductServiceTest extends IntegrationTestSupport {
 	ChatroomRepository chatroomRepository;
 	@Autowired
 	EntityManager entityManager;
+
+	@DisplayName("관심 상품을 취소 할 수 있다.")
+	@Test
+	public void removeWishList() throws Exception {
+		//given
+		var seller = makeMember("bean", "image-url");
+		var wisher = makeMember("june", "iamge-url");
+		var location = makeLocation("도봉구");
+		var category = makeCategory("dress", "www.naver.com");
+		var images = List.of(makeImage("image1"), makeImage("image2"), makeImage("image3"));
+		var productDetails = makeProductDetails("상품 판매", "본문");
+
+		memberRepository.saveAll(List.of(seller, wisher));
+		locationRepository.save(location);
+		categoryRepository.save(category);
+		imageRepository.saveAllAndFlush(images);
+
+		var imageIds = images.stream().map(Image::getId).toList();
+		var request = makeProductCreateRequest(location, category, productDetails, imageIds);
+		Long productId = productService.createProduct(seller.getId(), request).id();
+
+		//when
+		productService.updateProductWishList(wisher.getId(), productId);
+		productService.updateProductWishList(wisher.getId(), productId);
+		entityManager.flush();
+		entityManager.clear();
+		Product product = productRepository.findById(productId).get();
+		wisher = memberRepository.findById(wisher.getId()).get();
+
+		//then
+		assertThat(wishListRepository.findByProductAndMember(product, wisher)).isEmpty();
+	}
+
+	@DisplayName("관심 상품을 추가 할 수 있다.")
+	@Test
+	public void addWishList() {
+		//given
+		var seller = makeMember("bean", "image-url");
+		var wisher = makeMember("june", "iamge-url");
+		var location = makeLocation("도봉구");
+		var category = makeCategory("dress", "www.naver.com");
+		var images = List.of(makeImage("image1"), makeImage("image2"), makeImage("image3"));
+		var productDetails = makeProductDetails("상품 판매", "본문");
+
+		memberRepository.saveAll(List.of(seller, wisher));
+		locationRepository.save(location);
+		categoryRepository.save(category);
+		imageRepository.saveAllAndFlush(images);
+
+		var imageIds = images.stream().map(Image::getId).toList();
+		var request = makeProductCreateRequest(location, category, productDetails, imageIds);
+		Long productId = productService.createProduct(seller.getId(), request).id();
+
+		//when
+		productService.updateProductWishList(wisher.getId(), productId);
+		entityManager.flush();
+		entityManager.clear();
+		Product product = productRepository.findById(productId).get();
+		wisher = memberRepository.findById(wisher.getId()).get();
+
+		//then
+		var findWishList = wishListRepository.findByProductAndMember(product, wisher);
+		assertThat(findWishList).isPresent();
+		assertThat(wisher.getWishLists()).contains(findWishList.get());
+	}
+
+	@DisplayName("상품의 상태를 변경할 수 있다.")
+	@Test
+	public void changeProductStatus() {
+		//given
+		var seller = makeMember("bean", "image-url");
+		var location = makeLocation("도봉구");
+		var category = makeCategory("dress", "www.naver.com");
+		var images = List.of(makeImage("image1"), makeImage("image2"), makeImage("image3"));
+		var productDetails = makeProductDetails("상품 판매", "본문");
+
+		memberRepository.save(seller);
+		locationRepository.save(location);
+		categoryRepository.save(category);
+		imageRepository.saveAllAndFlush(images);
+
+		var imageIds = images.stream().map(Image::getId).toList();
+		var request = makeProductCreateRequest(location, category, productDetails, imageIds);
+		Long productId = productService.createProduct(seller.getId(), request).id();
+		Product product = productRepository.findById(productId).get();
+
+		SellingStatus beforeStatus = product.getStatus();
+		//when
+		productService.changeProductStatus(seller.getId(), product.getId(), SellingStatus.SOLD_OUT.getText());
+		entityManager.flush();
+		entityManager.clear();
+
+		//then
+		assertThat(beforeStatus).isNotEqualByComparingTo(product.getStatus());
+	}
+
+	@DisplayName("판매자가 아닌 사람이 상품의 상태를 변경하면 NOT_AUTHORIZED_UPDATE 예외가 발생한다.")
+	@Test
+	public void changeProductStatusOnlySeller() {
+		//given
+		var seller = makeMember("bean", "image-url");
+		var nonSeller = makeMember("june", "image-url");
+		var location = makeLocation("도봉구");
+		var category = makeCategory("dress", "www.naver.com");
+		var images = List.of(makeImage("image1"), makeImage("image2"), makeImage("image3"));
+		var productDetails = makeProductDetails("상품 판매", "본문");
+
+		memberRepository.saveAll(List.of(seller, nonSeller));
+		locationRepository.save(location);
+		categoryRepository.save(category);
+		imageRepository.saveAllAndFlush(images);
+
+		var imageIds = images.stream().map(Image::getId).toList();
+		var request = makeProductCreateRequest(location, category, productDetails, imageIds);
+		Long productId = productService.createProduct(seller.getId(), request).id();
+
+		//when //then
+		assertThatThrownBy(
+			() -> productService.changeProductStatus(nonSeller.getId(), productId, SellingStatus.SOLD_OUT.getText()))
+			.isInstanceOf(ApiException.class)
+			.extracting("message", "status")
+			.containsExactly(
+				ProductException.NOT_AUTHORIZED_UPDATE.getMessage(),
+				ProductException.NOT_AUTHORIZED_UPDATE.getHttpStatus().value());
+	}
 
 	@Test
 	void getMainPageWithNextIdNull() {
@@ -339,6 +471,112 @@ class ProductServiceTest extends IntegrationTestSupport {
 		);
 	}
 
+	@Transactional
+	@DisplayName("새로운 상품을 등록한다.")
+	@Test
+	void createProduct() {
+		//given
+		var seller = makeMember("bean", "image-url");
+		var location = makeLocation("도봉구");
+		var category = makeCategory("dress", "www.naver.com");
+		var images = List.of(makeImage("image1"), makeImage("image2"), makeImage("image3"));
+		var productDetails = makeProductDetails("상품 판매", "본문");
+
+		memberRepository.save(seller);
+		locationRepository.save(location);
+		categoryRepository.save(category);
+		imageRepository.saveAllAndFlush(images);
+
+		var imageIds = images.stream().map(Image::getId).toList();
+		var request = makeProductCreateRequest(location, category, productDetails, imageIds);
+
+		//when
+		var productResponse = assertDoesNotThrow(() -> productService.createProduct(seller.getId(), request));
+
+		//then
+		assertThat(productResponse.id()).isPositive();
+		assertThat(productResponse.productDetails()).isEqualTo(productDetails);
+		assertThat(productResponse.imageIds()).isEqualTo(imageIds);
+		assertThat(productResponse.locationId()).isEqualTo(location.getId());
+		assertThat(productResponse.categoryId()).isEqualTo(category.getId());
+	}
+
+	@Transactional
+	@DisplayName("상품 수정")
+	@Nested
+	class updateProduct {
+
+		@DisplayName("상품을 수정할 수 있다.")
+		@Test
+		void updateProduct() {
+			//given
+			var seller = makeMember("bean", "image-url");
+			var location = makeLocation("도봉구");
+			var category = makeCategory("dress", "www.naver.com");
+			var images = List.of(makeImage("image1"), makeImage("image2"), makeImage("image3"));
+			var productDetails = makeProductDetails("상품 판매", "본문");
+
+			memberRepository.save(seller);
+			locationRepository.save(location);
+			categoryRepository.save(category);
+			imageRepository.saveAllAndFlush(images);
+
+			var imageIds = images.stream().map(Image::getId).toList();
+			var createResponse = productService.createProduct(seller.getId(),
+				makeProductCreateRequest(location, category, productDetails, imageIds));
+
+			var updateRequest = makeProductUpdateRequest(location, category, imageIds,
+				makeProductDetails("제목변경", "내용변경"));
+
+			//when //then
+			assertDoesNotThrow(() -> productService.updateProduct(seller.getId(), createResponse.id(), updateRequest));
+		}
+
+		@DisplayName("판매자가 아닌 사람이 상품 수정을 하면 NOT_AUTHORIZAED_UPDATE 예외가 발생한다.")
+		@Test
+		void updateProductOnlySeller() {
+			//given
+			var seller = makeMember("bean", "image-url");
+			var nonSeller = makeMember("june", "image-url");
+			var location = makeLocation("도봉구");
+			var category = makeCategory("dress", "www.naver.com");
+			var images = List.of(makeImage("image1"), makeImage("image2"), makeImage("image3"));
+			var productDetails = makeProductDetails("상품 판매", "본문");
+
+			memberRepository.saveAll(List.of(seller, nonSeller));
+			locationRepository.save(location);
+			categoryRepository.save(category);
+			imageRepository.saveAllAndFlush(images);
+
+			var imageIds = images.stream().map(Image::getId).toList();
+			var createResponse = productService.createProduct(seller.getId(),
+				makeProductCreateRequest(location, category, productDetails, imageIds));
+			var updateRequest = makeProductUpdateRequest(location, category, imageIds,
+				makeProductDetails("제목변경", "내용변경"));
+
+			//when //then
+			assertThatThrownBy(
+				() -> productService.updateProduct(nonSeller.getId(), createResponse.id(), updateRequest))
+				.isInstanceOf(ApiException.class)
+				.extracting("message", "status")
+				.containsExactly(
+					ProductException.NOT_AUTHORIZED_UPDATE.getMessage(),
+					ProductException.NOT_AUTHORIZED_UPDATE.getHttpStatus().value()
+				);
+		}
+	}
+
+	private static ProductUpdateServiceRequest makeProductUpdateRequest(Location location, Category category,
+		List<Long> imageIds, ProductDetails productDetails) {
+
+		return ProductUpdateServiceRequest.builder()
+			.imageIds(imageIds)
+			.productDetails(makeProductDetails(productDetails.getName(), productDetails.getContent()))
+			.locationId(location.getId())
+			.categoryId(category.getId())
+			.build();
+	}
+
 	private Product makeProductWishListChatRoomProductImage(Member june, Member bean, Location location, Image image,
 		Category category) {
 		Product product = makeProduct(june, location, category, SellingStatus.SELLING,
@@ -355,6 +593,22 @@ class ProductServiceTest extends IntegrationTestSupport {
 		Chatroom chatroom2 = makeChatRoom(product, bean);
 		chatroomRepository.saveAll(List.of(chatroom, chatroom2));
 		return product;
+	}
 
+	private static ProductCreateServiceRequest makeProductCreateRequest(Location location, Category category,
+		ProductDetails productDetails, List<Long> imageIds) {
+		return ProductCreateServiceRequest.builder()
+			.imageIds(imageIds)
+			.productDetails(productDetails)
+			.categoryId(category.getId())
+			.locationId(location.getId())
+			.build();
+	}
+
+	private static ProductDetails makeProductDetails(String name, String content) {
+		return ProductDetails.builder()
+			.name(name)
+			.content(content)
+			.build();
 	}
 }
