@@ -10,7 +10,6 @@ import jakarta.persistence.Id;
 import lombok.Builder;
 
 @Document(collection = "chatting")
-@Builder
 public class Chatting {
 	@Id
 	private String id;
@@ -19,12 +18,19 @@ public class Chatting {
 	private String content;
 	private LocalDateTime createdAt;
 
+	@Builder
+	public Chatting(Long chatRoomNo, Long senderId, String content) {
+		this.chatRoomNo = chatRoomNo;
+		this.senderId = senderId;
+		this.content = content;
+		this.createdAt = LocalDateTime.now();
+	}
+
 	public static Chatting from(Message message) {
 		return Chatting.builder()
 			.chatRoomNo(message.getChatroomId())
 			.content(message.getContent())
 			.senderId(message.getSenderId())
-			.createdAt(LocalDateTime.now())
 			.build();
 	}
 

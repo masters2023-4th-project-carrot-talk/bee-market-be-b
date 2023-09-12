@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 
 @EnableKafka
 @Configuration
-@RequiredArgsConstructor
 public class ProducerConfiguration {
 
 	@Bean

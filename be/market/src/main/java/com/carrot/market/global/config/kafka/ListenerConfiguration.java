@@ -16,11 +16,8 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 import com.carrot.market.chat.presentation.dto.Message;
 import com.carrot.market.global.util.KafkaConstant;
 
-import lombok.RequiredArgsConstructor;
-
 @EnableKafka
 @Configuration
-@RequiredArgsConstructor
 public class ListenerConfiguration {
 
 	@Bean

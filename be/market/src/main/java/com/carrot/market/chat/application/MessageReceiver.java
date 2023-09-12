@@ -1,6 +1,5 @@
 package com.carrot.market.chat.application;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -15,9 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class MessageReceiver {
-
-	@Autowired
-	SimpMessagingTemplate template;
+	private final SimpMessagingTemplate template;
 
 	@KafkaListener(
 		topics = KafkaConstant.KAFKA_TOPIC,

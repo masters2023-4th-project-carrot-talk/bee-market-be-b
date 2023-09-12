@@ -7,7 +7,6 @@ import com.carrot.market.chat.domain.Chatting;
 import com.carrot.market.chat.infrastructure.mongo.ChatRepository;
 import com.carrot.market.chat.presentation.dto.Message;
 import com.carrot.market.global.util.KafkaConstant;
-import com.carrot.market.member.infrastructure.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -15,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class ChatService {
 	private final ChatRepository chatRepository;
-	private final MemberRepository memberRepository;
 	private final MessageSender messageSender;
 
 	@Transactional

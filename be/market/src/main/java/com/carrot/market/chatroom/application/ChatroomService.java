@@ -1,7 +1,5 @@
 package com.carrot.market.chatroom.application;
 
-import java.util.Objects;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +14,7 @@ import com.carrot.market.product.infrastructure.ProductRepository;
 
 import lombok.RequiredArgsConstructor;
 
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class ChatroomService {
@@ -23,15 +22,23 @@ public class ChatroomService {
 	private final MemberRepository memberRepository;
 	private final ProductRepository productRepository;
 
+	public Long getChatroomId(Long productId, Long purchaserId) {
+		return findByProductIdAndPurchaserId(productId, purchaserId).getId();
+	}
+
+	private Chatroom findByProductIdAndPurchaserId(Long productId, Long purchaserId) {
+		return chatroomRepository.findByProductIdAndPurchaserId(productId, purchaserId).orElse(
+			makeChatroom(productId, purchaserId)
+		);
+	}
+
 	@Transactional
-	public void makeChatroom(Long productId, Long purchaserId) {
+	public Chatroom makeChatroom(Long productId, Long purchaserId) {
 		Product product = findByproductId(productId);
 		Member purchaser = findBymemberId(purchaserId);
 
-		if (Objects.equals(product.getSeller().getId(), purchaser.getId())) {
-			Chatroom chatroom = new Chatroom(product, purchaser);
-			chatroomRepository.save(chatroom);
-		}
+		Chatroom chatroom = new Chatroom(product, purchaser);
+		return chatroomRepository.save(chatroom);
 	}
 
 	private Member findBymemberId(Long purchaserId) {
