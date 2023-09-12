@@ -30,7 +30,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public class JwtAuthorizationFilter implements Filter {
 	private static final String TOKEN_PREFIX = "Bearer ";
 	private static final String HEADER_AUTHORIZATION = "Authorization";
-	private static final String MEMBER_ID = "memberId";
+	public static final String MEMBER_ID = "memberId";
 	private static final String SOCIAL_ID = "socialId";
 	private static final String PROFILE_IMAGE_URL = "imageUrl";
 	private static final int BEARER_PREFIX_LENGTH = 7;
@@ -49,7 +49,7 @@ public class JwtAuthorizationFilter implements Filter {
 		this.objectMapper = objectMapper;
 	}
 
-	@SuppressWarnings("checkstyle:OperatorWrap")
+	// @SuppressWarnings("checkstyle:OperatorWrap")
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 		throws ServletException, IOException {
@@ -79,7 +79,7 @@ public class JwtAuthorizationFilter implements Filter {
 			}
 			chain.doFilter(request, response);
 		} catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException | SignatureException |
-				 IllegalArgumentException ex) {
+			IllegalArgumentException ex) {
 			sendErrorApiResponse(response, ex);
 		}
 	}
