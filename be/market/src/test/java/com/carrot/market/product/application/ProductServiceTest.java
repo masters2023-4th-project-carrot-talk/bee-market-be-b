@@ -85,8 +85,7 @@ class ProductServiceTest extends IntegrationTestSupport {
 		var images = List.of(makeImage("image1"), makeImage("image2"), makeImage("image3"));
 		var productDetails = makeProductDetails("상품 판매", "본문");
 
-		memberRepository.save(seller);
-		memberRepository.save(wisher);
+		memberRepository.saveAll(List.of(seller, wisher));
 		locationRepository.save(location);
 		categoryRepository.save(category);
 		imageRepository.saveAllAndFlush(images);
@@ -118,8 +117,7 @@ class ProductServiceTest extends IntegrationTestSupport {
 		var images = List.of(makeImage("image1"), makeImage("image2"), makeImage("image3"));
 		var productDetails = makeProductDetails("상품 판매", "본문");
 
-		memberRepository.save(seller);
-		memberRepository.save(wisher);
+		memberRepository.saveAll(List.of(seller, wisher));
 		locationRepository.save(location);
 		categoryRepository.save(category);
 		imageRepository.saveAllAndFlush(images);
@@ -182,8 +180,7 @@ class ProductServiceTest extends IntegrationTestSupport {
 		var images = List.of(makeImage("image1"), makeImage("image2"), makeImage("image3"));
 		var productDetails = makeProductDetails("상품 판매", "본문");
 
-		memberRepository.save(seller);
-		memberRepository.save(nonSeller);
+		memberRepository.saveAll(List.of(seller, nonSeller));
 		locationRepository.save(location);
 		categoryRepository.save(category);
 		imageRepository.saveAllAndFlush(images);
@@ -546,8 +543,7 @@ class ProductServiceTest extends IntegrationTestSupport {
 			var images = List.of(makeImage("image1"), makeImage("image2"), makeImage("image3"));
 			var productDetails = makeProductDetails("상품 판매", "본문");
 
-			memberRepository.save(seller);
-			memberRepository.save(nonSeller);
+			memberRepository.saveAll(List.of(seller, nonSeller));
 			locationRepository.save(location);
 			categoryRepository.save(category);
 			imageRepository.saveAllAndFlush(images);

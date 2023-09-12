@@ -157,16 +157,23 @@ public class ProductService {
 	@Transactional
 	public ProductCreateServiceResponse createProduct(Long memberId, ProductCreateServiceRequest request) {
 		Member seller = memberService.findMemberById(memberId);
-		Category category = categoryRepository.findById(request.categoryId())
-			.orElseThrow(() -> new ApiException(ProductException.NOT_FOUND_CATEGORY));
-		Location location = locationRepository.findById(request.locationId())
-			.orElseThrow(() -> new ApiException(LocationException.NOT_FOUND_ID));
-
+		Category category = findCategoryById(request.categoryId());
+		Location location = findLocationById(request.locationId());
 		Product product = request.toEntity(seller, category, location);
 		product.addProductImages(imageService.findImagesById(request.imageIds()));
 		productRepository.save(product);
 
 		return ProductCreateServiceResponse.from(product);
+	}
+
+	private Location findLocationById(Long locationId) {
+		return locationRepository.findById(locationId)
+			.orElseThrow(() -> new ApiException(LocationException.NOT_FOUND_ID));
+	}
+
+	private Category findCategoryById(Long categoryId) {
+		return categoryRepository.findById(categoryId)
+			.orElseThrow(() -> new ApiException(ProductException.NOT_FOUND_CATEGORY));
 	}
 
 	@Transactional
