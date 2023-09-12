@@ -359,7 +359,8 @@ class ProductServiceTest extends IntegrationTestSupport {
 		Product product = makeProductWishListChatRoomProductImage(june, bean, location, image, category);
 		productRepository.save(product);
 		// when
-		DetailPageServiceDto sellingProducts = productService.getSellingProducts(null, june.getId(), null, 1);
+		DetailPageServiceDto sellingProducts = productService.getSellingProducts(SellingStatus.SELLING.getText(),
+			june.getId(), null, 1);
 		// then
 		List<DetailPageSliceResponseDto> products = sellingProducts.products();
 		Long nextId = sellingProducts.nextId();

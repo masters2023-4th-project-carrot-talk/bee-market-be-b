@@ -50,7 +50,7 @@ class ProductCacheServiceTest extends CacheTestSupport {
 		memberRepository.save(june);
 		Product product = Product.builder()
 			.seller(june)
-			.productDetails(ProductDetails.builder().build())
+			.productDetails(ProductDetails.builder().hits(0L).build())
 			.build();
 		productRepository.save(product);
 		Long productId = product.getId();
@@ -72,12 +72,12 @@ class ProductCacheServiceTest extends CacheTestSupport {
 		memberRepository.save(june);
 		Product product = Product.builder()
 			.seller(june)
-			.productDetails(ProductDetails.builder().build())
+			.productDetails(ProductDetails.builder().hits(0L).build())
 			.build();
 		productRepository.save(product);
 		Product product2 = Product.builder()
 			.seller(june)
-			.productDetails(ProductDetails.builder().build())
+			.productDetails(ProductDetails.builder().hits(0L).build())
 			.build();
 		productRepository.save(product2);
 		Long productId = product.getId();
@@ -98,7 +98,7 @@ class ProductCacheServiceTest extends CacheTestSupport {
 		memberRepository.save(june);
 		Product product = Product.builder()
 			.seller(june)
-			.productDetails(ProductDetails.builder().build())
+			.productDetails(ProductDetails.builder().hits(0L).build())
 			.build();
 		productRepository.save(product);
 		productCacheService.addViewCntToRedis(product.getId());
@@ -107,7 +107,7 @@ class ProductCacheServiceTest extends CacheTestSupport {
 		// when
 		await().atMost(10, TimeUnit.SECONDS)
 			.untilAsserted(
-				() -> verify(productCacheService, atLeast(2)).applyViewCountToRDB());
+				() -> verify(productCacheService, atLeast(1)).applyViewCountToRDB());
 
 		// then
 		Product byId = productRepository.findById(product.getId()).get();

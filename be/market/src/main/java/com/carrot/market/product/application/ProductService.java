@@ -10,9 +10,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.carrot.market.member.domain.Member;
-import com.carrot.market.member.domain.WishList;
-import com.carrot.market.member.infrastructure.MemberRepository;
 import com.carrot.market.global.exception.ApiException;
 import com.carrot.market.global.exception.domain.LocationException;
 import com.carrot.market.global.exception.domain.ProductException;
@@ -22,6 +19,7 @@ import com.carrot.market.location.infrastructure.LocationRepository;
 import com.carrot.market.member.application.MemberService;
 import com.carrot.market.member.domain.Member;
 import com.carrot.market.member.domain.WishList;
+import com.carrot.market.member.infrastructure.MemberRepository;
 import com.carrot.market.member.infrastructure.WishListRepository;
 import com.carrot.market.product.application.dto.request.ProductCreateServiceRequest;
 import com.carrot.market.product.application.dto.request.ProductUpdateServiceRequest;
@@ -127,7 +125,7 @@ public class ProductService {
 
 	public DetailPageServiceDto getSellingProducts(String status, Long memberId, Long next, int size) {
 		DetailPageSliceRequestDto build = DetailPageSliceRequestDto.builder()
-			.status(SellingStatus.from(status).getText())
+			.status(SellingStatus.from(status).name())
 			.sellerId(memberId)
 			.nextProductId(next)
 			.pageSize(size)

@@ -49,7 +49,7 @@ public class JwtAuthorizationFilter implements Filter {
 		this.objectMapper = objectMapper;
 	}
 
-	// @SuppressWarnings("checkstyle:OperatorWrap")
+	@SuppressWarnings("checkstyle:OperatorWrap")
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 		throws ServletException, IOException {
