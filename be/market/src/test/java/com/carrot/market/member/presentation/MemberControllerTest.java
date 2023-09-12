@@ -17,11 +17,11 @@ class MemberControllerTest extends ControllerTestSupport {
 	@Test
 	void checkDuplicateNickname() throws Exception {
 		// given
-		when(memberService.checkDuplicateNickname(any())).thenReturn(true);
+		when(authService.checkDuplicateNickname(any())).thenReturn(true);
 
 		// when & then
 		mockMvc.perform(
-				get("/api/users").param("nickname", "jun")
+				get("/api/users/nickname").param("nickname", "jun")
 			)
 			.andDo(print())
 			.andExpect(status().isOk())
@@ -29,14 +29,14 @@ class MemberControllerTest extends ControllerTestSupport {
 	}
 
 	@Test
-	void checkDuplicateNicknameInvokeExistMemberExcption() throws Exception {
+	void checkDuplicateNicknameInvokeExistMemberException() throws Exception {
 		// given
-		when(memberService.checkDuplicateNickname(any())).thenThrow(
+		when(authService.checkDuplicateNickname(any())).thenThrow(
 			new ApiException(MemberException.EXIST_MEMBER));
 
 		// when & then
 		mockMvc.perform(
-				get("/api/users").param("nickname", "jun")
+				get("/api/users/nickname").param("nickname", "jun")
 			)
 			.andDo(print())
 			.andExpect(status().is4xxClientError())

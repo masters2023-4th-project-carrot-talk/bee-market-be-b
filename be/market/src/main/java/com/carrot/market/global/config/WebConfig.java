@@ -9,8 +9,8 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import com.carrot.market.auth.resolver.OauthArgumentResolver;
 import com.carrot.market.member.resolver.MemberArgumentResolver;
-import com.carrot.market.oauth.resolver.OauthArgumentResolver;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {

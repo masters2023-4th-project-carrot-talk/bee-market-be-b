@@ -106,7 +106,10 @@ class ProductRepositoryTest extends IntegrationTestSupport {
 		Product product2 = makeProductWishListChatRoomProductImage(june, bean, location, image, category2);
 
 		// when
-		List<Category> categoryByMemberId = productRepository.findCategoryByMemberId(june.getId());
+		List<Category> categoryByMemberId = wishListRepository.findWishListByMember(june)
+			.stream()
+			.map(WishList::getCategory)
+			.toList();
 
 		// then
 		assertAll(

@@ -55,21 +55,17 @@ public class QueryProductRepository {
 				categoryEq(detailPageSliceRequestDto.categoryId())
 			)
 			.orderBy(product.id.desc())
-			.leftJoin(product.location, location)
-			.leftJoin(product.seller, new QMember("m1"))
-			.leftJoin(product.productImages, productImage)
+			.join(product.location, location)
+			.join(product.seller, new QMember("m1"))
+			.join(product.productImages, productImage)
 			.on(productImage.isMain.eq(true))
-			.leftJoin(productImage.image, image)
+			.join(productImage.image, image)
 			.leftJoin(product.wishLists, wishList)
 			.leftJoin(product.chatrooms, chatroom)
-			.groupBy(product.id)
-			.groupBy(product.seller.id)
-			.groupBy(product.productDetails.name)
+			.groupBy(product.id, product.seller.id, product.productDetails.name,
+				product.createdAt, product.productDetails.price, product.status.stringValue())
 			.groupBy(location.name)
 			.groupBy(image.imageUrl)
-			.groupBy(product.createdAt)
-			.groupBy(product.productDetails.price)
-			.groupBy(product.status.stringValue())
 			.limit(detailPageSliceRequestDto.pageSize() + 1)
 			.fetch();
 
@@ -108,7 +104,6 @@ public class QueryProductRepository {
 				categoryEq(detailPageSliceRequestDto.categoryId()),
 				sellerdEq(detailPageSliceRequestDto.sellerId()),
 				wishListMemberEq(detailPageSliceRequestDto.wishMemberId())
-
 			)
 			.orderBy(product.id.desc())
 			.leftJoin(product.location, location)
@@ -118,14 +113,11 @@ public class QueryProductRepository {
 			.leftJoin(productImage.image, image)
 			.leftJoin(product.wishLists, wishList)
 			.leftJoin(product.chatrooms, chatroom)
-			.groupBy(product.id)
-			.groupBy(product.seller.id)
-			.groupBy(product.productDetails.name)
+			.groupBy(product.id, product.seller.id, product.productDetails.name,
+				product.createdAt, product.productDetails.price,
+				product.status.stringValue())
 			.groupBy(location.name)
 			.groupBy(image.imageUrl)
-			.groupBy(product.createdAt)
-			.groupBy(product.productDetails.price)
-			.groupBy(product.status.stringValue())
 			.limit(detailPageSliceRequestDto.pageSize() + 1)
 			.fetch();
 
@@ -140,7 +132,7 @@ public class QueryProductRepository {
 			.leftJoin(product.wishLists, wishList);
 
 		return PageableExecutionUtils.getPage(fetch, Pageable.ofSize(detailPageSliceRequestDto.pageSize()),
-			() -> count.fetchCount());
+			count::fetchCount);
 	}
 
 	private BooleanExpression lessThanItemId(Long itemId) {

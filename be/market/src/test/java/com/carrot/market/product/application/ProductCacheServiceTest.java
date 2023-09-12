@@ -9,6 +9,7 @@ import static org.mockito.Mockito.*;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -35,12 +36,12 @@ class ProductCacheServiceTest extends CacheTestSupport {
 	@Autowired
 	EntityManager entityManager;
 
-	// @AfterEach
-	// void tearDown() {
-	// 	productRepository.deleteAllInBatch();
-	// 	memberRepository.deleteAllInBatch();
-	// 	deleteAllInRedis();
-	// }
+	@AfterEach
+	void tearDown() {
+		productRepository.deleteAllInBatch();
+		memberRepository.deleteAllInBatch();
+		deleteAllInRedis();
+	}
 
 	@Test
 	void addViewCntToRedis() {
@@ -90,16 +91,8 @@ class ProductCacheServiceTest extends CacheTestSupport {
 		assertThat(redisUtil.keys(getProductCachePattern())).hasSize(2);
 	}
 
-	@Autowired
-	DataInit dataInit;
-
 	@Test
-	void test() throws InterruptedException {
-		dataInit.init();
-	}
-
-	@Test
-	void validateApplyViewCountToRDB() throws InterruptedException {
+	void validateApplyViewCountToRDB() {
 		// given
 		Member june = makeMember("june", "www.naver.com");
 		memberRepository.save(june);

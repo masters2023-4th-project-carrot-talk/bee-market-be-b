@@ -2,12 +2,17 @@ package com.carrot.market.product.application;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.carrot.market.member.domain.Member;
+import com.carrot.market.member.domain.WishList;
+import com.carrot.market.member.infrastructure.MemberRepository;
 import com.carrot.market.global.exception.ApiException;
 import com.carrot.market.global.exception.domain.LocationException;
 import com.carrot.market.global.exception.domain.ProductException;
@@ -51,6 +56,7 @@ public class ProductService {
 	private final ProductRepository productRepository;
 	private final ProductImageRepository productImageRepository;
 	private final WishListRepository wishListRepository;
+	private final MemberRepository memberRepository;
 	private final MemberService memberService;
 	private final LocationRepository locationRepository;
 	private final ImageService imageService;
@@ -138,20 +144,26 @@ public class ProductService {
 	}
 
 	public WishListDetailDto getWishList(Long categoryId, Long memberId, Long next, int size) {
-		List<Category> categoryByMemberId = productRepository.findCategoryByMemberId(memberId);
+		Member member = memberRepository.findById(memberId).get();
+		Set<Category> categories = wishListRepository.findWishListByMember(member)
+			.stream()
+			.map(WishList::getCategory)
+			.collect(Collectors.toSet());
+
 		DetailPageSliceRequestDto build = DetailPageSliceRequestDto.builder()
 			.wishMemberId(memberId)
 			.categoryId(categoryId)
 			.nextProductId(next)
 			.pageSize(size)
 			.build();
-		Slice<DetailPageSliceResponseDto> byMyDetailPageSliceRequestDto = queryProductRepository.findByMyDetailPageSliceRequestDto(
-			build);
-		List<DetailPageSliceResponseDto> products = byMyDetailPageSliceRequestDto.getContent();
+
+		List<DetailPageSliceResponseDto> products = queryProductRepository.findByMyDetailPageSliceRequestDto(
+			build).getContent();
+
 		Long contentNextId = getContentNextId(products, size);
 		products = removeLastIfProductsSizeOverPageSize(products, size);
 
-		return WishListDetailDto.from(categoryByMemberId, products, contentNextId);
+		return WishListDetailDto.from(categories, products, contentNextId);
 	}
 
 	@Transactional

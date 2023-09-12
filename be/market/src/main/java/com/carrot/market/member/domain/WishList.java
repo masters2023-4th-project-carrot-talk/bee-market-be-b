@@ -1,6 +1,7 @@
 package com.carrot.market.member.domain;
 
 import com.carrot.market.global.domain.BaseEntity;
+import com.carrot.market.product.domain.Category;
 import com.carrot.market.product.domain.Product;
 
 import jakarta.persistence.Entity;
@@ -24,6 +25,10 @@ public class WishList extends BaseEntity {
 	private Long id;
 
 	@ManyToOne
+	@JoinColumn(name = "category_id")
+	private Category category;
+
+	@ManyToOne
 	@JoinColumn(name = "product_id")
 	private Product product;
 
@@ -35,6 +40,7 @@ public class WishList extends BaseEntity {
 	public WishList(Product product, Member member) {
 		setProduct(product);
 		setMember(member);
+		category = product.getCategory();
 	}
 
 	private void setMember(Member member) {
@@ -45,5 +51,9 @@ public class WishList extends BaseEntity {
 	private void setProduct(Product product) {
 		this.product = product;
 		product.getWishLists().add(this);
+	}
+
+	public Long getCategoryId() {
+		return category.getId();
 	}
 }

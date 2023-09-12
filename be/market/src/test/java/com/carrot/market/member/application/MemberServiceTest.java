@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.carrot.market.auth.application.AuthService;
+import com.carrot.market.auth.application.dto.response.LoginResponse;
 import com.carrot.market.global.exception.ApiException;
 import com.carrot.market.global.exception.domain.MemberException;
 import com.carrot.market.location.domain.Location;
@@ -16,13 +18,15 @@ import com.carrot.market.location.infrastructure.LocationRepository;
 import com.carrot.market.member.application.dto.request.SignupServiceRequest;
 import com.carrot.market.member.domain.Member;
 import com.carrot.market.member.infrastructure.MemberRepository;
-import com.carrot.market.oauth.application.dto.response.LoginResponse;
 import com.carrot.market.support.IntegrationTestSupport;
 
 class MemberServiceTest extends IntegrationTestSupport {
 
 	@Autowired
 	private MemberService memberService;
+
+	@Autowired
+	private AuthService authService;
 
 	@Autowired
 	private LocationRepository locationRepository;
@@ -46,7 +50,7 @@ class MemberServiceTest extends IntegrationTestSupport {
 			.mainLocationId(mainLocation.getId())
 			.subLocationId(subLocation.getId())
 			.build();
-		LoginResponse loginResponse = memberService.signup(signUpRequest);
+		LoginResponse loginResponse = authService.signup(signUpRequest);
 		Long memberId = loginResponse.user().id();
 
 		//when
@@ -82,7 +86,7 @@ class MemberServiceTest extends IntegrationTestSupport {
 				.mainLocationId(mainLocation.getId())
 				.subLocationId(subLocation.getId())
 				.build();
-			LoginResponse loginResponse = memberService.signup(signUpRequest);
+			LoginResponse loginResponse = authService.signup(signUpRequest);
 			Long memberId = loginResponse.user().id();
 			memberService.removeRegisteredLocation(memberId, subLocation.getId());
 
@@ -117,7 +121,7 @@ class MemberServiceTest extends IntegrationTestSupport {
 				.mainLocationId(mainLocation.getId())
 				.subLocationId(subLocation.getId())
 				.build();
-			LoginResponse loginResponse = memberService.signup(signUpRequest);
+			LoginResponse loginResponse = authService.signup(signUpRequest);
 			Long memberId = loginResponse.user().id();
 
 			//when //then
@@ -147,7 +151,7 @@ class MemberServiceTest extends IntegrationTestSupport {
 				.mainLocationId(mainLocation.getId())
 				.subLocationId(subLocation.getId())
 				.build();
-			LoginResponse loginResponse = memberService.signup(signUpRequest);
+			LoginResponse loginResponse = authService.signup(signUpRequest);
 			Long memberId = loginResponse.user().id();
 			//when
 			memberService.removeRegisteredLocation(memberId, mainLocation.getId());
@@ -176,7 +180,7 @@ class MemberServiceTest extends IntegrationTestSupport {
 				.mainLocationId(mainLocation.getId())
 				.subLocationId(subLocation.getId())
 				.build();
-			LoginResponse loginResponse = memberService.signup(signUpRequest);
+			LoginResponse loginResponse = authService.signup(signUpRequest);
 			Long memberId = loginResponse.user().id();
 
 			memberService.removeRegisteredLocation(memberId, subLocation.getId());
@@ -194,7 +198,7 @@ class MemberServiceTest extends IntegrationTestSupport {
 			memberRepository.save(june);
 
 			// when & then
-			memberService.checkDuplicateNickname("Nickname");
+			authService.checkDuplicateNickname("Nickname");
 		}
 
 		@Test
@@ -205,7 +209,7 @@ class MemberServiceTest extends IntegrationTestSupport {
 
 			// when
 			assertThatThrownBy(
-				() -> memberService.checkDuplicateNickname(june.getNickname())).isInstanceOf(
+				() -> authService.checkDuplicateNickname(june.getNickname())).isInstanceOf(
 				ApiException.class).hasMessage(MemberException.EXIST_MEMBER.getMessage());
 		}
 	}
