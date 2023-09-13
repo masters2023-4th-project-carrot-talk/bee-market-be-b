@@ -171,7 +171,7 @@ class ProductControllerTest extends ControllerTestSupport {
 		doNothing().when(productService).updateProduct(anyLong(), anyLong(), any(ProductUpdateServiceRequest.class));
 
 		//then
-		mockMvc.perform(put("/api/products/1")
+		mockMvc.perform(patch("/api/products/1")
 				.requestAttr("memberId", 1)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(productUpdateRequest)))

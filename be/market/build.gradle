@@ -65,11 +65,20 @@ dependencies {
 
     // Cache
     implementation("org.springframework.boot:spring-boot-starter-cache")
+    // WebSocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    // Kafka
+    implementation 'org.springframework.kafka:spring-kafka'
+
+    // Mongo
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
     annotationProcessor 'org.projectlombok:lombok'
 
+
     // awaitility
     testImplementation 'org.awaitility:awaitility:4.2.0'
+
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.rest-assured:rest-assured:5.3.0'
