@@ -2,6 +2,8 @@ package com.carrot.market.global.config.interceptor;
 
 import static com.carrot.market.global.filter.JwtAuthorizationFilter.*;
 
+import java.util.Objects;
+
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.messaging.Message;
@@ -11,6 +13,8 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.stereotype.Component;
 
+import com.carrot.market.chat.application.ChatService;
+import com.carrot.market.chatroom.application.ChatroomService;
 import com.carrot.market.global.exception.domain.JwtException;
 import com.carrot.market.jwt.application.JwtProvider;
 
@@ -29,6 +33,8 @@ import lombok.extern.slf4j.Slf4j;
 public class StompHandler implements ChannelInterceptor {
 
 	private final JwtProvider jwtProvider;
+	private final ChatroomService chatroomService;
+	private final ChatService chatService;
 
 	@Override
 	public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -44,20 +50,44 @@ public class StompHandler implements ChannelInterceptor {
 
 			case CONNECT:
 				log.info("CONNECT !!");
-				getMemberId(accessor);
+				Long senderId = validateToken(accessor);
+				connectToChatRoom(accessor, senderId);
 				break;
 			case SUBSCRIBE:
 				log.info("SUBSCRIBE !!");
 			case SEND:
 				break;
+			case DISCONNECT:
+				log.info("DISCONNECT !!");
+				disconnectChatRoom(accessor);
 		}
+	}
+
+	private void connectToChatRoom(StompHeaderAccessor accessor, Long senderId) {
+		Long chatRoomId = getChatRoomId(accessor);
+		chatroomService.connectChatRoom(chatRoomId, senderId);
+		chatService.readChattingInChatroom(chatRoomId);
+	}
+
+	private void disconnectChatRoom(StompHeaderAccessor accessor) {
+		Long chatRoomId = getChatRoomId(accessor);
+		Long senderId = validateToken(accessor);
+		chatroomService.disconnectChatRoom(chatRoomId, senderId);
+	}
+
+	private Long getChatRoomId(StompHeaderAccessor accessor) {
+		return
+			Long.valueOf(
+				Objects.requireNonNull(
+					accessor.getFirstNativeHeader("chatRoomId")
+				));
 	}
 
 	private String getAccessToken(StompHeaderAccessor accessor) {
 		return accessor.getFirstNativeHeader("Authorization");
 	}
 
-	private Long getMemberId(StompHeaderAccessor accessor) {
+	private Long validateToken(StompHeaderAccessor accessor) {
 		try {
 			String token = getAccessToken(accessor);
 			Claims claims = jwtProvider.getClaims(token);
