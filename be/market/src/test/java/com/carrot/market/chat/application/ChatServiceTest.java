@@ -4,17 +4,26 @@ import static com.carrot.market.fixture.FixtureFactory.*;
 import static com.carrot.market.global.filter.JwtAuthorizationFilter.*;
 import static java.util.concurrent.TimeUnit.*;
 import static org.assertj.core.api.Assertions.*;
+import static org.awaitility.Awaitility.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
@@ -24,9 +33,14 @@ import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
+import com.carrot.market.chat.domain.Chatting;
+import com.carrot.market.chat.infrastructure.mongo.ChattingRepository;
 import com.carrot.market.chat.presentation.dto.Message;
+import com.carrot.market.chatroom.application.ChatroomService;
 import com.carrot.market.chatroom.domain.Chatroom;
+import com.carrot.market.chatroom.domain.ChatroomCounter;
 import com.carrot.market.chatroom.infrastructure.ChatroomRepository;
+import com.carrot.market.chatroom.infrastructure.redis.ChatroomCounterRepository;
 import com.carrot.market.jwt.application.JwtProvider;
 import com.carrot.market.member.domain.Member;
 import com.carrot.market.member.infrastructure.MemberRepository;
@@ -44,8 +58,14 @@ class ChatServiceTest extends IntegrationTestSupport {
 	private ChatroomRepository chatroomRepository;
 	@Autowired
 	private ChatService chatService;
+	@SpyBean
+	private ChatroomService chatRoomService;
 	@Autowired
 	private JwtProvider jwtProvider;
+	@Autowired
+	private ChattingRepository chattingRepository;
+	@Autowired
+	private ChatroomCounterRepository chatRoomCounterRepository;
 
 	private BlockingQueue<Message> blockingQueueForChatting;
 	private RoomContext roomContext;
@@ -66,6 +86,32 @@ class ChatServiceTest extends IntegrationTestSupport {
 		product = productRepository.save(Product.builder().seller(seller).build());
 		chatroom = chatroomRepository.save(new Chatroom(product, seller));
 		accessToken = jwtProvider.createAccessToken(Map.of(MEMBER_ID, seller.getId()));
+	}
+
+	@AfterEach()
+	void after() {
+		chattingRepository.deleteAll();
+		chatRoomCounterRepository.deleteAll();
+	}
+
+	@Test
+	void readChattingInChatroom() {
+		// given
+		Chatting chatting = Chatting.builder()
+			.chatRoomId(chatroom.getId())
+			.senderId(purchaser.getId())
+			.content("content")
+			.build();
+		Chatting savedChatting = chattingRepository.save(chatting);
+
+		// when
+		chatService.readChattingInChatroom(chatroom.getId());
+
+		// then
+		Optional<Chatting> readChatting = chattingRepository.findById(savedChatting.getId());
+		assertAll(() -> assertThat(readChatting).isPresent(),
+			() -> assertThat(readChatting.get().getId()).isEqualTo(savedChatting.getId()),
+			() -> assertThat(readChatting.get().getReadCount()).isEqualTo(0));
 	}
 
 	@Test
@@ -92,6 +138,30 @@ class ChatServiceTest extends IntegrationTestSupport {
 
 	}
 
+	@Test
+	void disconnectStomp() throws ExecutionException, InterruptedException, TimeoutException {
+
+		// init setting
+		WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
+		stompClient.setMessageConverter(new MappingJackson2MessageConverter());
+
+		// Connection
+		StompSession session = enter_room(chatroom.getId(), accessToken, roomContext);
+		StompHeaders stompHeaders = new StompHeaders();
+		stompHeaders.add("Authorization", accessToken);
+		stompHeaders.add("chatRoomId", String.valueOf(chatroom.getId()));
+		session.disconnect(stompHeaders);
+
+		//then
+		await().atMost(10, TimeUnit.SECONDS)
+			.untilAsserted(
+				() -> verify(chatRoomService, atLeast(1)).disconnectChatRoom(anyLong(), anyLong()));
+
+		List<ChatroomCounter> byChatroomId = chatRoomCounterRepository.findByChatroomId(chatroom.getId());
+		assertThat(byChatroomId).hasSize(0);
+
+	}
+
 	private void sendMessage(Long senderId, Long roomId, String content) {
 		Message message = Message.builder().senderId(senderId).chatroomId(roomId).content(content).build();
 		chatService.sendMessage(message);
@@ -106,13 +176,12 @@ class ChatServiceTest extends IntegrationTestSupport {
 		stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 		StompHeaders stompHeaders = new StompHeaders();
 		stompHeaders.add("Authorization", accessToken);
-
+		stompHeaders.add("chatRoomId", String.valueOf(chatroomId));
 		StompSession stompSession = stompClient.connectAsync(
 				String.format("ws://localhost:%d/chat", roomContext.getPort()), new WebSocketHttpHeaders(), stompHeaders,
 				new StompSessionHandlerAdapter() {
 				})
 			.get(20, SECONDS);
-
 		stompSession.subscribe(String.format(SUBSCRIBE_ROOM_UPDATE_BROAD_ENDPOINT_FORMAT, chatroomId),
 			new ChatUpdateStompFrameHandler(roomContext.getBlockingQueueForMessage()));
 
