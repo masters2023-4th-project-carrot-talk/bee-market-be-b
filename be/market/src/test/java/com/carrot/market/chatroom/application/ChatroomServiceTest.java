@@ -5,18 +5,31 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.carrot.market.chat.domain.Chatting;
+import com.carrot.market.chat.infrastructure.mongo.ChattingRepository;
+import com.carrot.market.chatroom.application.dto.response.ChatroomInfo;
+import com.carrot.market.chatroom.application.dto.response.ChattingListResponse;
 import com.carrot.market.chatroom.domain.Chatroom;
 import com.carrot.market.chatroom.domain.ChatroomCounter;
 import com.carrot.market.chatroom.infrastructure.ChatroomRepository;
 import com.carrot.market.chatroom.infrastructure.redis.ChatroomCounterRepository;
+import com.carrot.market.image.domain.Image;
+import com.carrot.market.image.infrastructure.ImageRepository;
+import com.carrot.market.location.domain.Location;
+import com.carrot.market.location.infrastructure.LocationRepository;
 import com.carrot.market.member.domain.Member;
 import com.carrot.market.member.infrastructure.MemberRepository;
 import com.carrot.market.product.domain.Product;
+import com.carrot.market.product.domain.ProductImage;
+import com.carrot.market.product.infrastructure.ProductImageRepository;
 import com.carrot.market.product.infrastructure.ProductRepository;
 import com.carrot.market.support.IntegrationTestSupport;
+
+import jakarta.persistence.EntityManager;
 
 class ChatroomServiceTest extends IntegrationTestSupport {
 	@Autowired
@@ -28,7 +41,22 @@ class ChatroomServiceTest extends IntegrationTestSupport {
 	@Autowired
 	ChatroomRepository chatroomRepository;
 	@Autowired
+	ChattingRepository chattingRepository;
+	@Autowired
 	ChatroomCounterRepository chatRoomCounterRepository;
+	@Autowired
+	LocationRepository locationRepository;
+	@Autowired
+	ImageRepository imageRepository;
+	@Autowired
+	ProductImageRepository productImageRepository;
+	@Autowired
+	EntityManager entityManager;
+
+	@AfterEach
+	void tearDown() {
+		chattingRepository.deleteAll();
+	}
 
 	@Test
 	void getChatroomId() {
@@ -96,5 +124,89 @@ class ChatroomServiceTest extends IntegrationTestSupport {
 		// then
 		List<ChatroomCounter> byChatroomId = chatRoomCounterRepository.findByChatroomId(chatroom.getId());
 		assertThat(byChatroomId).hasSize(0);
+	}
+
+	@Test
+	void getChatDetailsWithSingleChatroom() {
+		// given
+		Member seller = memberRepository.save(makeMember("June", "www.naver.com"));
+		Member purchaser = memberRepository.save(makeMember("bean", "www.google.com"));
+		Product product = productRepository.save(Product.builder().seller(seller).build());
+		Chatroom chatroom = chatroomRepository.save(new Chatroom(product, purchaser));
+
+		Chatting firstChat = new Chatting(chatroom.getId(), seller.getId(), "hello");
+		chattingRepository.save(firstChat);
+
+		// when
+		for (int index = 0; index < 10; index++) {
+			Chatting chatting = new Chatting(chatroom.getId(), seller.getId(), "hello" + index);
+			chatting.readChatting();
+			chattingRepository.save(chatting);
+		}
+
+		// then
+		List<ChatroomInfo> chatDetails = chatroomService.getChatDetails(List.of(chatroom.getId()));
+		assertThat(chatDetails).hasSize(1)
+			.extracting("unreadChatCount", "chatRoomId", "latestChatContent")
+			.containsExactly(tuple(1L, chatroom.getId(), "hello"));
+	}
+
+	@Test
+	void getChatDetailsWithMultiChatroom() {
+		// given
+		Member seller = memberRepository.save(makeMember("June", "www.naver.com"));
+		Member purchaser = memberRepository.save(makeMember("bean", "www.google.com"));
+		Member purchaser2 = memberRepository.save(makeMember("sully", "www.google.com"));
+
+		Product product = productRepository.save(Product.builder().seller(seller).build());
+
+		Chatroom chatroom = chatroomRepository.save(new Chatroom(product, purchaser));
+		Chatroom chatroom2 = chatroomRepository.save(new Chatroom(product, purchaser2));
+
+		Chatting firstChat = new Chatting(chatroom.getId(), seller.getId(), "hello");
+		Chatting secondChat = new Chatting(chatroom2.getId(), purchaser.getId(), "hello2");
+		Chatting thirdChat = new Chatting(chatroom2.getId(), purchaser2.getId(), "hello3");
+		chattingRepository.saveAll(List.of(firstChat, secondChat, thirdChat));
+
+		// when
+		List<ChatroomInfo> chatDetails = chatroomService.getChatDetails(List.of(chatroom.getId(), chatroom2.getId()));
+
+		// then
+		assertThat(chatDetails).hasSize(2)
+			.extracting("unreadChatCount", "chatRoomId", "latestChatContent")
+			.contains(tuple(1L, chatroom.getId(), "hello"), tuple(2L, chatroom2.getId(), "hello3"));
+	}
+
+	@Test
+	void getChattingList() {
+		// given
+		Member seller = memberRepository.save(makeMember("June", "www.naver.com"));
+		Member purchaser = memberRepository.save(makeMember("bean", "www.google.com"));
+		Member purchaser2 = memberRepository.save(makeMember("sully", "www.google.com"));
+		Location location = makeLocation("susongdong");
+		locationRepository.save(location);
+
+		Image image = makeImage("www.naver.com");
+		imageRepository.save(image);
+		Product product = productRepository.save(Product.builder().location(location).seller(seller).build());
+		ProductImage productImage = makeProductImage(product, image, true);
+		productImageRepository.save(productImage);
+		Chatroom chatroom = chatroomRepository.save(new Chatroom(product, purchaser));
+		Chatroom chatroom2 = chatroomRepository.save(new Chatroom(product, purchaser2));
+
+		Chatting firstChat = new Chatting(chatroom.getId(), purchaser.getId(), "hello");
+		Chatting secondChat = new Chatting(chatroom2.getId(), purchaser2.getId(), "hello2");
+		Chatting thirdChat = new Chatting(chatroom2.getId(), purchaser2.getId(), "hello3");
+		chattingRepository.saveAll(List.of(firstChat, secondChat, thirdChat));
+
+		// when
+		List<ChattingListResponse> chattingList = chatroomService.getChattingList(seller.getId());
+
+		// then
+		assertThat(chattingList).hasSize(2)
+			.extracting("nickname", "imageUrl", "locationName", "productMainImage", "unreadChatCount",
+				"latestChatContent")
+			.contains(tuple("bean", "www.google.com", "susongdong", "www.naver.com", 1L, "hello"),
+				tuple("sully", "www.google.com", "susongdong", "www.naver.com", 2L, "hello3"));
 	}
 }
