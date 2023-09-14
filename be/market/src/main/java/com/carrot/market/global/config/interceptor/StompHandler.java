@@ -50,16 +50,19 @@ public class StompHandler implements ChannelInterceptor {
 
 			case CONNECT:
 				log.info("CONNECT !!");
-				Long senderId = validateToken(accessor);
-				connectToChatRoom(accessor, senderId);
+				Long connectSenderId = validateToken(accessor);
+				connectToChatRoom(accessor, connectSenderId);
 				break;
 			case SUBSCRIBE:
 				log.info("SUBSCRIBE !!");
+				break;
 			case SEND:
 				break;
 			case DISCONNECT:
 				log.info("DISCONNECT !!");
-				disconnectChatRoom(accessor);
+				Long disconnectSenderId = validateToken(accessor);
+				disconnectChatRoom(accessor, disconnectSenderId);
+				break;
 		}
 	}
 
@@ -69,9 +72,8 @@ public class StompHandler implements ChannelInterceptor {
 		chatService.readChattingInChatroom(chatRoomId);
 	}
 
-	private void disconnectChatRoom(StompHeaderAccessor accessor) {
+	private void disconnectChatRoom(StompHeaderAccessor accessor, Long senderId) {
 		Long chatRoomId = getChatRoomId(accessor);
-		Long senderId = validateToken(accessor);
 		chatroomService.disconnectChatRoom(chatRoomId, senderId);
 	}
 

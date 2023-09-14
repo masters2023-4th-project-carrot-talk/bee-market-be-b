@@ -72,8 +72,8 @@ class ChatroomServiceTest extends IntegrationTestSupport {
 		chatroomService.connectChatRoom(chatroom.getId(), purchaser.getId());
 
 		// then
-		List<ChatroomCounter> byChatroomId = chatRoomCounterRepository.findByChatroomId(chatroom.getId());
-		assertThat(byChatroomId).hasSize(1)
+		List<ChatroomCounter> chatroomCounters = chatRoomCounterRepository.findByChatroomId(chatroom.getId());
+		assertThat(chatroomCounters).hasSize(1)
 			.extracting("chatroomId", "memberId")
 			.containsExactly(tuple(chatroom.getId(), purchaser.getId()));
 	}
