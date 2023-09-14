@@ -1,5 +1,7 @@
 package com.carrot.market.chatroom.application.dto.response;
 
+import java.time.LocalDateTime;
+
 import com.carrot.market.chatroom.infrastructure.dto.ChatroomResponse;
 
 public record ChattingListResponse(
@@ -8,7 +10,8 @@ public record ChattingListResponse(
 	String locationName,
 	String productMainImage,
 	Long unreadChatCount,
-	String latestChatContent
+	String latestChatContent,
+	LocalDateTime createdAt
 ) {
 	public ChattingListResponse(ChatroomResponse chatroomResponse, ChatroomInfo chatroomInfo) {
 		this(chatroomResponse.getNickname()
@@ -16,6 +19,7 @@ public record ChattingListResponse(
 			, chatroomResponse.getLocationName()
 			, chatroomResponse.getProductMainImage()
 			, chatroomInfo.unreadChatCount()
-			, chatroomInfo.latestChatContent());
+			, chatroomInfo.latestChatContent()
+			, chatroomInfo.createdAt());
 	}
 }

@@ -2,7 +2,9 @@ package com.carrot.market.chatroom.application;
 
 import static com.carrot.market.fixture.FixtureFactory.*;
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
@@ -208,5 +210,12 @@ class ChatroomServiceTest extends IntegrationTestSupport {
 				"latestChatContent")
 			.contains(tuple("bean", "www.google.com", "susongdong", "www.naver.com", 1L, "hello"),
 				tuple("sully", "www.google.com", "susongdong", "www.naver.com", 2L, "hello3"));
+
+		assertAll(
+			() -> assertThat(chattingList.get(0).createdAt().truncatedTo(ChronoUnit.SECONDS))
+				.isEqualTo(firstChat.getCreatedAt().truncatedTo(ChronoUnit.SECONDS)),
+			() -> assertThat(chattingList.get(1).createdAt().truncatedTo(ChronoUnit.SECONDS))
+				.isEqualTo(thirdChat.getCreatedAt().truncatedTo(ChronoUnit.SECONDS)
+				));
 	}
 }

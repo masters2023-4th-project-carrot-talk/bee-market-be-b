@@ -95,6 +95,7 @@ public class ChatroomService {
 		GroupOperation groupStage = Aggregation.group(CHAT_ROOM_ID)
 			.last(CHAT_CONTENT).as(LATEST_CHAT_CONTENT)
 			.last(CHAT_ROOM_ID).as(CHAT_ROOM_ID)
+			.last(CHAT_CREATED_AT).as(CHAT_CREATED_AT)
 			.count().as(UNREAD_CHAT_COUNT);
 
 		Aggregation aggregation = Aggregation.newAggregation(matchStage, sortStage, groupStage);
