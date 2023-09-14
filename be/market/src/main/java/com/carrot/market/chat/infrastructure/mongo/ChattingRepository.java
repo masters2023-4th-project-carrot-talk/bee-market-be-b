@@ -4,6 +4,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import com.carrot.market.chat.domain.Chatting;
 
-public interface ChatRepository extends MongoRepository<Chatting, String> {
+public interface ChattingRepository extends MongoRepository<Chatting, String> {
 
 }
