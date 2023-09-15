@@ -147,7 +147,7 @@ class ChatroomServiceTest extends IntegrationTestSupport {
 		}
 
 		// then
-		List<ChatroomInfo> chatDetails = chatroomService.getChatDetails(List.of(chatroom.getId()));
+		List<ChatroomInfo> chatDetails = chattingRepository.getChatDetails(List.of(chatroom.getId()));
 		assertThat(chatDetails).hasSize(1)
 			.extracting("unreadChatCount", "chatRoomId", "latestChatContent")
 			.containsExactly(tuple(1L, chatroom.getId(), "hello"));
@@ -171,7 +171,8 @@ class ChatroomServiceTest extends IntegrationTestSupport {
 		chattingRepository.saveAll(List.of(firstChat, secondChat, thirdChat));
 
 		// when
-		List<ChatroomInfo> chatDetails = chatroomService.getChatDetails(List.of(chatroom.getId(), chatroom2.getId()));
+		List<ChatroomInfo> chatDetails = chattingRepository.getChatDetails(
+			List.of(chatroom.getId(), chatroom2.getId()));
 
 		// then
 		assertThat(chatDetails).hasSize(2)

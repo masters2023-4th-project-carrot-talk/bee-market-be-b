@@ -7,14 +7,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
-import org.springframework.data.mongodb.core.aggregation.GroupOperation;
-import org.springframework.data.mongodb.core.aggregation.MatchOperation;
-import org.springframework.data.mongodb.core.aggregation.SortOperation;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,19 +33,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class ChatroomService {
-	private final String CHAT_ROOM_ID = "chatRoomId";
-	private final String CHAT_READ_COUNT = "readCount";
-	private final String CHAT_CREATED_AT = "createdAt";
-	private final String CHAT_CONTENT = "content";
-	private final String LATEST_CHAT_CONTENT = "latestChatContent";
-	private final String UNREAD_CHAT_COUNT = "unreadChatCount";
-	private final String CHATTING = "chatting";
-	private final Long UNREAD = 1L;
 	private final ChatroomRepository chatroomRepository;
 	private final MemberRepository memberRepository;
 	private final ProductRepository productRepository;
 	private final ChattingRepository chattingRepository;
-	private final MongoTemplate mongoTemplate;
 
 	private final ChatroomCounterRepository chatRoomCounterRepository;
 
@@ -79,7 +62,7 @@ public class ChatroomService {
 	public List<ChattingroomListResponse> getChattingroomList(Long memberId) {
 		List<ChatroomResponse> chattingList = chatroomRepository.getChattingByMemberId(
 			memberId);
-		List<ChatroomInfo> chatDetails = getChatDetails(
+		List<ChatroomInfo> chatDetails = chattingRepository.getChatDetails(
 			chattingList.stream().map(ChatroomResponse::getChatroomId).toList());
 
 		Map<Long, ChatroomInfo> chatDetailsMap = chatDetails.stream()
@@ -103,25 +86,6 @@ public class ChatroomService {
 
 		}
 		return chattingRepository.findByChatRoomIdWithPageable(chatroomId, LocalDateTime.now(), 10);
-	}
-
-	public List<ChatroomInfo> getChatDetails(List<Long> chatroomIds) {
-		MatchOperation matchStage = Aggregation.match(
-			Criteria.where(CHAT_ROOM_ID).in(chatroomIds).and(CHAT_READ_COUNT).is(UNREAD)
-		);
-
-		SortOperation sortStage = Aggregation.sort(Sort.Direction.DESC, CHAT_CREATED_AT);
-
-		GroupOperation groupStage = Aggregation.group(CHAT_ROOM_ID)
-			.last(CHAT_CONTENT).as(LATEST_CHAT_CONTENT)
-			.last(CHAT_ROOM_ID).as(CHAT_ROOM_ID)
-			.last(CHAT_CREATED_AT).as(CHAT_CREATED_AT)
-			.count().as(UNREAD_CHAT_COUNT);
-
-		Aggregation aggregation = Aggregation.newAggregation(matchStage, sortStage, groupStage);
-		AggregationResults<ChatroomInfo> chatting = mongoTemplate.aggregate(aggregation, CHATTING,
-			ChatroomInfo.class);
-		return chatting.getMappedResults();
 	}
 
 	private Member findByMemberId(Long purchaserId) {
