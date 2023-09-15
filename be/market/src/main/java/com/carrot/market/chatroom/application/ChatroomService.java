@@ -1,5 +1,6 @@
 package com.carrot.market.chatroom.application;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -17,8 +18,11 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.carrot.market.chat.domain.Chatting;
+import com.carrot.market.chat.infrastructure.mongo.ChattingRepository;
 import com.carrot.market.chatroom.application.dto.response.ChatroomInfo;
 import com.carrot.market.chatroom.application.dto.response.ChattingListResponse;
+import com.carrot.market.chatroom.application.dto.response.ChattingroomListResponse;
 import com.carrot.market.chatroom.domain.Chatroom;
 import com.carrot.market.chatroom.domain.ChatroomCounter;
 import com.carrot.market.chatroom.infrastructure.ChatroomRepository;
@@ -48,6 +52,7 @@ public class ChatroomService {
 	private final ChatroomRepository chatroomRepository;
 	private final MemberRepository memberRepository;
 	private final ProductRepository productRepository;
+	private final ChattingRepository chattingRepository;
 	private final MongoTemplate mongoTemplate;
 
 	private final ChatroomCounterRepository chatRoomCounterRepository;
@@ -71,7 +76,7 @@ public class ChatroomService {
 		return chatroomRepository.save(chatroom);
 	}
 
-	public List<ChattingListResponse> getChattingList(Long memberId) {
+	public List<ChattingroomListResponse> getChattingroomList(Long memberId) {
 		List<ChatroomResponse> chattingList = chatroomRepository.getChattingByMemberId(
 			memberId);
 		List<ChatroomInfo> chatDetails = getChatDetails(
@@ -81,8 +86,23 @@ public class ChatroomService {
 			.collect(Collectors.toMap(ChatroomInfo::chatRoomId, Function.identity()));
 
 		return chattingList.stream()
-			.map(chatting -> new ChattingListResponse(chatting, chatDetailsMap.get(chatting.getChatroomId())))
-			.collect(Collectors.toList());
+			.map(chatting -> new ChattingroomListResponse(chatting, chatDetailsMap.get(chatting.getChatroomId())))
+			.toList();
+	}
+
+	public List<ChattingListResponse> getChattingList(Long chatroomId, String chattingId) {
+		List<Chatting> chattings = findByChatRoomIdWithPageable(chatroomId, chattingId);
+
+		return chattings.stream().map(ChattingListResponse::new).toList();
+	}
+
+	private List<Chatting> findByChatRoomIdWithPageable(Long chatroomId, String chattingId) {
+		Optional<Chatting> chatting = chattingRepository.findById(chattingId);
+		if (chatting.isPresent()) {
+			return chattingRepository.findByChatRoomIdWithPageable(chatroomId, chatting.get().getCreatedAt(), 10);
+
+		}
+		return chattingRepository.findByChatRoomIdWithPageable(chatroomId, LocalDateTime.now(), 10);
 	}
 
 	public List<ChatroomInfo> getChatDetails(List<Long> chatroomIds) {

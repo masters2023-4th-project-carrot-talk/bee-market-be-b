@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.carrot.market.chat.domain.Chatting;
 import com.carrot.market.chat.infrastructure.mongo.ChattingRepository;
 import com.carrot.market.chatroom.application.dto.response.ChatroomInfo;
-import com.carrot.market.chatroom.application.dto.response.ChattingListResponse;
+import com.carrot.market.chatroom.application.dto.response.ChattingroomListResponse;
 import com.carrot.market.chatroom.domain.Chatroom;
 import com.carrot.market.chatroom.domain.ChatroomCounter;
 import com.carrot.market.chatroom.infrastructure.ChatroomRepository;
@@ -202,7 +202,7 @@ class ChatroomServiceTest extends IntegrationTestSupport {
 		chattingRepository.saveAll(List.of(firstChat, secondChat, thirdChat));
 
 		// when
-		List<ChattingListResponse> chattingList = chatroomService.getChattingList(seller.getId());
+		List<ChattingroomListResponse> chattingList = chatroomService.getChattingroomList(seller.getId());
 
 		// then
 		assertThat(chattingList).hasSize(2)
