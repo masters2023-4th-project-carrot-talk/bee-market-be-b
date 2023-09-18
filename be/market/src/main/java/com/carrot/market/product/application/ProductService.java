@@ -14,6 +14,7 @@ import com.carrot.market.global.exception.ApiException;
 import com.carrot.market.global.exception.domain.LocationException;
 import com.carrot.market.global.exception.domain.ProductException;
 import com.carrot.market.image.application.ImageService;
+import com.carrot.market.image.domain.Image;
 import com.carrot.market.location.domain.Location;
 import com.carrot.market.location.infrastructure.LocationRepository;
 import com.carrot.market.member.application.MemberService;
@@ -113,14 +114,14 @@ public class ProductService {
 		productCacheService.addViewCntToRedis(productId);
 
 		ProductSellerDetaillDto productDetailDto = productRepository.findProductDetailbyId(productId);
-		List<String> imageUrls = productImageRepository.findImageUrlsbyPrdcutId(productId);
+		List<Image> images = productImageRepository.findImagesByProductId(productId);
 
 		if (memberId == null) {
-			return ProductDetailResponseDto.from(imageUrls, productDetailDto, false);
+			return ProductDetailResponseDto.from(images, productDetailDto, false);
 		}
 
 		Boolean isLiked = wishListRepository.existsWishListByMemberIdAndProductId(memberId, productId);
-		return ProductDetailResponseDto.from(imageUrls, productDetailDto, isLiked);
+		return ProductDetailResponseDto.from(images, productDetailDto, isLiked);
 	}
 
 	public DetailPageServiceDto getSellingProducts(String status, Long memberId, Long next, int size) {
