@@ -22,6 +22,7 @@ import com.carrot.market.chatroom.infrastructure.dto.ChatroomResponse;
 import com.carrot.market.chatroom.infrastructure.redis.ChatroomCounterRepository;
 import com.carrot.market.global.exception.ApiException;
 import com.carrot.market.global.exception.domain.MemberException;
+import com.carrot.market.global.exception.domain.ProductException;
 import com.carrot.market.member.domain.Member;
 import com.carrot.market.member.infrastructure.MemberRepository;
 import com.carrot.market.product.domain.Product;
@@ -41,13 +42,9 @@ public class ChatroomService {
 	private final ChatroomCounterRepository chatRoomCounterRepository;
 
 	public Long getChatroomId(Long productId, Long purchaserId) {
-		return findByProductIdAndPurchaserId(productId, purchaserId).getId();
-	}
-
-	private Chatroom findByProductIdAndPurchaserId(Long productId, Long purchaserId) {
-		return chatroomRepository.findByProductIdAndPurchaserId(productId, purchaserId).orElse(
-			makeChatroom(productId, purchaserId)
-		);
+		Chatroom chatroom = chatroomRepository.findByProductIdAndPurchaserId(productId,
+			purchaserId).orElseGet(() -> makeChatroom(productId, purchaserId));
+		return chatroom.getId();
 	}
 
 	@Transactional
@@ -60,7 +57,7 @@ public class ChatroomService {
 	}
 
 	public List<ChattingroomListResponse> getChattingroomList(Long memberId) {
-		List<ChatroomResponse> chattingList = chatroomRepository.getChattingByMemberId(
+		List<ChatroomResponse> chattingList = chatroomRepository.findChatRoomsByMemberId(
 			memberId);
 		List<ChatroomInfo> chatDetails = chattingRepository.getChatDetails(
 			chattingList.stream().map(ChatroomResponse::getChatroomId).toList());
@@ -82,10 +79,10 @@ public class ChatroomService {
 	private List<Chatting> findByChatRoomIdWithPageable(Long chatroomId, String chattingId) {
 		Optional<Chatting> chatting = chattingRepository.findById(chattingId);
 		if (chatting.isPresent()) {
-			return chattingRepository.findByChatRoomIdWithPageable(chatroomId, chatting.get().getCreatedAt(), 10);
+			return chattingRepository.findRecentChatsByChatRoomId(chatroomId, chatting.get().getCreatedAt(), 10);
 
 		}
-		return chattingRepository.findByChatRoomIdWithPageable(chatroomId, LocalDateTime.now(), 10);
+		return chattingRepository.findRecentChatsByChatRoomId(chatroomId, LocalDateTime.now(), 10);
 	}
 
 	private Member findByMemberId(Long purchaserId) {
@@ -95,8 +92,10 @@ public class ChatroomService {
 
 	private Product findByproductId(Long productId) {
 		return productRepository.findById(productId)
-			.orElseThrow(() -> new ApiException(MemberException.NOT_FOUND_MEMBER));
+			.orElseThrow(() -> new ApiException(ProductException.NOT_FOUND_PRODUCT));
 	}
+
+	@Transactional
 
 	public void connectChatRoom(Long chatRoomId, Long senderId) {
 		ChatroomCounter chatRoomCounter = ChatroomCounter.builder().chatroomId(chatRoomId).memberId(senderId).build();

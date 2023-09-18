@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.carrot.market.global.exception.ApiException;
 import com.carrot.market.global.exception.domain.LocationException;
 import com.carrot.market.global.exception.domain.MemberException;
-import com.carrot.market.jwt.application.JwtProvider;
 import com.carrot.market.location.domain.Location;
 import com.carrot.market.location.infrastructure.LocationRepository;
 import com.carrot.market.member.application.dto.response.MainLocationResponse;
@@ -31,7 +30,6 @@ public class MemberService {
 	private final MemberRepository memberRepository;
 	private final LocationRepository locationRepository;
 	private final MemberLocationRepository memberLocationRepository;
-	private final JwtProvider jwtProvider;
 
 	@Transactional
 	public MainLocationResponse updateLocation(Long memberId, Long locationId) {
@@ -45,8 +43,7 @@ public class MemberService {
 		if (member.isAllRegisteredLocation()) {
 			throw new ApiException(MemberException.NOT_REGISTER_LOCATION);
 		}
-
-		saveSubMemberLocation(member, location);
+		addMemberLocation(member, location, Member::addSubLocation);
 
 		return new MainLocationResponse(member.getMainMemberLocation());
 	}
@@ -75,22 +72,24 @@ public class MemberService {
 		return new MainLocationResponse(member.getMainMemberLocation());
 	}
 
-	public MemberLocation saveMainMemberLocation(Member member, Location location) {
-		return saveMemberLocation(true, member, location);
+	@FunctionalInterface
+	public interface MemberLocationAdder {
+		void addLocation(Member member, Location location);
 	}
 
-	public MemberLocation saveSubMemberLocation(Member member, Location location) {
-		return saveMemberLocation(false, member, location);
+	public void addMemberLocation(Member member, Location location, MemberLocationAdder setter) {
+		setter.addLocation(member, location);
 	}
 
-	private MemberLocation saveMemberLocation(boolean isMain, Member member, Location location) {
-		return memberLocationRepository.save(
-			MemberLocation.builder()
-				.isMain(isMain)
-				.member(member)
-				.location(location)
-				.build()
-		);
+	@Transactional
+	public Member registerMemberWithLocation(Member member, Long mainLocationId, Long subLocationId) {
+		Member savedMember = memberRepository.save(member);
+		addMemberLocation(member, findLocationById(mainLocationId),
+			(Member::addMainLocation));
+		addMemberLocation(member, findLocationById(subLocationId),
+			(Member::addSubLocation));
+
+		return savedMember;
 	}
 
 	public Location findLocationById(Long locationId) {

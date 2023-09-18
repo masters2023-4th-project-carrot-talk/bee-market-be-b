@@ -17,10 +17,10 @@ public interface ChattingRepository extends MongoRepository<Chatting, String> {
 		"{ '$sort' : { 'createdAt' : -1 } }",
 		"{ '$limit' : ?2 }"
 	})
-	List<Chatting> findByChatRoomIdWithPageable(Long chatRoomId, LocalDateTime chattingTime, int limit);
+	List<Chatting> findRecentChatsByChatRoomId(Long chatRoomId, LocalDateTime chattingTime, int limit);
 
 	@Aggregation(pipeline = {
-		"{ '$match': { 'chatRoomId' : {'$in' : ?0}  ,  'readCount' : 1  } }",
+		"{ '$match': { 'chatRoomId' : {'$in' : ?0}  ,  'unreadCount' : 1  } }",
 		"{ '$sort' : { 'createdAt' : -1 } }",
 		"{ '$group' : { '_id' : '$chatRoomId' , "
 			+ "'latestChatContent' : { '$last' : '$content'}, "

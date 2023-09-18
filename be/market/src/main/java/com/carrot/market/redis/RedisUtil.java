@@ -15,26 +15,25 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
 public class RedisUtil {
+	private StringRedisTemplate stringRedisTemplate;
+	private ValueOperations<String, String> valueOperations;
 
-	private final StringRedisTemplate stringRedisTemplate;
+	public RedisUtil(StringRedisTemplate stringRedisTemplate) {
+		this.stringRedisTemplate = stringRedisTemplate;
+		this.valueOperations = stringRedisTemplate.opsForValue();
+	}
 
 	public String getData(String key) {
-		ValueOperations<String, String> valueOperations = stringRedisTemplate.opsForValue();
 		return valueOperations.get(key);
 	}
 
 	public void setData(String key, String value, Duration timeout) {
-		ValueOperations<String, String> valueOperations = stringRedisTemplate.opsForValue();
 		valueOperations.set(key, value, timeout);
 	}
 
 	public void setDataExpire(String key, String value) {
-		ValueOperations<String, String> valueOperations = stringRedisTemplate.opsForValue();
 		Duration expireDuration = Duration.ofDays(3);
 		valueOperations.set(key, value, expireDuration);
 	}
@@ -44,7 +43,6 @@ public class RedisUtil {
 	}
 
 	public void increment(String key) {
-		ValueOperations<String, String> valueOperations = stringRedisTemplate.opsForValue();
 		valueOperations.increment(key);
 	}
 
@@ -57,18 +55,17 @@ public class RedisUtil {
 			.match(pattern)
 			.count(count)
 			.build();
-		Cursor<String> cursor = stringRedisTemplate.scan(options);
-
 		Map<String, Long> keyExpireTimeMap = new HashMap<>();
 
-		while (cursor.hasNext()) {
-			String key = cursor.next();
-			Long expiration = stringRedisTemplate.getExpire(key, TimeUnit.SECONDS);
-			if (expiration != null && expiration > 0) {
-				keyExpireTimeMap.put(key, expiration);
+		try (Cursor<String> cursor = stringRedisTemplate.scan(options)) {
+			while (cursor.hasNext()) {
+				String key = cursor.next();
+				Long expiration = stringRedisTemplate.getExpire(key, TimeUnit.SECONDS);
+				if (expiration != null && expiration > 0) {
+					keyExpireTimeMap.put(key, expiration);
+				}
 			}
 		}
-
 		List<String> sortedKeys = new ArrayList<>(keyExpireTimeMap.keySet());
 		sortedKeys.sort(Comparator.comparingLong(keyExpireTimeMap::get));
 

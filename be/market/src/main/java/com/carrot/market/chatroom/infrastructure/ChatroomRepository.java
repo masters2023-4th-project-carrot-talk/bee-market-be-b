@@ -57,6 +57,6 @@ public interface ChatroomRepository extends JpaRepository<Chatroom, Long> {
 				+ "    image.image_url,\n"
 				+ "    chatroom.id;\n;", nativeQuery = true
 	)
-	List<ChatroomResponse> getChattingByMemberId(@Param("memberId") Long memberId);
+	List<ChatroomResponse> findChatRoomsByMemberId(@Param("memberId") Long memberId);
 
 }

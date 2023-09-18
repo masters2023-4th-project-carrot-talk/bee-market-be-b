@@ -1,7 +1,10 @@
 package com.carrot.market.auth.presentation;
 
-import java.io.IOException;
+import java.net.URI;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +25,6 @@ import com.carrot.market.member.presentation.dto.request.ReissueAccessTokenReque
 import com.carrot.market.member.presentation.dto.request.SignupRequest;
 import com.carrot.market.member.resolver.MemberId;
 
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -77,13 +79,13 @@ public class AuthController {
 	}
 
 	@GetMapping("/oauth/{oauthServerType}")
-	ApiResponse<Void> redirectAuthCodeRequestUrl(
-		@PathVariable String oauthServerType,
-		HttpServletResponse response
-	) throws IOException {
+	ResponseEntity<?> redirectAuthCodeRequestUrl(
+		@PathVariable String oauthServerType
+	) {
 		String redirectUrl = authService.getAuthCodeRequestUrl(oauthServerType);
-		response.sendRedirect(redirectUrl);
-		return ApiResponse.successNoBody();
+		HttpHeaders headers = new HttpHeaders();
+		headers.setLocation(URI.create(redirectUrl));
+		return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
 	}
 }
 
