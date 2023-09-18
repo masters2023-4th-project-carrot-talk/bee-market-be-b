@@ -27,7 +27,7 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
-
+mongodb/
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/

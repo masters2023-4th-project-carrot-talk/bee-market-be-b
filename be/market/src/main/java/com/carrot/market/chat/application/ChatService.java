@@ -30,7 +30,7 @@ public class ChatService {
 
 	public void readChattingInChatroom(Long chatRoomId) {
 
-		Update update = new Update().set("readCount", 0);
+		Update update = new Update().set("unreadCount", 0);
 		Query query = new Query(
 			Criteria.where("chatRoomId").is(chatRoomId));
 

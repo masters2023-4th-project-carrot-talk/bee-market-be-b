@@ -15,13 +15,14 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class MessageReceiver {
 	private final SimpMessagingTemplate template;
+	private final String DESTINATION = "/subscribe/";
 
 	@KafkaListener(
 		topics = KafkaConstant.KAFKA_TOPIC,
 		groupId = KafkaConstant.GROUP_ID
 	)
 	public void listen(Message message) {
-		log.info("sending via kafka listener.." + message.toString());
-		template.convertAndSend("/subscribe/" + message.getChatroomId(), message);
+		log.debug("sending via kafka listener.." + message.toString());
+		template.convertAndSend(DESTINATION + message.getChatroomId(), message);
 	}
 }

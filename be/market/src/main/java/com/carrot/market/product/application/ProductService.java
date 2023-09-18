@@ -235,6 +235,6 @@ public class ProductService {
 
 	private Product findProductById(Long productId) {
 		return productRepository.findById(productId)
-			.orElseThrow(() -> new ApiException(ProductException.NOT_FOUND_ID));
+			.orElseThrow(() -> new ApiException(ProductException.NOT_FOUND_PRODUCT));
 	}
 }

@@ -43,18 +43,15 @@ public class AuthService {
 	private final MemberService memberService;
 
 	@Transactional
-	public LoginResponse signup(SignupServiceRequest signupServiceRequest) {
-		Member member = signupServiceRequest.toMember();
-		Member savedMember = memberRepository.save(member);
+	public LoginResponse signup(SignupServiceRequest request) {
+		Member member = request.toMember();
+		Long mainLocationId = request.mainLocationId();
+		Long subLocationId = request.subLocationId();
+		Member savedMember = memberService.registerMemberWithLocation(member, mainLocationId, subLocationId);
 
 		Jwt jwt = jwtProvider.createJwt(Map.of(MEMBER_ID, savedMember.getId()));
 		savedMember.setRefreshToken(jwt.refreshToken());
 		LoginMemberResponse loginMemberResponse = LoginMemberResponse.from(member);
-
-		memberService.saveMainMemberLocation(member,
-			memberService.findLocationById(signupServiceRequest.mainLocationId()));
-		memberService.saveSubMemberLocation(member,
-			memberService.findLocationById(signupServiceRequest.subLocationId()));
 
 		return LoginResponse.success(jwt, loginMemberResponse);
 	}

@@ -51,5 +51,6 @@ public class FixtureFactory {
 	public static Member makeMember(String nickname, String imageUrl) {
 		return Member.builder().imageUrl(imageUrl).nickname(nickname).build();
 	}
+
 }
 

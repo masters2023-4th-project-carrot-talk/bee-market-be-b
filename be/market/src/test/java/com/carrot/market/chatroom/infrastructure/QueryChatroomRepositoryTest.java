@@ -83,7 +83,7 @@ class QueryChatroomRepositoryTest extends IntegrationTestSupport {
 		Chatroom chatroom2 = makeChatRoom(product2, sully);
 		chatroomRepository.saveAll(List.of(chatroom, chatroom2));
 		// when
-		List<ChatroomResponse> chattingList = chatroomRepository.getChattingByMemberId(
+		List<ChatroomResponse> chattingList = chatroomRepository.findChatRoomsByMemberId(
 			june.getId());
 
 		assertThat(
