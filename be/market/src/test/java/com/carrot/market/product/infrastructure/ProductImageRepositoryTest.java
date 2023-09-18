@@ -27,7 +27,7 @@ class ProductImageRepositoryTest extends IntegrationTestSupport {
 	MemberRepository memberRepository;
 
 	@Test
-	void findImageUrlsbyPrdcutId() {
+	void findImagesByProductId() {
 		// given
 		Member june = makeMember("june", "sadfas");
 		memberRepository.save(june);
@@ -41,8 +41,13 @@ class ProductImageRepositoryTest extends IntegrationTestSupport {
 		ProductImage productImage2 = makeProductImage(product, image2, false);
 		productImageRepository.saveAll(List.of(productImage, productImage2));
 
-		List<String> imageUrlsbyPrdcutId = productImageRepository.findImageUrlsbyPrdcutId(product.getId());
+		List<Image> images = productImageRepository.findImagesByProductId(product.getId());
 
-		assertThat(imageUrlsbyPrdcutId).hasSize(2).containsExactly("www.google.com", "www.naver.com");
+		assertThat(images).hasSize(2)
+			.extracting("id", "imageUrl")
+			.containsExactly(
+				tuple(1L, "www.google.com"),
+				tuple(2L, "www.naver.com")
+			);
 	}
 }

@@ -17,6 +17,7 @@ import com.carrot.market.product.application.dto.request.ProductCreateServiceReq
 import com.carrot.market.product.application.dto.request.ProductUpdateServiceRequest;
 import com.carrot.market.product.application.dto.response.CategoryDto;
 import com.carrot.market.product.application.dto.response.DetailPageServiceDto;
+import com.carrot.market.product.application.dto.response.ImageResponse;
 import com.carrot.market.product.application.dto.response.ProductChangeStatusResponse;
 import com.carrot.market.product.application.dto.response.ProductCreateServiceResponse;
 import com.carrot.market.product.application.dto.response.ProductDetailDto;
@@ -101,8 +102,8 @@ class ProductControllerTest extends ControllerTestSupport {
 			.price(1000L)
 			.isLiked(false)
 			.build();
-		ProductDetailResponseDto productDetailResponseDto = new ProductDetailResponseDto(List.of("www.google.com"),
-			june, productDetailDto);
+		ProductDetailResponseDto productDetailResponseDto = new ProductDetailResponseDto(
+			List.of(new ImageResponse(1L, "www.google.com")), june, productDetailDto);
 
 		when(productService.getProduct(any(), any())).thenReturn(productDetailResponseDto);
 
@@ -112,7 +113,8 @@ class ProductControllerTest extends ControllerTestSupport {
 			.andDo(print())
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.success").value("true"))
-			.andExpect(jsonPath("$.data.imageUrls[0]").value("www.google.com"))
+			.andExpect(jsonPath("$.data.images[0].imageId").value(1))
+			.andExpect(jsonPath("$.data.images[0].imageUrl").value("www.google.com"))
 			.andExpect(jsonPath("$.data.seller.id").value(1L))
 			.andExpect(jsonPath("$.data.seller.nickname").value("June"))
 			.andExpect(jsonPath("$.data.product.location").value("soosongdong"))
