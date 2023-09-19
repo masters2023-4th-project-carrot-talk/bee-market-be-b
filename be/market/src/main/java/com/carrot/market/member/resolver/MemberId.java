@@ -12,6 +12,9 @@ public class MemberId {
 	private Integer memberID;
 
 	public Long getMemberID() {
+		if (memberID == null) {
+			return null;
+		}
 		return memberID.longValue();
 
 	}
