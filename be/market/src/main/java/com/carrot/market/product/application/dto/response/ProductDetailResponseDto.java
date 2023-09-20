@@ -10,7 +10,8 @@ import lombok.Builder;
 public record ProductDetailResponseDto(
 	List<ImageResponse> images,
 	SellerDetailDto seller,
-	ProductDetailDto product
+	ProductDetailDto product,
+	LocationDetailDto location
 ) {
 	public static ProductDetailResponseDto from(List<Image> images, ProductSellerDetaillDto productDetailDto,
 		Boolean isLiked) {
@@ -20,6 +21,7 @@ public record ProductDetailResponseDto(
 				.toList())
 			.seller(SellerDetailDto.from(productDetailDto))
 			.product(ProductDetailDto.from(productDetailDto, isLiked))
+			.location(LocationDetailDto.from(productDetailDto))
 			.build();
 	}
 }

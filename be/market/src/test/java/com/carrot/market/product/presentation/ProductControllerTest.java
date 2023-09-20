@@ -18,6 +18,7 @@ import com.carrot.market.product.application.dto.request.ProductUpdateServiceReq
 import com.carrot.market.product.application.dto.response.CategoryDto;
 import com.carrot.market.product.application.dto.response.DetailPageServiceDto;
 import com.carrot.market.product.application.dto.response.ImageResponse;
+import com.carrot.market.product.application.dto.response.LocationDetailDto;
 import com.carrot.market.product.application.dto.response.ProductChangeStatusResponse;
 import com.carrot.market.product.application.dto.response.ProductCreateServiceResponse;
 import com.carrot.market.product.application.dto.response.ProductDetailDto;
@@ -91,7 +92,6 @@ class ProductControllerTest extends ControllerTestSupport {
 		// given
 		SellerDetailDto june = new SellerDetailDto(1L, "June");
 		ProductDetailDto productDetailDto = ProductDetailDto.builder()
-			.location("soosongdong")
 			.status(SellingStatus.SELLING.name())
 			.title("title")
 			.category("category")
@@ -102,8 +102,9 @@ class ProductControllerTest extends ControllerTestSupport {
 			.price(1000L)
 			.isLiked(false)
 			.build();
+		LocationDetailDto locationDetailDto = new LocationDetailDto(1L, "역삼1동");
 		ProductDetailResponseDto productDetailResponseDto = new ProductDetailResponseDto(
-			List.of(new ImageResponse(1L, "www.google.com")), june, productDetailDto);
+			List.of(new ImageResponse(1L, "www.google.com")), june, productDetailDto, locationDetailDto);
 
 		when(productService.getProduct(any(), any())).thenReturn(productDetailResponseDto);
 
@@ -117,7 +118,6 @@ class ProductControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("$.data.images[0].imageUrl").value("www.google.com"))
 			.andExpect(jsonPath("$.data.seller.id").value(1L))
 			.andExpect(jsonPath("$.data.seller.nickname").value("June"))
-			.andExpect(jsonPath("$.data.product.location").value("soosongdong"))
 			.andExpect(jsonPath("$.data.product.status").value(SellingStatus.SELLING.name()))
 			.andExpect(jsonPath("$.data.product.title").value("title"))
 			.andExpect(jsonPath("$.data.product.category").value("category"))
@@ -126,7 +126,9 @@ class ProductControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("$.data.product.likeCount").value(2L))
 			.andExpect(jsonPath("$.data.product.hits").value(3L))
 			.andExpect(jsonPath("$.data.product.price").value(1000L))
-			.andExpect(jsonPath("$.data.product.isLiked").value(false));
+			.andExpect(jsonPath("$.data.product.isLiked").value(false))
+			.andExpect(jsonPath("$.data.location.id").value(1L))
+			.andExpect(jsonPath("$.data.location.name").value("역삼1동"));
 	}
 
 	@DisplayName("상품을 등록한다.")

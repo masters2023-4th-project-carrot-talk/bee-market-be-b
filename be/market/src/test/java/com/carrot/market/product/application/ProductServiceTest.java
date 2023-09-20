@@ -331,7 +331,6 @@ class ProductServiceTest extends IntegrationTestSupport {
 			() -> assertThat(imageResponse.imageUrl()).isEqualTo(image.getImageUrl()),
 			() -> assertThat(seller.id()).isEqualTo(june.getId()),
 			() -> assertThat(seller.nickname()).isEqualTo(june.getNickname()),
-			() -> assertThat(productDetailDto.location()).isEqualTo(location.getName()),
 			() -> assertThat(productDetailDto.status()).isEqualTo(SellingStatus.SELLING.getText()),
 			() -> assertThat(productDetailDto.title()).isEqualTo(product.getProductDetails().getName()),
 			() -> assertThat(productDetailDto.category()).isEqualTo(category.getName()),
