@@ -1,3 +1,4 @@
 [submodule "be/market/src/main/resources/config"]
 	path = be/market/src/main/resources/config
-	url = https://github.com/masters2023-4th-project-carrot-talk/be-b-submodule.git
+    url = https://github.com/masters2023-4th-project-carrot-talk/be-b-submodule.git
+    branch = main
