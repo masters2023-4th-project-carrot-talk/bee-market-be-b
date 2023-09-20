@@ -60,7 +60,7 @@ public class JwtAuthorizationFilter implements Filter {
 			return;
 		}
 
-		if (whiteListCheck(httpServletRequest.getRequestURI())) {
+		if (whiteListCheck(httpServletRequest.getRequestURI()) && !isContainToken(httpServletRequest)) {
 			chain.doFilter(request, response);
 			return;
 		}

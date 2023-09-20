@@ -12,7 +12,7 @@ import com.carrot.market.product.domain.Product;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 	@Query(value =
-		"select new com.carrot.market.product.application.dto.response.ProductSellerDetaillDto( count(distinct chat) , count(distinct wish) , l.name , p.status , c.name , p.createdAt , p.productDetails.content , p.productDetails.hits , p.productDetails.name , p.productDetails.price , seller.id, seller.nickname) "
+		"select new com.carrot.market.product.application.dto.response.ProductSellerDetaillDto( count(distinct chat) , count(distinct wish) ,l.id, l.name , p.status , c.name , p.createdAt , p.productDetails.content , p.productDetails.hits , p.productDetails.name , p.productDetails.price , seller.id, seller.nickname) "
 			+ " from Product  p "
 			+ "join Chatroom as chat on chat.product= p "
 			+ "join WishList as wish on wish.product = p "

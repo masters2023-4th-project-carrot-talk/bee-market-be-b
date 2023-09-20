@@ -14,7 +14,8 @@ import lombok.Setter;
 public class ProductSellerDetaillDto {
 	Long chatCount;
 	Long likeCount;
-	String location;
+	Long locationId;
+	String locationName;
 	SellingStatus status;
 	String category;
 	LocalDateTime createdAt;
@@ -25,12 +26,13 @@ public class ProductSellerDetaillDto {
 	Long sellerId;
 	String sellerName;
 
-	public ProductSellerDetaillDto(Long chatCount, Long likeCount, String location,
+	public ProductSellerDetaillDto(Long chatCount, Long likeCount, Long locationId, String locationName,
 		SellingStatus status, String category, LocalDateTime createdAt, String content, Long hits, String name,
 		Long price, Long sellerId, String sellerName) {
 		this.chatCount = chatCount;
 		this.likeCount = likeCount;
-		this.location = location;
+		this.locationId = locationId;
+		this.locationName = locationName;
 		this.status = status;
 		this.category = category;
 		this.createdAt = createdAt;
