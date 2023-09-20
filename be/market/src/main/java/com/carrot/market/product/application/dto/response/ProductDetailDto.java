@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import lombok.Builder;
 
 public record ProductDetailDto(
-	String location,
 	String status,
 	String title,
 	String category,
@@ -19,7 +18,7 @@ public record ProductDetailDto(
 ) {
 
 	public static ProductDetailDto from(ProductSellerDetaillDto productDetailDto, Boolean isLiked) {
-		return ProductDetailDto.builder().location(productDetailDto.location)
+		return ProductDetailDto.builder()
 			.status(productDetailDto.status.getText())
 			.title(productDetailDto.name)
 			.category(productDetailDto.category)

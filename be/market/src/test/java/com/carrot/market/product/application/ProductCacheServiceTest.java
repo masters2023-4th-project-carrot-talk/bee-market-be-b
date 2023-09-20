@@ -98,20 +98,20 @@ class ProductCacheServiceTest extends CacheTestSupport {
 		memberRepository.save(june);
 		Product product = Product.builder()
 			.seller(june)
-			.productDetails(ProductDetails.builder().hits(0L).build())
+			.productDetails(ProductDetails.builder().hits(3000L).build())
 			.build();
 		productRepository.save(product);
 		productCacheService.addViewCntToRedis(product.getId());
 		productCacheService.addViewCntToRedis(product.getId());
 
 		// when
-		await().atMost(10, TimeUnit.SECONDS)
+		await().atMost(20, TimeUnit.SECONDS)
 			.untilAsserted(
-				() -> verify(productCacheService, atLeast(1)).applyViewCountToRDB());
+				() -> verify(productCacheService, atLeast(2)).applyViewCountToRDB());
 
 		// then
 		Product byId = productRepository.findById(product.getId()).get();
-		assertThat(byId.getProductDetails().getHits()).isEqualTo(2L);
+		assertThat(byId.getProductDetails().getHits()).isEqualTo(3002L);
 	}
 
 	private void deleteAllInRedis() {

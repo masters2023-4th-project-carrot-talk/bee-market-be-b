@@ -32,7 +32,7 @@ public class ProductCacheService {
 
 		redisUtil.setData(
 			viewCntKey,
-			String.valueOf(productRepository.findHitsById(productId) + 1),
+			String.valueOf(1L),
 			Duration.ofSeconds(HITS_DURATION)
 		);
 	}

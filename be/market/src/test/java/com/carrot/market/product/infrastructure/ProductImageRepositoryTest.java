@@ -46,8 +46,8 @@ class ProductImageRepositoryTest extends IntegrationTestSupport {
 		assertThat(images).hasSize(2)
 			.extracting("id", "imageUrl")
 			.containsExactly(
-				tuple(1L, "www.google.com"),
-				tuple(2L, "www.naver.com")
+				tuple(image.getId(), "www.google.com"),
+				tuple(image2.getId(), "www.naver.com")
 			);
 	}
 }
