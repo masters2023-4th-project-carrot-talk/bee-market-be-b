@@ -50,10 +50,11 @@ public class StompHandler implements ChannelInterceptor {
 
 			case CONNECT:
 				log.info("CONNECT !!");
-				Long connectSenderId = validateToken(accessor);
-				connectToChatRoom(accessor, connectSenderId);
+				validateToken(accessor);
 				break;
 			case SUBSCRIBE:
+				Long connectSenderId = validateToken(accessor);
+				connectToChatRoom(accessor, connectSenderId);
 				log.info("SUBSCRIBE !!");
 				break;
 			case SEND:
@@ -81,8 +82,8 @@ public class StompHandler implements ChannelInterceptor {
 		return
 			Long.valueOf(
 				Objects.requireNonNull(
-					accessor.getFirstNativeHeader("chatRoomId")
-				));
+					accessor.getDestination()).split("/")[2]
+			);
 	}
 
 	private String getAccessToken(StompHeaderAccessor accessor) {
