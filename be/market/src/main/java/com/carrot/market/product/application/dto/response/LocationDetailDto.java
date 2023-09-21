@@ -4,7 +4,7 @@ public record LocationDetailDto(
 	Long id,
 	String name
 ) {
-	public static LocationDetailDto from(ProductSellerDetaillDto productSellerDetaillDto) {
-		return new LocationDetailDto(productSellerDetaillDto.locationId, productSellerDetaillDto.getLocationName());
+	public static LocationDetailDto from(ProductSellerDetailDto productSellerDetailDto) {
+		return new LocationDetailDto(productSellerDetailDto.getLocationId(), productSellerDetailDto.getLocationName());
 	}
 }

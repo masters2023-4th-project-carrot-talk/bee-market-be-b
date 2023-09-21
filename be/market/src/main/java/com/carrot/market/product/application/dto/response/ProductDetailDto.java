@@ -17,17 +17,17 @@ public record ProductDetailDto(
 	Boolean isLiked
 ) {
 
-	public static ProductDetailDto from(ProductSellerDetaillDto productDetailDto, Boolean isLiked) {
+	public static ProductDetailDto from(ProductSellerDetailDto productDetailDto, Boolean isLiked) {
 		return ProductDetailDto.builder()
-			.status(productDetailDto.status.getText())
-			.title(productDetailDto.name)
-			.category(productDetailDto.category)
-			.createdAt(productDetailDto.createdAt)
-			.content(productDetailDto.content)
-			.chatCount(productDetailDto.chatCount)
-			.likeCount(productDetailDto.likeCount)
-			.hits(productDetailDto.hits)
-			.price(productDetailDto.price)
+			.status(productDetailDto.getStatus().getText())
+			.title(productDetailDto.getTitle())
+			.category(productDetailDto.getCategory())
+			.createdAt(productDetailDto.getCreatedAt())
+			.content(productDetailDto.getContent())
+			.chatCount(productDetailDto.getChatCount())
+			.likeCount(productDetailDto.getLikeCount())
+			.hits(productDetailDto.getHits())
+			.price(productDetailDto.getPrice())
 			.isLiked(isLiked)
 			.build();
 	}

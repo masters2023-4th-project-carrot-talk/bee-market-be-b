@@ -15,7 +15,7 @@ public record ProductUpdateRequest(
 	@Size(min = 1, max = 10, message = "상품 이미지는 최소 1장 ~ 최대 10장까지 가능합니다.")
 	List<Long> images,
 	@NotBlank(message = "상품 제목은 필수입니다.")
-	String name,
+	String title,
 	@Positive
 	Long categoryId,
 	@Positive
@@ -34,7 +34,7 @@ public record ProductUpdateRequest(
 
 	private ProductDetails getProductDetails() {
 		return ProductDetails.builder()
-			.name(name)
+			.title(title)
 			.content(content)
 			.price(price)
 			.build();

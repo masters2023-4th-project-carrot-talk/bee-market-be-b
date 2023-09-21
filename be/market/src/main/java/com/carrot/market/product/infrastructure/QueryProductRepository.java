@@ -38,7 +38,7 @@ public class QueryProductRepository {
 			.select(new QDetailPageSliceResponseDto(
 					product.id,
 					product.seller.id,
-					product.productDetails.name,
+					product.productDetails.title,
 					location.name,
 					image.imageUrl,
 					product.createdAt,
@@ -62,7 +62,7 @@ public class QueryProductRepository {
 			.join(productImage.image, image)
 			.leftJoin(product.wishLists, wishList)
 			.leftJoin(product.chatrooms, chatroom)
-			.groupBy(product.id, product.seller.id, product.productDetails.name,
+			.groupBy(product.id, product.seller.id, product.productDetails.title,
 				product.createdAt, product.productDetails.price, product.status.stringValue())
 			.groupBy(location.name)
 			.groupBy(image.imageUrl)
@@ -87,7 +87,7 @@ public class QueryProductRepository {
 			.select(new QDetailPageSliceResponseDto(
 					product.id,
 					product.seller.id,
-					product.productDetails.name,
+					product.productDetails.title,
 					location.name,
 					image.imageUrl,
 					product.createdAt,
@@ -113,7 +113,7 @@ public class QueryProductRepository {
 			.leftJoin(productImage.image, image)
 			.leftJoin(product.wishLists, wishList)
 			.leftJoin(product.chatrooms, chatroom)
-			.groupBy(product.id, product.seller.id, product.productDetails.name,
+			.groupBy(product.id, product.seller.id, product.productDetails.title,
 				product.createdAt, product.productDetails.price,
 				product.status.stringValue())
 			.groupBy(location.name)
