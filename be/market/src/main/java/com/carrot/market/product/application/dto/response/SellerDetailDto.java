@@ -4,7 +4,7 @@ public record SellerDetailDto(
 	Long id,
 	String nickname
 ) {
-	public static SellerDetailDto from(ProductSellerDetaillDto productDetailDto) {
-		return new SellerDetailDto(productDetailDto.sellerId, productDetailDto.sellerName);
+	public static SellerDetailDto from(ProductSellerDetailDto productDetailDto) {
+		return new SellerDetailDto(productDetailDto.getSellerId(), productDetailDto.getSellerName());
 	}
 }

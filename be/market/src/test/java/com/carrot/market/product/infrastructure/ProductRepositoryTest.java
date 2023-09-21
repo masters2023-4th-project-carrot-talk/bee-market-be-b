@@ -19,7 +19,7 @@ import com.carrot.market.member.domain.Member;
 import com.carrot.market.member.domain.WishList;
 import com.carrot.market.member.infrastructure.MemberRepository;
 import com.carrot.market.member.infrastructure.WishListRepository;
-import com.carrot.market.product.application.dto.response.ProductSellerDetaillDto;
+import com.carrot.market.product.application.dto.response.ProductSellerDetailDto;
 import com.carrot.market.product.domain.Category;
 import com.carrot.market.product.domain.Product;
 import com.carrot.market.product.domain.ProductDetails;
@@ -70,19 +70,19 @@ class ProductRepositoryTest extends IntegrationTestSupport {
 		Product product = makeProductWishListChatRoomProductImage(june, bean, location, image, category);
 
 		// when
-		ProductSellerDetaillDto productDetailbyId = productRepository.findProductDetailbyId(product.getId());
+		ProductSellerDetailDto productDetailById = productRepository.findProductDetailById(product.getId());
 
 		// then
 		assertAll(
-			() -> assertThat(productDetailbyId.getCategory()).isEqualTo(product.getCategory().getName()),
-			() -> assertThat(productDetailbyId.getChatCount()).isEqualTo(2L),
-			() -> assertThat(productDetailbyId.getLocationId()).isEqualTo(location.getId()),
-			() -> assertThat(productDetailbyId.getLocationName()).isEqualTo(location.getName()),
-			() -> assertThat(productDetailbyId.getContent()).isEqualTo(product.getProductDetails().getContent()),
-			() -> assertThat(productDetailbyId.getLikeCount()).isEqualTo(1L),
-			() -> assertThat(productDetailbyId.getPrice()).isEqualTo(product.getProductDetails().getPrice()),
-			() -> assertThat(productDetailbyId.getHits()).isEqualTo(product.getProductDetails().getHits()),
-			() -> assertThat(productDetailbyId.getName()).isEqualTo(product.getProductDetails().getName())
+			() -> assertThat(productDetailById.getCategory()).isEqualTo(product.getCategory().getName()),
+			() -> assertThat(productDetailById.getChatCount()).isEqualTo(2L),
+			() -> assertThat(productDetailById.getLocationId()).isEqualTo(location.getId()),
+			() -> assertThat(productDetailById.getLocationName()).isEqualTo(location.getName()),
+			() -> assertThat(productDetailById.getContent()).isEqualTo(product.getProductDetails().getContent()),
+			() -> assertThat(productDetailById.getLikeCount()).isEqualTo(1L),
+			() -> assertThat(productDetailById.getPrice()).isEqualTo(product.getProductDetails().getPrice()),
+			() -> assertThat(productDetailById.getHits()).isEqualTo(product.getProductDetails().getHits()),
+			() -> assertThat(productDetailById.getTitle()).isEqualTo(product.getProductDetails().getTitle())
 		);
 	}
 

@@ -332,7 +332,7 @@ class ProductServiceTest extends IntegrationTestSupport {
 			() -> assertThat(seller.id()).isEqualTo(june.getId()),
 			() -> assertThat(seller.nickname()).isEqualTo(june.getNickname()),
 			() -> assertThat(productDetailDto.status()).isEqualTo(SellingStatus.SELLING.getText()),
-			() -> assertThat(productDetailDto.title()).isEqualTo(product.getProductDetails().getName()),
+			() -> assertThat(productDetailDto.title()).isEqualTo(product.getProductDetails().getTitle()),
 			() -> assertThat(productDetailDto.category()).isEqualTo(category.getName()),
 			() -> assertThat(productDetailDto.createdAt()).isEqualTo(product.getCreatedAt()),
 			() -> assertThat(productDetailDto.content()).isEqualTo(product.getProductDetails().getContent()),
@@ -574,7 +574,7 @@ class ProductServiceTest extends IntegrationTestSupport {
 
 		return ProductUpdateServiceRequest.builder()
 			.imageIds(imageIds)
-			.productDetails(makeProductDetails(productDetails.getName(), productDetails.getContent()))
+			.productDetails(makeProductDetails(productDetails.getTitle(), productDetails.getContent()))
 			.locationId(location.getId())
 			.categoryId(category.getId())
 			.build();
@@ -608,9 +608,9 @@ class ProductServiceTest extends IntegrationTestSupport {
 			.build();
 	}
 
-	private static ProductDetails makeProductDetails(String name, String content) {
+	private static ProductDetails makeProductDetails(String title, String content) {
 		return ProductDetails.builder()
-			.name(name)
+			.title(title)
 			.content(content)
 			.build();
 	}

@@ -29,7 +29,7 @@ import com.carrot.market.product.application.dto.response.DetailPageServiceDto;
 import com.carrot.market.product.application.dto.response.ProductChangeStatusResponse;
 import com.carrot.market.product.application.dto.response.ProductCreateServiceResponse;
 import com.carrot.market.product.application.dto.response.ProductDetailResponseDto;
-import com.carrot.market.product.application.dto.response.ProductSellerDetaillDto;
+import com.carrot.market.product.application.dto.response.ProductSellerDetailDto;
 import com.carrot.market.product.application.dto.response.ProductUpdateWishList;
 import com.carrot.market.product.application.dto.response.WishListDetailDto;
 import com.carrot.market.product.domain.Category;
@@ -113,7 +113,9 @@ public class ProductService {
 	public ProductDetailResponseDto getProduct(Long memberId, Long productId) {
 		productCacheService.addViewCntToRedis(productId);
 
-		ProductSellerDetaillDto productDetailDto = productRepository.findProductDetailbyId(productId);
+		final ProductSellerDetailDto productSellerDetailDto = new ProductSellerDetailDto();
+
+		ProductSellerDetailDto productDetailDto = productRepository.findProductDetailById(productId);
 		List<Image> images = productImageRepository.findImagesByProductId(productId);
 
 		if (memberId == null) {

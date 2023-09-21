@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Embeddable
 public class ProductDetails {
 
-	private String name;
+	private String title;
 
 	private Long price;
 
@@ -20,8 +20,8 @@ public class ProductDetails {
 	private Long hits = 0L;
 
 	@Builder
-	public ProductDetails(String name, Long price, String content, Long hits) {
-		this.name = name;
+	public ProductDetails(String title, Long price, String content, Long hits) {
+		this.title = title;
 		this.price = price;
 		this.content = content;
 		this.hits = hits;

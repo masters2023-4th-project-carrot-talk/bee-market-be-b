@@ -13,7 +13,7 @@ public record ProductDetailResponseDto(
 	ProductDetailDto product,
 	LocationDetailDto location
 ) {
-	public static ProductDetailResponseDto from(List<Image> images, ProductSellerDetaillDto productDetailDto,
+	public static ProductDetailResponseDto from(List<Image> images, ProductSellerDetailDto productDetailDto,
 		Boolean isLiked) {
 		return ProductDetailResponseDto.builder()
 			.images(images.stream()

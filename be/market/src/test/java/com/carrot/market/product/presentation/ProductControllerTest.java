@@ -141,7 +141,7 @@ class ProductControllerTest extends ControllerTestSupport {
 			.categoryId(1L)
 			.price(3000L)
 			.content("내용")
-			.name("제목")
+			.title("제목")
 			.build();
 
 		var response = ProductCreateServiceResponse.builder().build();
@@ -168,7 +168,7 @@ class ProductControllerTest extends ControllerTestSupport {
 			.categoryId(1L)
 			.price(3000L)
 			.content("내용")
-			.name("제목")
+			.title("제목")
 			.build();
 
 		//when
