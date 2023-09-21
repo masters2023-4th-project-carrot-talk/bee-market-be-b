@@ -31,6 +31,7 @@ import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import com.carrot.market.chat.domain.Chatting;
 import com.carrot.market.chat.infrastructure.mongo.ChattingRepository;
+import com.carrot.market.chat.presentation.dto.Entry;
 import com.carrot.market.chat.presentation.dto.Message;
 import com.carrot.market.chatroom.application.ChatroomService;
 import com.carrot.market.chatroom.domain.Chatroom;
@@ -66,6 +67,8 @@ class ChatServiceTest extends IntegrationTestSupport {
 	private ChatroomCounterRepository chatRoomCounterRepository;
 
 	private BlockingQueue<Message> blockingQueueForChatting;
+	private BlockingQueue<Entry> blockingQueueForEntry;
+
 	private RoomContext roomContext;
 
 	private Member seller;
@@ -77,7 +80,8 @@ class ChatServiceTest extends IntegrationTestSupport {
 	@BeforeEach
 	void before() {
 		blockingQueueForChatting = new LinkedBlockingDeque<>();
-		roomContext = new RoomContext(blockingQueueForChatting, port);
+		blockingQueueForEntry = new LinkedBlockingDeque<>();
+		roomContext = new RoomContext(blockingQueueForChatting, blockingQueueForEntry, port);
 
 		seller = memberRepository.save(makeMember("June", "www.naver.com"));
 		purchaser = memberRepository.save(makeMember("bean", "www.google.com"));
@@ -110,7 +114,7 @@ class ChatServiceTest extends IntegrationTestSupport {
 			ChattingException.INVALID_CHATTING_ID));
 		assertAll(
 			() -> assertThat(readChatting.getId()).isEqualTo(savedChatting.getId()),
-			() -> assertThat(readChatting.getUnreadCount()).isEqualTo(0));
+			() -> assertThat(readChatting.isRead()).isEqualTo(true));
 	}
 
 	@Test
@@ -128,8 +132,8 @@ class ChatServiceTest extends IntegrationTestSupport {
 
 		// Connection
 		enterRoom(chatroom.getId(), accessToken, roomContext);
-
 		sendMessage(purchaser.getId(), chatroom.getId(), content);
+		blockingQueueForChatting.poll(30, SECONDS);
 		Message message = blockingQueueForChatting.poll(30, SECONDS);
 
 		//then
@@ -154,7 +158,7 @@ class ChatServiceTest extends IntegrationTestSupport {
 		//then
 		await().atMost(10, TimeUnit.SECONDS)
 			.untilAsserted(
-				() -> verify(chatRoomService, atLeast(1)).disconnectChatRoom(anyLong(), anyLong()));
+				() -> verify(chatRoomService, atLeast(1)).disconnectChatRoom(anyString()));
 
 		List<ChatroomCounter> byChatroomId = chatRoomCounterRepository.findByChatroomId(chatroom.getId());
 		assertThat(byChatroomId).hasSize(0);

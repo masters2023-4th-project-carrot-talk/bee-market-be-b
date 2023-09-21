@@ -28,7 +28,7 @@ public class ChattingFixtureFactory {
 		stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 		StompHeaders stompHeaders = new StompHeaders();
 		stompHeaders.add("Authorization", accessToken);
-		stompHeaders.add("chatRoomId", String.valueOf(chatroomId));
+		stompHeaders.add("ChatroomId", String.valueOf(chatroomId));
 		StompSession stompSession = stompClient.connectAsync(
 				String.format("ws://localhost:%d/chat", roomContext.getPort()), new WebSocketHttpHeaders(), stompHeaders,
 				new StompSessionHandlerAdapter() {

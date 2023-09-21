@@ -17,11 +17,11 @@ public class ChatroomCounter {
 	private Long chatroomId;
 
 	@Indexed
-	private Long memberId;
+	private String sessionId;
 
 	@Builder
-	public ChatroomCounter(Long chatroomId, Long memberId) {
+	public ChatroomCounter(Long chatroomId, String sessionId) {
 		this.chatroomId = chatroomId;
-		this.memberId = memberId;
+		this.sessionId = sessionId;
 	}
 }

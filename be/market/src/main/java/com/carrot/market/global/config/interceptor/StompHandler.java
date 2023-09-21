@@ -14,6 +14,7 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.stereotype.Component;
 
 import com.carrot.market.chat.application.ChatService;
+import com.carrot.market.chat.presentation.dto.Entry;
 import com.carrot.market.chatroom.application.ChatroomService;
 import com.carrot.market.global.exception.domain.JwtException;
 import com.carrot.market.jwt.application.JwtProvider;
@@ -51,38 +52,42 @@ public class StompHandler implements ChannelInterceptor {
 			case CONNECT:
 				log.info("CONNECT !!");
 				validateToken(accessor);
+				connectToChatRoom(accessor);
+				enterRoom(accessor);
 				break;
 			case SUBSCRIBE:
-				Long connectSenderId = validateToken(accessor);
-				connectToChatRoom(accessor, connectSenderId);
 				log.info("SUBSCRIBE !!");
 				break;
 			case SEND:
 				break;
 			case DISCONNECT:
 				log.info("DISCONNECT !!");
-				Long disconnectSenderId = validateToken(accessor);
-				disconnectChatRoom(accessor, disconnectSenderId);
+				disconnectChatRoom(accessor);
 				break;
 		}
 	}
 
-	private void connectToChatRoom(StompHeaderAccessor accessor, Long senderId) {
+	private void enterRoom(StompHeaderAccessor accessor) {
+		Entry entry = new Entry(true, getChatRoomId(accessor));
+		chatService.sendEntry(entry);
+	}
+
+	private void connectToChatRoom(StompHeaderAccessor accessor) {
 		Long chatRoomId = getChatRoomId(accessor);
-		chatroomService.connectChatRoom(chatRoomId, senderId);
+		log.info(accessor.getSessionId());
+		chatroomService.connectChatRoom(chatRoomId, accessor.getSessionId());
 		chatService.readChattingInChatroom(chatRoomId);
 	}
 
-	private void disconnectChatRoom(StompHeaderAccessor accessor, Long senderId) {
-		Long chatRoomId = getChatRoomId(accessor);
-		chatroomService.disconnectChatRoom(chatRoomId, senderId);
+	private void disconnectChatRoom(StompHeaderAccessor accessor) {
+		chatroomService.disconnectChatRoom(accessor.getSessionId());
 	}
 
 	private Long getChatRoomId(StompHeaderAccessor accessor) {
 		return
 			Long.valueOf(
 				Objects.requireNonNull(
-					accessor.getDestination()).split("/")[2]
+					accessor.getFirstNativeHeader("ChatroomId"))
 			);
 	}
 
