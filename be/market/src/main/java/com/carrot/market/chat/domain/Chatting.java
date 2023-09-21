@@ -21,18 +21,17 @@ public class Chatting {
 	private Long senderId;
 	private String content;
 	@Indexed
-
 	private LocalDateTime createdAt;
 	@Indexed
-	private int unreadCount;
+	private boolean isRead;
 
 	@Builder
-	public Chatting(Long chatRoomId, Long senderId, String content) {
+	public Chatting(Long chatRoomId, Long senderId, String content, boolean isRead) {
 		this.chatRoomId = chatRoomId;
 		this.senderId = senderId;
 		this.content = content;
 		this.createdAt = LocalDateTime.now();
-		this.unreadCount = 1;
+		this.isRead = isRead;
 	}
 
 	public static Chatting from(Message message) {
@@ -40,10 +39,11 @@ public class Chatting {
 			.chatRoomId(message.getChatroomId())
 			.content(message.getContent())
 			.senderId(message.getSenderId())
+			.isRead(message.isRead())
 			.build();
 	}
 
 	public void readChatting() {
-		unreadCount = 0;
+		isRead = true;
 	}
 }

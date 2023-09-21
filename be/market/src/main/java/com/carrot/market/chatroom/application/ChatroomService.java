@@ -41,13 +41,13 @@ public class ChatroomService {
 
 	private final ChatroomCounterRepository chatRoomCounterRepository;
 
+	@Transactional
 	public Long getChatroomId(Long productId, Long purchaserId) {
 		Chatroom chatroom = chatroomRepository.findByProductIdAndPurchaserId(productId,
 			purchaserId).orElseGet(() -> makeChatroom(productId, purchaserId));
 		return chatroom.getId();
 	}
 
-	@Transactional
 	public Chatroom makeChatroom(Long productId, Long purchaserId) {
 		Product product = findByproductId(productId);
 		Member purchaser = findByMemberId(purchaserId);
@@ -96,15 +96,13 @@ public class ChatroomService {
 	}
 
 	@Transactional
-
-	public void connectChatRoom(Long chatRoomId, Long senderId) {
-		ChatroomCounter chatRoomCounter = ChatroomCounter.builder().chatroomId(chatRoomId).memberId(senderId).build();
+	public void connectChatRoom(Long chatRoomId, String sessionId) {
+		ChatroomCounter chatRoomCounter = ChatroomCounter.builder().chatroomId(chatRoomId).sessionId(sessionId).build();
 		chatRoomCounterRepository.save(chatRoomCounter);
 	}
 
-	public void disconnectChatRoom(Long chatRoomId, Long memberId) {
-		Optional<ChatroomCounter> chatRoomCounter = chatRoomCounterRepository.findByChatroomIdAndMemberId(
-			chatRoomId, memberId);
+	public void disconnectChatRoom(String sessionId) {
+		Optional<ChatroomCounter> chatRoomCounter = chatRoomCounterRepository.findBySessionId(sessionId);
 		chatRoomCounter.ifPresent(roomCounter -> chatRoomCounterRepository.deleteById(roomCounter.getId()));
 	}
 }

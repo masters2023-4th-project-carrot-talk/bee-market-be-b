@@ -20,7 +20,7 @@ public interface ChattingRepository extends MongoRepository<Chatting, String> {
 	List<Chatting> findRecentChatsByChatRoomId(Long chatRoomId, LocalDateTime chattingTime, int limit);
 
 	@Aggregation(pipeline = {
-		"{ '$match': { 'chatRoomId' : {'$in' : ?0}  ,  'unreadCount' : 1  } }",
+		"{ '$match': { 'chatRoomId' : {'$in' : ?0}  ,  'isRead' : false  } }",
 		"{ '$sort' : { 'createdAt' : -1 } }",
 		"{ '$group' : { '_id' : '$chatRoomId' , "
 			+ "'latestChatContent' : { '$last' : '$content'}, "

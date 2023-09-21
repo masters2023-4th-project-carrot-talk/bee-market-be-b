@@ -15,6 +15,11 @@ public class Message implements Serializable {
 	private Long chatroomId;
 	private String content;
 	private Long senderId;
+	private boolean isRead;
+
+	public void readMessage() {
+		this.isRead = true;
+	}
 
 	@Override
 	public String toString() {

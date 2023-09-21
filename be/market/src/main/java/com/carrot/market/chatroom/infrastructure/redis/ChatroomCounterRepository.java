@@ -12,4 +12,5 @@ public interface ChatroomCounterRepository extends CrudRepository<ChatroomCounte
 
 	Optional<ChatroomCounter> findByChatroomIdAndMemberId(Long chatroomId, Long memberId);
 
+	Optional<ChatroomCounter> findBySessionId(String sessionId);
 }
