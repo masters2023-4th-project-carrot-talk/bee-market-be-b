@@ -5,21 +5,20 @@ import java.time.LocalDateTime;
 import com.carrot.market.chatroom.infrastructure.dto.ChatroomResponse;
 
 public record ChattingroomListResponse(
-	String nickname,
-	String imageUrl,
-	String locationName,
-	String productMainImage,
+	ChattingroomOpponentResponse opponent,
+	ChattingroomProductResponse product,
 	Long unreadChatCount,
 	String latestChatContent,
-	LocalDateTime createdAt
+	Long chatroomId,
+	LocalDateTime lastChatTime
 ) {
 	public ChattingroomListResponse(ChatroomResponse chatroomResponse, ChatroomInfo chatroomInfo) {
-		this(chatroomResponse.getNickname()
-			, chatroomResponse.getImageUrl()
-			, chatroomResponse.getLocationName()
-			, chatroomResponse.getProductMainImage()
+		this(
+			ChattingroomOpponentResponse.from(chatroomResponse)
+			, ChattingroomProductResponse.from(chatroomResponse)
 			, chatroomInfo.unreadChatCount()
 			, chatroomInfo.latestChatContent()
+			, chatroomInfo.chatRoomId()
 			, chatroomInfo.createdAt());
 	}
 }
