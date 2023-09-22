@@ -1,11 +1,13 @@
 package com.carrot.market.chatroom.infrastructure.dto;
 
 public interface ChatroomResponse {
+	Long getMemberId();
+
 	String getNickname();
 
 	String getImageUrl();
 
-	String getLocationName();
+	Long getProductId();
 
 	String getProductMainImage();
 
