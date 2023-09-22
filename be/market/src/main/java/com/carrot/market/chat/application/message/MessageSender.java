@@ -22,11 +22,12 @@ public class MessageSender {
 	private final ChattingRepository chattingRepository;
 
 	// 메시지를 지정한 Kafka 토픽으로 전송
-	public void send(String topic, Message data) {
-		log.info(data.toString());
+	public void send(String topic, Message message) {
+		log.info(message.toString());
 		// KafkaTemplate을 사용하여 메시지를 지정된 토픽으로 전송
-		CompletableFuture<SendResult<String, Message>> send = messageKafkaTemplate.send(topic, data);
-		send.whenComplete(successCallback(data));
+		message.setChatTime();
+		CompletableFuture<SendResult<String, Message>> send = messageKafkaTemplate.send(topic, message);
+		send.whenComplete(successCallback(message));
 	}
 
 	private BiConsumer<SendResult<String, Message>, Throwable> successCallback(Message data) {

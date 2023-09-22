@@ -148,14 +148,15 @@ class ChatroomServiceTest extends IntegrationTestSupport {
 		}
 
 		// then
-		List<ChatroomInfo> chatDetails = chattingRepository.getChatDetails(List.of(chatroom.getId()));
+		List<ChatroomInfo> chatDetails = chattingRepository.getChatDetails(List.of(chatroom.getId()),
+			purchaser.getId());
 		assertThat(chatDetails).hasSize(1)
 			.extracting("unreadChatCount", "chatRoomId", "latestChatContent")
-			.containsExactly(tuple(1L, chatroom.getId(), "hello"));
+			.containsExactly(tuple(1L, chatroom.getId(), "hello9"));
 	}
 
 	@Test
-	void getChatDetailsWithMultiChatroom() {
+	void getChatDetailsWithMultiChatroom() throws InterruptedException {
 		// given
 		Member seller = memberRepository.save(makeMember("June", "www.naver.com"));
 		Member purchaser = memberRepository.save(makeMember("bean", "www.google.com"));
@@ -168,17 +169,19 @@ class ChatroomServiceTest extends IntegrationTestSupport {
 
 		Chatting firstChat = new Chatting(chatroom.getId(), seller.getId(), "hello", false);
 		Chatting secondChat = new Chatting(chatroom2.getId(), purchaser.getId(), "hello2", false);
-		Chatting thirdChat = new Chatting(chatroom2.getId(), purchaser2.getId(), "hello3", false);
-		chattingRepository.saveAll(List.of(firstChat, secondChat, thirdChat));
+		Thread.sleep(3000);
+		Chatting thirdChat = new Chatting(chatroom2.getId(), seller.getId(), "hello3", false);
+		chattingRepository.saveAll(List.of(firstChat, secondChat));
+		chattingRepository.save(thirdChat);
 
 		// when
 		List<ChatroomInfo> chatDetails = chattingRepository.getChatDetails(
-			List.of(chatroom.getId(), chatroom2.getId()));
+			List.of(chatroom.getId(), chatroom2.getId()), seller.getId());
 
 		// then
 		assertThat(chatDetails).hasSize(2)
 			.extracting("unreadChatCount", "chatRoomId", "latestChatContent")
-			.contains(tuple(1L, chatroom.getId(), "hello"), tuple(2L, chatroom2.getId(), "hello3"));
+			.contains(tuple(0L, chatroom.getId(), "hello"), tuple(1L, chatroom2.getId(), "hello3"));
 	}
 
 	@Test
@@ -214,9 +217,9 @@ class ChatroomServiceTest extends IntegrationTestSupport {
 				tuple("sully", "www.google.com", "susongdong", "www.naver.com", 2L, "hello3"));
 
 		assertAll(
-			() -> assertThat(chattingList.get(0).createdAt().truncatedTo(ChronoUnit.SECONDS))
+			() -> assertThat(chattingList.get(0).lastChatTime().truncatedTo(ChronoUnit.SECONDS))
 				.isEqualTo(firstChat.getCreatedAt().truncatedTo(ChronoUnit.SECONDS)),
-			() -> assertThat(chattingList.get(1).createdAt().truncatedTo(ChronoUnit.SECONDS))
+			() -> assertThat(chattingList.get(1).lastChatTime().truncatedTo(ChronoUnit.SECONDS))
 				.isEqualTo(thirdChat.getCreatedAt().truncatedTo(ChronoUnit.SECONDS)
 				));
 	}

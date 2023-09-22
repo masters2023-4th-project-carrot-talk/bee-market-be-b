@@ -11,9 +11,11 @@ public record ChattingListResponse(
 	String chattingId,
 	String content,
 	LocalDateTime createdAt,
+	boolean isRead,
 	Long senderId
 ) {
 	public ChattingListResponse(Chatting chatting) {
-		this(chatting.getId(), chatting.getContent(), chatting.getCreatedAt(), chatting.getSenderId());
+		this(chatting.getId(), chatting.getContent(), chatting.getCreatedAt(), chatting.isRead(),
+			chatting.getSenderId());
 	}
 }
