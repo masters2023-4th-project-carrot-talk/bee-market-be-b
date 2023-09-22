@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.carrot.market.chat.domain.Chatting;
+import com.carrot.market.chatroom.application.dto.response.ChatroomInfo;
 import com.carrot.market.chatroom.domain.Chatroom;
 import com.carrot.market.chatroom.infrastructure.ChatroomRepository;
 import com.carrot.market.support.IntegrationTestSupport;
@@ -30,6 +31,7 @@ class ChattingRepositoryTest extends IntegrationTestSupport {
 				.chatRoomId(chatroom.getId())
 				.content("hello" + num)
 				.senderId(1L)
+				.isRead(true)
 				.build();
 			chattingRepository.save(chatting);
 		}
@@ -38,6 +40,21 @@ class ChattingRepositoryTest extends IntegrationTestSupport {
 	@AfterEach
 	void after() {
 		chattingRepository.deleteAll();
+	}
+
+	@Test
+	void getChatDetails() {
+		// given & when
+		Chatroom chatroom1 = chatroomRepository.save(Chatroom.builder().product(null).purchaser(null).build());
+		List<ChatroomInfo> chatDetails = chattingRepository.getChatDetails(
+			List.of(chatroom.getId(), chatroom1.getId(), 3L), null);
+
+		// then
+		assertThat(chatDetails.size()).isEqualTo(1);
+		assertThat(chatDetails.get(0).chatRoomId()).isEqualTo(chatroom.getId());
+		assertThat(chatDetails.get(0).unreadChatCount()).isEqualTo(0);
+		assertThat(chatDetails.get(0).latestChatContent()).isEqualTo("hello9");
+
 	}
 
 	@Test
