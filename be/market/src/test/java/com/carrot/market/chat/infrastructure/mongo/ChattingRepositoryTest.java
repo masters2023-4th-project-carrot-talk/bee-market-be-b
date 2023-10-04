@@ -74,8 +74,6 @@ class ChattingRepositoryTest extends IntegrationTestSupport {
 		// given
 		List<Chatting> byChatRoomIdWithPageable = chattingRepository.findRecentChatsByChatRoomId(chatroom.getId(),
 			LocalDateTime.now(), 5);
-		// then
-		byChatRoomIdWithPageable.forEach(chatting -> System.out.println(chatting.getContent()));
 
 		// when
 		Chatting lastChatting = byChatRoomIdWithPageable.get(byChatRoomIdWithPageable.size() - 1);
