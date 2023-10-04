@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum ChattingException implements CustomException {
-	NOT_FOUND_CHATROOM(HttpStatus.BAD_REQUEST, "존재하지 않은 채팅입니다");
+public enum NotificationException implements CustomException {
+	NOTIFICATION_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "알림 전송이 실패했습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String message;
