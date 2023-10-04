@@ -11,8 +11,6 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
-import org.springframework.kafka.transaction.KafkaAwareTransactionManager;
-import org.springframework.kafka.transaction.KafkaTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.carrot.market.chat.presentation.dto.Entry;
@@ -47,8 +45,6 @@ public class ProducerConfiguration {
 		configurations.put(org.apache.kafka.clients.producer.ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
 			JsonSerializer.class);
 
-		// configurations.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, UUID.randomUUID().toString());
-		// configurations.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true");
 		return configurations;
 	}
 
@@ -74,11 +70,4 @@ public class ProducerConfiguration {
 	public KafkaTemplate<String, Entry> entryKafkaTemplate() {
 		return new KafkaTemplate<>(entryProducerFactory());
 	}
-
-	@Bean("kafkaAwareTrans")
-	public KafkaAwareTransactionManager<String, Message> kafkaTransactionManager() {
-		// ...
-		return new KafkaTransactionManager<>(messageProducerFactory());
-	}
-
 }
