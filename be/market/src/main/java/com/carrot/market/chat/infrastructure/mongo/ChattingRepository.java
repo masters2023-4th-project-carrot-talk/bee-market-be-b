@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import com.carrot.market.chat.domain.Chatting;
 import com.carrot.market.chatroom.application.dto.response.ChatroomInfo;
+import com.carrot.market.chatroom.application.dto.response.UnreadChatTotalCountResponse;
 
 @Repository
 public interface ChattingRepository extends MongoRepository<Chatting, String> {
@@ -35,4 +36,18 @@ public interface ChattingRepository extends MongoRepository<Chatting, String> {
 			+ "]}, 1, 0 ] } } } } } "
 	})
 	List<ChatroomInfo> getChatDetails(List<Long> chatroomIds, Long memberId);
+
+	@Aggregation(pipeline = {
+		"{ '$match': { 'chatRoomId' : {'$in' : ?0} } }",
+		"{ '$group' : { "
+			+ "'_id' : null, "
+			+ "'unreadChatCount' : { "
+			+ "'$sum' : { "
+			+ "'$cond': [{ "
+			+ "'$and': [ "
+			+ "{ '$eq': ['$isRead', false]}, "
+			+ "{ '$ne': ['$senderId', ?1]} "
+			+ "]}, 1, 0] } } } } } "
+	})
+	UnreadChatTotalCountResponse getUnreadChatTotalCount(List<Long> chatroomIds, Long memberId);
 }
