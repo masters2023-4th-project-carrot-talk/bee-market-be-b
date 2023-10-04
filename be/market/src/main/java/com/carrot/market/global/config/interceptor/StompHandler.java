@@ -51,9 +51,10 @@ public class StompHandler implements ChannelInterceptor {
 
 			case CONNECT:
 				log.info("CONNECT !!");
-				validateToken(accessor);
-				connectToChatRoom(accessor);
-				enterRoom(accessor);
+				Long memberId = getMemberId(accessor);
+				Long chatRoomId = getChatRoomId(accessor);
+				connectToChatRoom(accessor, memberId);
+				enterRoom(chatRoomId, memberId);
 				break;
 			case SUBSCRIBE:
 				log.info("SUBSCRIBE !!");
@@ -67,16 +68,16 @@ public class StompHandler implements ChannelInterceptor {
 		}
 	}
 
-	private void enterRoom(StompHeaderAccessor accessor) {
-		Entry entry = new Entry(true, getChatRoomId(accessor));
+	private void enterRoom(Long chatroomId, Long memberId) {
+		Entry entry = new Entry(memberId, chatroomId);
 		chatService.sendEntry(entry);
 	}
 
-	private void connectToChatRoom(StompHeaderAccessor accessor) {
+	private void connectToChatRoom(StompHeaderAccessor accessor, Long memberId) {
 		Long chatRoomId = getChatRoomId(accessor);
 		log.info(accessor.getSessionId());
 		chatroomService.connectChatRoom(chatRoomId, accessor.getSessionId());
-		chatService.readChattingInChatroom(chatRoomId);
+		chatService.readChattingInChatroom(chatRoomId, memberId);
 	}
 
 	private void disconnectChatRoom(StompHeaderAccessor accessor) {
@@ -95,13 +96,13 @@ public class StompHandler implements ChannelInterceptor {
 		return accessor.getFirstNativeHeader("Authorization");
 	}
 
-	private Long validateToken(StompHeaderAccessor accessor) {
+	private Long getMemberId(StompHeaderAccessor accessor) {
 		try {
 			String token = getAccessToken(accessor);
 			Claims claims = jwtProvider.getClaims(token);
 			return Long.valueOf((Integer)claims.get(MEMBER_ID));
 		} catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException | SignatureException |
-			IllegalArgumentException ex) {
+				 IllegalArgumentException ex) {
 			throw new IllegalStateException(JwtException.from(ex).getMessage());
 		}
 	}
