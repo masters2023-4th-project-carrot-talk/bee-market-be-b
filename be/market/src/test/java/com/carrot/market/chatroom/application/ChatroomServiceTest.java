@@ -58,6 +58,7 @@ class ChatroomServiceTest extends IntegrationTestSupport {
 	@AfterEach
 	void tearDown() {
 		chattingRepository.deleteAll();
+		chatRoomCounterRepository.deleteAll();
 	}
 
 	@Test
@@ -99,13 +100,13 @@ class ChatroomServiceTest extends IntegrationTestSupport {
 		Chatroom chatroom = chatroomRepository.save(new Chatroom(product, purchaser));
 
 		// when
-		chatroomService.connectChatRoom(chatroom.getId(), purchaser.getId());
+		chatroomService.connectChatRoom(chatroom.getId(), "sessionId");
 
 		// then
 		List<ChatroomCounter> chatroomCounters = chatRoomCounterRepository.findByChatroomId(chatroom.getId());
 		assertThat(chatroomCounters).hasSize(1)
-			.extracting("chatroomId", "memberId")
-			.containsExactly(tuple(chatroom.getId(), purchaser.getId()));
+			.extracting("chatroomId", "sessionId")
+			.containsExactly(tuple(chatroom.getId(), "sessionId"));
 	}
 
 	@Test
@@ -116,12 +117,12 @@ class ChatroomServiceTest extends IntegrationTestSupport {
 		Product product = productRepository.save(Product.builder().seller(seller).build());
 		Chatroom chatroom = chatroomRepository.save(new Chatroom(product, purchaser));
 		ChatroomCounter chatRoomCounter = ChatroomCounter.builder()
-			.memberId(purchaser.getId())
+			.sessionId("sessionId")
 			.chatroomId(chatroom.getId())
 			.build();
 		chatRoomCounterRepository.save(chatRoomCounter);
 		// when
-		chatroomService.disconnectChatRoom(chatroom.getId(), purchaser.getId());
+		chatroomService.disconnectChatRoom("sessionId");
 
 		// then
 		List<ChatroomCounter> byChatroomId = chatRoomCounterRepository.findByChatroomId(chatroom.getId());
@@ -136,25 +137,26 @@ class ChatroomServiceTest extends IntegrationTestSupport {
 		Product product = productRepository.save(Product.builder().seller(seller).build());
 		Chatroom chatroom = chatroomRepository.save(new Chatroom(product, purchaser));
 
-		Chatting firstChat = new Chatting(chatroom.getId(), seller.getId(), "hello");
+		Chatting firstChat = new Chatting(chatroom.getId(), seller.getId(), "hello", false);
 		chattingRepository.save(firstChat);
 
 		// when
 		for (int index = 0; index < 10; index++) {
-			Chatting chatting = new Chatting(chatroom.getId(), seller.getId(), "hello" + index);
+			Chatting chatting = new Chatting(chatroom.getId(), seller.getId(), "hello" + index, false);
 			chatting.readChatting();
 			chattingRepository.save(chatting);
 		}
 
 		// then
-		List<ChatroomInfo> chatDetails = chattingRepository.getChatDetails(List.of(chatroom.getId()));
+		List<ChatroomInfo> chatDetails = chattingRepository.getChatDetails(List.of(chatroom.getId()),
+			purchaser.getId());
 		assertThat(chatDetails).hasSize(1)
 			.extracting("unreadChatCount", "chatRoomId", "latestChatContent")
-			.containsExactly(tuple(1L, chatroom.getId(), "hello"));
+			.containsExactly(tuple(1L, chatroom.getId(), "hello9"));
 	}
 
 	@Test
-	void getChatDetailsWithMultiChatroom() {
+	void getChatDetailsWithMultiChatroom() throws InterruptedException {
 		// given
 		Member seller = memberRepository.save(makeMember("June", "www.naver.com"));
 		Member purchaser = memberRepository.save(makeMember("bean", "www.google.com"));
@@ -165,19 +167,21 @@ class ChatroomServiceTest extends IntegrationTestSupport {
 		Chatroom chatroom = chatroomRepository.save(new Chatroom(product, purchaser));
 		Chatroom chatroom2 = chatroomRepository.save(new Chatroom(product, purchaser2));
 
-		Chatting firstChat = new Chatting(chatroom.getId(), seller.getId(), "hello");
-		Chatting secondChat = new Chatting(chatroom2.getId(), purchaser.getId(), "hello2");
-		Chatting thirdChat = new Chatting(chatroom2.getId(), purchaser2.getId(), "hello3");
-		chattingRepository.saveAll(List.of(firstChat, secondChat, thirdChat));
+		Chatting firstChat = new Chatting(chatroom.getId(), seller.getId(), "hello", false);
+		Chatting secondChat = new Chatting(chatroom2.getId(), purchaser.getId(), "hello2", false);
+		Thread.sleep(3000);
+		Chatting thirdChat = new Chatting(chatroom2.getId(), seller.getId(), "hello3", false);
+		chattingRepository.saveAll(List.of(firstChat, secondChat));
+		chattingRepository.save(thirdChat);
 
 		// when
 		List<ChatroomInfo> chatDetails = chattingRepository.getChatDetails(
-			List.of(chatroom.getId(), chatroom2.getId()));
+			List.of(chatroom.getId(), chatroom2.getId()), seller.getId());
 
 		// then
 		assertThat(chatDetails).hasSize(2)
 			.extracting("unreadChatCount", "chatRoomId", "latestChatContent")
-			.contains(tuple(1L, chatroom.getId(), "hello"), tuple(2L, chatroom2.getId(), "hello3"));
+			.contains(tuple(0L, chatroom.getId(), "hello"), tuple(1L, chatroom2.getId(), "hello3"));
 	}
 
 	@Test
@@ -197,9 +201,9 @@ class ChatroomServiceTest extends IntegrationTestSupport {
 		Chatroom chatroom = chatroomRepository.save(new Chatroom(product, purchaser));
 		Chatroom chatroom2 = chatroomRepository.save(new Chatroom(product, purchaser2));
 
-		Chatting firstChat = new Chatting(chatroom.getId(), purchaser.getId(), "hello");
-		Chatting secondChat = new Chatting(chatroom2.getId(), purchaser2.getId(), "hello2");
-		Chatting thirdChat = new Chatting(chatroom2.getId(), purchaser2.getId(), "hello3");
+		Chatting firstChat = new Chatting(chatroom.getId(), purchaser.getId(), "hello", false);
+		Chatting secondChat = new Chatting(chatroom2.getId(), purchaser2.getId(), "hello2", false);
+		Chatting thirdChat = new Chatting(chatroom2.getId(), purchaser2.getId(), "hello3", false);
 		chattingRepository.saveAll(List.of(firstChat, secondChat, thirdChat));
 
 		// when
@@ -213,9 +217,9 @@ class ChatroomServiceTest extends IntegrationTestSupport {
 				tuple("sully", "www.google.com", "susongdong", "www.naver.com", 2L, "hello3"));
 
 		assertAll(
-			() -> assertThat(chattingList.get(0).createdAt().truncatedTo(ChronoUnit.SECONDS))
+			() -> assertThat(chattingList.get(0).lastChatTime().truncatedTo(ChronoUnit.SECONDS))
 				.isEqualTo(firstChat.getCreatedAt().truncatedTo(ChronoUnit.SECONDS)),
-			() -> assertThat(chattingList.get(1).createdAt().truncatedTo(ChronoUnit.SECONDS))
+			() -> assertThat(chattingList.get(1).lastChatTime().truncatedTo(ChronoUnit.SECONDS))
 				.isEqualTo(thirdChat.getCreatedAt().truncatedTo(ChronoUnit.SECONDS)
 				));
 	}

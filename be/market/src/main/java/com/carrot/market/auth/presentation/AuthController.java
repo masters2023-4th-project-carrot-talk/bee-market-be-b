@@ -79,7 +79,7 @@ public class AuthController {
 	}
 
 	@GetMapping("/oauth/{oauthServerType}")
-	ResponseEntity<?> redirectAuthCodeRequestUrl(
+	ResponseEntity<Void> redirectAuthCodeRequestUrl(
 		@PathVariable String oauthServerType
 	) {
 		String redirectUrl = authService.getAuthCodeRequestUrl(oauthServerType);
