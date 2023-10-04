@@ -59,4 +59,9 @@ public interface ChatroomRepository extends JpaRepository<Chatroom, Long> {
 	)
 	List<ChatroomResponse> findChatRoomsByMemberId(@Param("memberId") Long memberId);
 
+	@Query("select c from Chatroom c "
+		+ "join fetch Product p on c.product = p "
+		+ "join fetch Member m on c.purchaser = m "
+		+ "where c.id = :chatroomid")
+	Optional<Chatroom> findChatroomFetchById(Long chatroomId);
 }

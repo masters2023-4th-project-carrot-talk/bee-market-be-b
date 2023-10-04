@@ -20,7 +20,7 @@ public class NotificationEmitters {
 
 	private final Map<Long, SseEmitter> sseEmitters = new ConcurrentHashMap<>();
 
-	@Value("sse.timeout:600")
+	@Value("${sse.timeout:600}")
 	private long timeout;
 
 	public void add(Long key) {
@@ -39,5 +39,9 @@ public class NotificationEmitters {
 		} catch (IOException ex) {
 			sseEmitter.completeWithError(new ApiException(NotificationException.NOTIFICATION_SEND_FAILED));
 		}
+	}
+
+	public void send(Long key, Notification notification) {
+		send(key, SSE_EVENT_NAME, notification.toString());
 	}
 }

@@ -107,7 +107,7 @@ class ChatServiceTest extends IntegrationTestSupport {
 
 		// then
 		Chatting readChatting = chattingRepository.findById(savedChatting.getId()).orElseThrow(() -> new ApiException(
-			ChattingException.INVALID_CHATTING_ID));
+			ChattingException.NOT_FOUND_CHATROOM));
 		assertAll(
 			() -> assertThat(readChatting.getId()).isEqualTo(savedChatting.getId()),
 			() -> assertThat(readChatting.getUnreadCount()).isEqualTo(0));
