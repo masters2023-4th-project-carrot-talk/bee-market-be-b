@@ -35,7 +35,7 @@ public class MessageReceiver {
 		containerFactory = "kafkaMessageListenerContainerFactory"
 	)
 	public void listen(Message message) {
-		log.debug("sending via kafka listener.." + message.toString());
+		log.info("sending via kafka listener.." + message.toString());
 		template.convertAndSend(DESTINATION + message.getChatroomId(), message);
 	}
 
