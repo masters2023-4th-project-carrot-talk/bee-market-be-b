@@ -14,6 +14,7 @@ import com.carrot.market.chatroom.application.ChatroomService;
 import com.carrot.market.chatroom.application.dto.response.ChattingAdditionalInfoResponse;
 import com.carrot.market.chatroom.application.dto.response.ChattingResponse;
 import com.carrot.market.chatroom.application.dto.response.ChattingroomListResponse;
+import com.carrot.market.chatroom.application.dto.response.UnreadChatTotalCountResponse;
 import com.carrot.market.chatroom.presentation.dto.request.ChatroomRequest;
 import com.carrot.market.chatroom.presentation.dto.response.ChatroomResponse;
 import com.carrot.market.global.presentation.ApiResponse;
@@ -63,5 +64,12 @@ public class ChatroomController {
 		ChattingAdditionalInfoResponse chattingAdditionalInfo = chatroomService.getChattingAdditionalInfo(chatroomId,
 			memberId.getMemberID());
 		return ApiResponse.success(chattingAdditionalInfo);
+	}
+
+	@GetMapping("/chatrooms/unread-total-count")
+	public ApiResponse<UnreadChatTotalCountResponse> getUnreadChatTotalCountInChatrooms(
+		@Login MemberId memberId
+	) {
+		return ApiResponse.success(chatroomService.getUnreadChatTotalCountInChatrooms(memberId.getMemberID()));
 	}
 }
