@@ -39,7 +39,7 @@ public class Chatting {
 			.chatRoomId(message.getChatroomId())
 			.content(message.getContent())
 			.senderId(message.getSenderId())
-			.isRead(message.isRead())
+			.isRead(message.getIsRead())
 			.build();
 	}
 

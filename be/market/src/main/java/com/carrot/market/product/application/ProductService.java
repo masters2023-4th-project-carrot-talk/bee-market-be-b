@@ -49,6 +49,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class ProductService {
+
 	private final ProductCacheService productCacheService;
 	private final QueryProductRepository queryProductRepository;
 	private final CategoryRepository categoryRepository;
@@ -112,8 +113,6 @@ public class ProductService {
 
 	public ProductDetailResponseDto getProduct(Long memberId, Long productId) {
 		productCacheService.addViewCntToRedis(productId);
-
-		final ProductSellerDetailDto productSellerDetailDto = new ProductSellerDetailDto();
 
 		ProductSellerDetailDto productDetailDto = productRepository.findProductDetailById(productId);
 		List<Image> images = productImageRepository.findImagesByProductId(productId);

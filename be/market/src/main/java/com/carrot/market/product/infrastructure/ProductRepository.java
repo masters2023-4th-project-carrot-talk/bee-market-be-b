@@ -14,11 +14,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 	@Query(value =
 		"select new com.carrot.market.product.application.dto.response.ProductSellerDetailDto( count(distinct chat) , count(distinct wish) ,l.id, l.name , p.status , c.name , p.createdAt , p.productDetails.content , p.productDetails.hits , p.productDetails.title , p.productDetails.price , seller.id, seller.nickname) "
 			+ "from Product  p "
-			+ "join Chatroom as chat on chat.product= p "
-			+ "join WishList as wish on wish.product = p "
-			+ "join  p.seller as seller "
-			+ "join  p.location as  l "
-			+ "join  p.category as c "
+			+ "left join Chatroom as chat on chat.product= p "
+			+ "left join WishList as wish on wish.product = p "
+			+ "left join  p.seller as seller "
+			+ "left join  p.location as  l "
+			+ "left join  p.category as c "
 			+ "where p.id = :productId "
 			+ "group by p,c,l,seller"
 	)

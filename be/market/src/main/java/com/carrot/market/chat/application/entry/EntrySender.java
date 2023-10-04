@@ -20,13 +20,13 @@ public class EntrySender {
 
 	public void send(String topic, Entry entry) {
 		CompletableFuture<SendResult<String, Entry>> send = entryKafkaTemplate.send(topic, entry);
-		send.whenComplete(successCallback(entry));
+		send.whenComplete(callback(entry));
 	}
 
-	private BiConsumer<SendResult<String, Entry>, Throwable> successCallback(Entry data) {
+	private BiConsumer<SendResult<String, Entry>, Throwable> callback(Entry data) {
 		return (result, ex) -> {
 			if (sendMessageSuccess(result)) {
-				log.info("anyone enter room " + data.isAnyoneEnterRoom() + ", " + data.getChatroomId());
+				log.info("anyone enter room " + data.getEnterMemberId() + ", " + data.getChatroomId());
 			}
 		};
 	}

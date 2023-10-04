@@ -36,6 +36,13 @@ public class ListenerConfiguration {
 		configurations.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 		configurations.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
 		configurations.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+		// consumer transaction 설정
+		// default : true
+		configurations.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+		// read_committed: 커밋된 데이터만 읽는다.
+		// default : read_uncommitted
+		configurations.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, "read_committed");
+
 		return new DefaultKafkaConsumerFactory<>(configurations, new StringDeserializer(),
 			new JsonDeserializer<>(Message.class));
 	}
