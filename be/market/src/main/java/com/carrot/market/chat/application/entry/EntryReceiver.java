@@ -35,7 +35,7 @@ public class EntryReceiver {
 		containerFactory = "kafkaEntryListenerContainerFactory"
 	)
 	public void listen(Entry entry) {
-		log.debug("sending enty via kafka listener.." + entry.isAnyoneEnterRoom());
+		log.debug("sending enty via kafka listener.." + entry.getEnterMemberId());
 		template.convertAndSend(DESTINATION + entry.getChatroomId(), entry);
 	}
 
