@@ -54,7 +54,7 @@ class ProductControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("$.success").value("true"))
 			.andExpect(jsonPath("$.data.products[0].id").value(1L))
 			.andExpect(jsonPath("$.data.products[0].sellerId").value(1L))
-			.andExpect(jsonPath("$.data.products[0].name").value("name"))
+			.andExpect(jsonPath("$.data.products[0].title").value("name"))
 			.andExpect(jsonPath("$.data.products[0].location").value("location"))
 			.andExpect(jsonPath("$.data.products[0].price").value(3000L))
 			.andExpect(jsonPath("$.data.products[0].imageUrl").value("image"))

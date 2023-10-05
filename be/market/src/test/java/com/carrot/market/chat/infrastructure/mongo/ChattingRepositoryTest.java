@@ -1,5 +1,6 @@
 package com.carrot.market.chat.infrastructure.mongo;
 
+import static com.carrot.market.fixture.FixtureFactory.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.time.LocalDateTime;
@@ -12,8 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.carrot.market.chat.domain.Chatting;
 import com.carrot.market.chatroom.application.dto.response.ChatroomInfo;
+import com.carrot.market.chatroom.application.dto.response.UnreadChatTotalCountResponse;
 import com.carrot.market.chatroom.domain.Chatroom;
 import com.carrot.market.chatroom.infrastructure.ChatroomRepository;
+import com.carrot.market.member.domain.Member;
+import com.carrot.market.member.infrastructure.MemberRepository;
+import com.carrot.market.product.domain.Product;
 import com.carrot.market.support.IntegrationTestSupport;
 
 class ChattingRepositoryTest extends IntegrationTestSupport {
@@ -21,11 +26,19 @@ class ChattingRepositoryTest extends IntegrationTestSupport {
 	ChattingRepository chattingRepository;
 	@Autowired
 	ChatroomRepository chatroomRepository;
+	@Autowired
+	MemberRepository memberRepository;
 	private Chatroom chatroom;
+	private Member june;
+	private Member bean;
 
 	@BeforeEach
 	void before() {
-		chatroom = chatroomRepository.save(Chatroom.builder().product(null).purchaser(null).build());
+		june = makeMember("june", "123");
+		bean = makeMember("bean", "1234");
+		memberRepository.saveAll(List.of(june, bean));
+		Product product = makeProduct(june, null, null, null, null);
+		chatroom = chatroomRepository.save(Chatroom.builder().product(product).purchaser(june).build());
 		for (int num = 0; num < 10; num++) {
 			Chatting chatting = Chatting.builder()
 				.chatRoomId(chatroom.getId())
@@ -40,6 +53,17 @@ class ChattingRepositoryTest extends IntegrationTestSupport {
 	@AfterEach
 	void after() {
 		chattingRepository.deleteAll();
+	}
+
+	@Test
+	void getUnreadChatTotalCount() {
+		Chatting hello = new Chatting(chatroom.getId(), june.getId(), "hello", false);
+		chattingRepository.save(hello);
+
+		UnreadChatTotalCountResponse unreadChatTotalCount = chattingRepository.getUnreadChatTotalCount(
+			List.of(chatroom.getId()), bean.getId());
+
+		assertThat(unreadChatTotalCount.unreadTotalCount()).isEqualTo(1);
 	}
 
 	@Test

@@ -181,6 +181,12 @@ public class ChatroomService {
 	public UnreadChatTotalCountResponse getUnreadChatTotalCountInChatrooms(Long memberId) {
 		Member member = findByMemberId(memberId);
 		List<Long> chatroomIds = chatroomRepository.findChatRoomIdsByMember(member);
-		return chattingRepository.getUnreadChatTotalCount(chatroomIds, memberId);
+		return getUnreadChatCountForChatrooms(chatroomIds, memberId);
+	}
+
+	private UnreadChatTotalCountResponse getUnreadChatCountForChatrooms(List<Long> chatroomIds, Long memberId) {
+		UnreadChatTotalCountResponse unreadChatTotalCount = chattingRepository.getUnreadChatTotalCount(chatroomIds,
+			memberId);
+		return unreadChatTotalCount != null ? unreadChatTotalCount : new UnreadChatTotalCountResponse(0L);
 	}
 }
