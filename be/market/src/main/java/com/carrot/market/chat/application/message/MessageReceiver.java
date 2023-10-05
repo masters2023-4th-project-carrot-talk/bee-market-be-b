@@ -11,6 +11,7 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import com.carrot.market.chat.application.ChatService;
 import com.carrot.market.chat.presentation.dto.Message;
 import com.carrot.market.chatroom.domain.Chatroom;
 import com.carrot.market.chatroom.infrastructure.ChatroomRepository;
@@ -36,6 +37,7 @@ public class MessageReceiver {
 	private final MemberRepository memberRepository;
 	private final ChatroomRepository chatroomRepository;
 	private final NotificationService notificationService;
+	private final ChatService chatService;
 
 	@RetryableTopic(
 		dltStrategy = DltStrategy.FAIL_ON_ERROR,
@@ -51,6 +53,9 @@ public class MessageReceiver {
 		log.info("sending via kafka listener.." + message.toString());
 		template.convertAndSend(DESTINATION + message.getChatroomId(), message);
 
+		if (chatService.isAnyoneInChatroom(message.getChatroomId())) {
+			return;
+		}
 		try {
 			sendNotification(message);
 		} catch (ApiException ex) {
