@@ -23,10 +23,12 @@ public class NotificationEmitters {
 	@Value("${sse.timeout:600}")
 	private long timeout;
 
-	public void add(Long key) {
+	public SseEmitter add(Long key) {
 		final SseEmitter sseEmitter = new SseEmitter(timeout);
 		sseEmitters.put(key, sseEmitter);
 		send(key, SSE_EVENT_NAME, INIT_CONNECTED_MESSAGE);
+
+		return sseEmitter;
 	}
 
 	public void send(Long key, String name, String data) {

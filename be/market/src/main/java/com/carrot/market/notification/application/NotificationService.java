@@ -1,6 +1,7 @@
 package com.carrot.market.notification.application;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.carrot.market.global.exception.ApiException;
 import com.carrot.market.global.exception.domain.MemberException;
@@ -20,10 +21,10 @@ public class NotificationService {
 		this.notificationEmitters = new NotificationEmitters();
 	}
 
-	public void subscribe(Long memberId) {
+	public SseEmitter subscribe(Long memberId) {
 		memberRepository.findById(memberId)
 			.orElseThrow(() -> new ApiException(MemberException.NOT_FOUND_MEMBER));
-		notificationEmitters.add(memberId);
+		return notificationEmitters.add(memberId);
 	}
 
 	public void send(Member receiver, Notification notification) {
