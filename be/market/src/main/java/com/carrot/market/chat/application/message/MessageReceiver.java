@@ -58,8 +58,9 @@ public class MessageReceiver {
 		}
 		try {
 			sendNotification(message);
-		} catch (ApiException ex) {
-			log.debug("[notification failed] " + ex.getMessage());
+		} catch (Exception ex) {
+
+			log.info("[notification failed] " + ex.getMessage());
 		}
 	}
 

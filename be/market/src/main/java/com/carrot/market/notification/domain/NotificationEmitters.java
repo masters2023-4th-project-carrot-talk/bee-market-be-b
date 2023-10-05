@@ -33,6 +33,10 @@ public class NotificationEmitters {
 
 	public void send(Long key, String name, String data) {
 		final SseEmitter sseEmitter = sseEmitters.get(key);
+		if (sseEmitter == null) {
+			return;
+		}
+
 		try {
 			sseEmitter.send(SseEmitter.event()
 				.id(String.valueOf(key))

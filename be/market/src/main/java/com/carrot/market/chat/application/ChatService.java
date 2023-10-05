@@ -15,6 +15,7 @@ import com.carrot.market.chat.presentation.dto.Message;
 import com.carrot.market.chatroom.infrastructure.redis.ChatroomCounterRepository;
 import com.carrot.market.global.util.KafkaConstant;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -26,6 +27,7 @@ public class ChatService {
 	private final MongoTemplate mongoTemplate;
 	private final ChattingRepository chattingRepository;
 
+	@Transactional
 	public void sendMessage(Message message) {
 		if (isAnyoneInChatroom(message.getChatroomId())) {
 			message.readMessage();
