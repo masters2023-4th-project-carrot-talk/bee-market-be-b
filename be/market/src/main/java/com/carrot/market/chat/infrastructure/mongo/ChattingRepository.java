@@ -41,13 +41,13 @@ public interface ChattingRepository extends MongoRepository<Chatting, String> {
 		"{ '$match': { 'chatRoomId' : {'$in' : ?0} } }",
 		"{ '$group' : { "
 			+ "'_id' : null, "
-			+ "'unreadChatCount' : { "
+			+ "'unreadTotalCount' : { "
 			+ "'$sum' : { "
-			+ "'$cond': [{ "
-			+ "'$and': [ "
+			+ "'$cond': [ "
+			+ "{ '$and': [ "
 			+ "{ '$eq': ['$isRead', false]}, "
 			+ "{ '$ne': ['$senderId', ?1]} "
-			+ "]}, 1, 0] } } } } } "
+			+ "]}, 1, 0] } } } }  "
 	})
 	UnreadChatTotalCountResponse getUnreadChatTotalCount(List<Long> chatroomIds, Long memberId);
 }
