@@ -151,7 +151,7 @@ class ChatroomServiceTest extends IntegrationTestSupport {
 		List<ChatroomInfo> chatDetails = chattingRepository.getChatDetails(List.of(chatroom.getId()),
 			purchaser.getId());
 		assertThat(chatDetails).hasSize(1)
-			.extracting("unreadChatCount", "chatRoomId", "latestChatContent")
+			.extracting("unreadChatCount", "chatRoomId", "lastChatContent")
 			.containsExactly(tuple(1L, chatroom.getId(), "hello9"));
 	}
 
@@ -180,7 +180,7 @@ class ChatroomServiceTest extends IntegrationTestSupport {
 
 		// then
 		assertThat(chatDetails).hasSize(2)
-			.extracting("unreadChatCount", "chatRoomId", "latestChatContent")
+			.extracting("unreadChatCount", "chatRoomId", "lastChatContent")
 			.contains(tuple(0L, chatroom.getId(), "hello"), tuple(1L, chatroom2.getId(), "hello3"));
 	}
 
@@ -212,7 +212,7 @@ class ChatroomServiceTest extends IntegrationTestSupport {
 		// then
 		assertThat(chattingList).hasSize(2)
 			.extracting("nickname", "imageUrl", "locationName", "productMainImage", "unreadChatCount",
-				"latestChatContent")
+				"lastChatContent")
 			.contains(tuple("bean", "www.google.com", "susongdong", "www.naver.com", 1L, "hello"),
 				tuple("sully", "www.google.com", "susongdong", "www.naver.com", 2L, "hello3"));
 

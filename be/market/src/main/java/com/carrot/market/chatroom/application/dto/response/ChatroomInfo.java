@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 public record ChatroomInfo(
 	Long chatRoomId,
 	Long unreadChatCount,
-	String latestChatContent,
+	String lastChatContent,
 	LocalDateTime createdAt
 ) {
 }

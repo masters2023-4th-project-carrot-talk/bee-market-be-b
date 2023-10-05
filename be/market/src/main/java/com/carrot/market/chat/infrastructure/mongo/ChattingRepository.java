@@ -24,7 +24,7 @@ public interface ChattingRepository extends MongoRepository<Chatting, String> {
 		"{ '$match': { 'chatRoomId' : {'$in' : ?0} } }",
 		"{ '$sort' : { 'createdAt' : -1 } }",
 		"{ '$group' : { '_id' : '$chatRoomId', "
-			+ "'latestChatContent' : { '$first' : '$content'}, "
+			+ "'lastChatContent' : { '$first' : '$content'}, "
 			+ "'chatRoomId' : { '$first' : '$chatRoomId'}, "
 			+ "'createdAt' : { '$first' : '$createdAt'}, "
 			+ "'unreadChatCount' : { "
