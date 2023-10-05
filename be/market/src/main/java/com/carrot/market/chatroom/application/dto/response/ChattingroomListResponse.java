@@ -8,7 +8,7 @@ public record ChattingroomListResponse(
 	ChattingroomOpponentResponse opponent,
 	ChattingroomProductResponse product,
 	Long unreadChatCount,
-	String latestChatContent,
+	String lastChatContent,
 	Long chatroomId,
 	LocalDateTime lastChatTime
 ) {
@@ -17,7 +17,7 @@ public record ChattingroomListResponse(
 			ChattingroomOpponentResponse.from(chatroomResponse)
 			, ChattingroomProductResponse.from(chatroomResponse)
 			, chatroomInfo.unreadChatCount()
-			, chatroomInfo.latestChatContent()
+			, chatroomInfo.lastChatContent()
 			, chatroomInfo.chatRoomId()
 			, chatroomInfo.createdAt());
 	}

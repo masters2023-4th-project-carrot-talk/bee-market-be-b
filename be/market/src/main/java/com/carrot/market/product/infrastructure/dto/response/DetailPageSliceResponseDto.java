@@ -11,7 +11,7 @@ import lombok.Getter;
 public class DetailPageSliceResponseDto {
 	Long id;
 	Long sellerId;
-	String name;
+	String title;
 	String location;
 	String imageUrl;
 	LocalDateTime createdAt;
@@ -25,7 +25,7 @@ public class DetailPageSliceResponseDto {
 		LocalDateTime createdAt, Long price, String status, Long likeCount, Long chatCount) {
 		this.id = id;
 		this.sellerId = sellerId;
-		this.name = name;
+		this.title = name;
 		this.location = location;
 		this.imageUrl = imageUrl;
 		this.createdAt = createdAt;

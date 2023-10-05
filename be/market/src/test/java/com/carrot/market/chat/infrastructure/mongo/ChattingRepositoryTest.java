@@ -53,7 +53,7 @@ class ChattingRepositoryTest extends IntegrationTestSupport {
 		assertThat(chatDetails.size()).isEqualTo(1);
 		assertThat(chatDetails.get(0).chatRoomId()).isEqualTo(chatroom.getId());
 		assertThat(chatDetails.get(0).unreadChatCount()).isEqualTo(0);
-		assertThat(chatDetails.get(0).latestChatContent()).isEqualTo("hello9");
+		assertThat(chatDetails.get(0).lastChatContent()).isEqualTo("hello9");
 
 	}
 
