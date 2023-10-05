@@ -13,6 +13,7 @@ import com.carrot.market.global.exception.domain.MemberException;
 import com.carrot.market.location.domain.Location;
 import com.carrot.market.product.domain.Product;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -38,7 +39,7 @@ public class Member extends BaseEntity {
 
 	private String imageUrl;
 
-	@OneToMany(mappedBy = "member")
+	@OneToMany(mappedBy = "member", cascade = CascadeType.PERSIST)
 	private List<MemberLocation> memberLocations = new ArrayList<>();
 
 	@OneToMany(mappedBy = "member")
