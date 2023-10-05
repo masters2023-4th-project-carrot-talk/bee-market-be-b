@@ -127,11 +127,13 @@ public class Member extends BaseEntity {
 
 	public MemberLocation addMainLocation(Location location) {
 		MemberLocation mainLocation = MemberLocation.builder().isMain(true).location(location).member(this).build();
+		memberLocations.add(mainLocation);
 		return mainLocation;
 	}
 
 	public MemberLocation addSubLocation(Location location) {
 		MemberLocation subLocation = MemberLocation.builder().isMain(false).location(location).member(this).build();
+		memberLocations.add(subLocation);
 		return subLocation;
 	}
 }
