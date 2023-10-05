@@ -15,11 +15,12 @@ import lombok.ToString;
 public class Notification implements Serializable {
 	private static final String NOTIFICATION_CONTENT_SEPARATOR = ": ";
 
+	private String chatroomId;
 	private String title;
 	private String content;
 
-	public static Notification create(String title, String sender, String content) {
-		return new Notification(title,
+	public static Notification create(Long chatroomId, String title, String sender, String content) {
+		return new Notification(String.valueOf(chatroomId), title,
 			sender + NOTIFICATION_CONTENT_SEPARATOR + content);
 	}
 }

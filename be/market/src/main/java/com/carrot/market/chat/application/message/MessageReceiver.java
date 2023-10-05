@@ -70,7 +70,8 @@ public class MessageReceiver {
 		Member sender = memberRepository.findById(message.getSenderId())
 			.orElseThrow(() -> new ApiException(MemberException.NOT_FOUND_MEMBER));
 		Member receiver = chatroom.getReceiver(sender);
-		var notification = Notification.create(chatroom.getProductTitle(), sender.getNickname(), message.getContent());
+		var notification = Notification.create(chatroom.getId(), chatroom.getProductTitle(), sender.getNickname(),
+			message.getContent());
 
 		notificationService.send(receiver, notification);
 	}
