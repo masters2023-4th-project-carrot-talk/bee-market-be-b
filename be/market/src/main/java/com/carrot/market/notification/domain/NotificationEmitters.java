@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class NotificationEmitters {
 
+	public static final String SSE_SUBSCRIBE_NAME = "connect";
 	public static final String SSE_EVENT_NAME = "notification";
 	private static final String INIT_CONNECTED_MESSAGE = "connected";
 
@@ -26,7 +27,7 @@ public class NotificationEmitters {
 	public SseEmitter add(Long key) {
 		final SseEmitter sseEmitter = new SseEmitter(timeout);
 		sseEmitters.put(key, sseEmitter);
-		send(key, SSE_EVENT_NAME, INIT_CONNECTED_MESSAGE);
+		send(key, SSE_SUBSCRIBE_NAME, INIT_CONNECTED_MESSAGE);
 
 		return sseEmitter;
 	}
