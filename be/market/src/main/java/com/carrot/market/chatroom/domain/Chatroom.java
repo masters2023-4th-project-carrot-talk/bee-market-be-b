@@ -37,4 +37,16 @@ public class Chatroom extends BaseEntity {
 		this.product = product;
 		this.purchaser = purchaser;
 	}
+
+	public Member getReceiver(Member sender) {
+		Member seller = product.getSeller();
+		if (sender == seller) {
+			return purchaser;
+		}
+		return seller;
+	}
+
+	public String getProductTitle() {
+		return product.getProductDetails().getTitle();
+	}
 }

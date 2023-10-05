@@ -20,6 +20,7 @@ import com.carrot.market.chatroom.application.dto.response.ChattingOpponentRespo
 import com.carrot.market.chatroom.application.dto.response.ChattingProductResponse;
 import com.carrot.market.chatroom.application.dto.response.ChattingResponse;
 import com.carrot.market.chatroom.application.dto.response.ChattingroomListResponse;
+import com.carrot.market.chatroom.application.dto.response.UnreadChatTotalCountResponse;
 import com.carrot.market.chatroom.domain.Chatroom;
 import com.carrot.market.chatroom.domain.ChatroomCounter;
 import com.carrot.market.chatroom.infrastructure.ChatroomRepository;
@@ -175,5 +176,11 @@ public class ChatroomService {
 	public void disconnectChatRoom(String sessionId) {
 		Optional<ChatroomCounter> chatRoomCounter = chatRoomCounterRepository.findBySessionId(sessionId);
 		chatRoomCounter.ifPresent(roomCounter -> chatRoomCounterRepository.deleteById(roomCounter.getId()));
+	}
+
+	public UnreadChatTotalCountResponse getUnreadChatTotalCountInChatrooms(Long memberId) {
+		Member member = findByMemberId(memberId);
+		List<Long> chatroomIds = chatroomRepository.findChatRoomIdsByMember(member);
+		return chattingRepository.getUnreadChatTotalCount(chatroomIds, memberId);
 	}
 }
