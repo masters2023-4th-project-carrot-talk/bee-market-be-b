@@ -32,7 +32,7 @@ https://github.com/masters2023-4th-project-carrot-talk/bee-market-be-b/assets/75
 <br></br>
 
 ## Achieved
-- [Kafka 발행 DB 저장을 하나의 트랜잭션으로 묶기](https://viper1.tistory.com/59)
+- [분산 시스템에서 메시지 안전하게 다루기](https://viper1.tistory.com/61)
 - [스케줄러와 Transaction 그리고 테스트 코드에서 생긴 문제 해결하기](https://viper1.tistory.com/58)
 <br></br>
 
